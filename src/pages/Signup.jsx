@@ -1,51 +1,59 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../firebase";
-import { useNavigate, Link } from "react-router-dom";
-import "../styles/auth.css";
+import { doc, setDoc, serverTimestamp } from "firebase/firestore";
+import { auth, db } from "../firebase";
 
 function Signup() {
+  const navigate = useNavigate();
+
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const navigate = useNavigate();
+  const [dob, setDob] = useState("");
+  const [gender, setGender] = useState("");
 
   const handleSignup = async (e) => {
     e.preventDefault();
+
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      navigate("/profile-setup");
-    } catch (err) {
-      alert(err.message);
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+
+      const user = userCredential.user;
+
+      // 🔥 SAVE USER IN FIRESTORE
+      await setDoc(doc(db, "users", user.uid), {
+        name,
+        email,
+        dob,
+        gender,
+        createdAt: serverTimestamp()
+      });
+
+      alert("Account Created Successfully!");
+      navigate("/dashboard");
+
+    } catch (error) {
+      alert(error.message);
     }
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-card">
-        <h2>Create Account</h2>
+    <div>
+      <h2>Signup</h2>
 
-        <form onSubmit={handleSignup}>
-          <input
-            type="email"
-            placeholder="Email"
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-
-          <input
-            type="password"
-            placeholder="Password"
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-
-          <button className="auth-btn">Signup</button>
-        </form>
-
-        <p>
-          Already have account? <Link to="/">Login</Link>
-        </p>
-      </div>
+      <form onSubmit={handleSignup}>
+        <input placeholder="Name" onChange={(e) => setName(e.target.value)} />
+        <input placeholder="Email" onChange={(e) => setEmail(e.target.value)} />
+        <input type="password" placeholder="Password" onChange={(e) => setPassword(e.target.value)} />
+        <input type="date" onChange={(e) => setDob(e.target.value)} />
+        <input placeholder="Gender" onChange={(e) => setGender(e.target.value)} />
+        <button type="submit">Signup</button>
+      </form>
     </div>
   );
 }
