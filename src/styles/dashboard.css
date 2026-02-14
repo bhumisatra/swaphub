@@ -1,3 +1,23 @@
+/* Background behind everything */
+body {
+  margin: 0;
+  background: linear-gradient(
+    135deg,
+    #0f2027,
+    #203a43,
+    #2c5364,
+    #1c92d2
+  );
+  background-size: 400% 400%;
+  animation: gradientMove 15s ease infinite;
+}
+
+@keyframes gradientMove {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
 .dashboard-container {
   display: flex;
   height: 100vh;
@@ -5,15 +25,26 @@
   overflow: hidden;
 }
 
-/* SIDEBAR */
+/* SIDEBAR - REAL GLASS */
 .sidebar {
   width: 240px;
-  background: linear-gradient(180deg, #0f2027, #203a43, #2c5364);
-  color: white;
   padding: 20px;
-  transition: 0.3s;
+  transition: 0.4s ease;
   display: flex;
   flex-direction: column;
+  color: white;
+
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
+
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.35),
+    inset 0 0 0 1px rgba(255,255,255,0.1);
+
+  border-radius: 0 25px 25px 0;
 }
 
 .sidebar.closed {
@@ -24,29 +55,36 @@
 
 .logo {
   margin-bottom: 30px;
+  font-size: 22px;
+  font-weight: bold;
 }
 
+/* Glass Buttons */
 .menu-item {
   padding: 12px;
   margin-bottom: 10px;
-  border-radius: 8px;
+  border-radius: 14px;
   text-decoration: none;
   color: white;
-  transition: 0.3s;
+  transition: all 0.3s ease;
   cursor: pointer;
+
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .menu-item:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateX(6px);
 }
 
 .menu-item.active {
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.35);
+  font-weight: 500;
 }
 
 .logout {
   margin-top: auto;
-  color: #ffbaba;
+  color: #ffdada;
 }
 
 /* MAIN CONTENT */
@@ -56,14 +94,16 @@
   flex-direction: column;
 }
 
-/* TOPBAR */
+/* TOPBAR GLASS */
 .topbar {
   height: 60px;
-  background: #ffffff;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   display: flex;
   align-items: center;
   padding: 0 20px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid rgba(255,255,255,0.2);
 }
 
 .hamburger {
@@ -71,13 +111,13 @@
   background: none;
   border: none;
   cursor: pointer;
-color:black;
+  color: white;
 }
 
 /* PAGE CONTENT */
 .content {
   flex: 1;
   overflow: auto;
-  background: #f5f6fa;
   padding: 20px;
+  background: transparent;
 }

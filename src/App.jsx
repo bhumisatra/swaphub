@@ -11,6 +11,7 @@ import Profile from "./pages/Profile";
 import Chat from "./pages/Chat";
 import Requests from "./pages/Requests";
 import Home from "./pages/Home";
+import Settings from "./pages/Settings";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -54,10 +55,14 @@ function App() {
           path="/dashboard"
           element={user ? <Dashboard /> : <Navigate to="/" />}
         >
+          {/* Default Home */}
           <Route index element={<Home />} />
+
+          {/* Nested Pages */}
           <Route path="profile" element={<Profile />} />
           <Route path="chat" element={<Chat />} />
           <Route path="requests" element={<Requests />} />
+          <Route path="settings" element={<Settings />} />
         </Route>
 
         {/* Unknown Route */}

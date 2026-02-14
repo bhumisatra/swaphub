@@ -51,6 +51,10 @@ function Dashboard() {
           Requests
         </NavLink>
 
+	<NavLink to="/dashboard/settings" className="menu-item">
+    Settings
+  </NavLink>
+
         <div className="menu-item logout">
           Logout
         </div>
