@@ -14,10 +14,12 @@ import {
   updateDoc,
   getDoc
 } from "firebase/firestore";
+import { useNavigate } from "react-router-dom";
 import "../styles/chat.css";
 
 function Chat() {
   const currentUser = auth.currentUser;
+  const navigate = useNavigate();
 
   const [usernameSearch, setUsernameSearch] = useState("");
   const [chatList, setChatList] = useState([]);
@@ -156,7 +158,7 @@ function Chat() {
     setNewMessage("");
   };
 
-  // ================= OPEN CHAT (RESET UNREAD) =================
+  // ================= OPEN CHAT =================
   const openChat = async (chat) => {
     setActiveChat(chat);
 
@@ -178,6 +180,18 @@ function Chat() {
     setEditingName(false);
   };
 
+  // ================= VIEW PROFILE =================
+  const viewProfile = () => {
+    if (!activeChat) return;
+
+    const otherUid = activeChat.participants.find(
+      (uid) => uid !== currentUser.uid
+    );
+
+    navigate(`/dashboard/profile/${otherUid}`);
+    setShowMenu(false);
+  };
+
   // ================= FORMAT TIME =================
   const formatTime = (timestamp) => {
     if (!timestamp) return "";
@@ -188,7 +202,6 @@ function Chat() {
     });
   };
 
-  // ================= FORMAT DATE =================
   const formatDate = (timestamp) => {
     if (!timestamp) return "";
 
@@ -252,7 +265,6 @@ function Chat() {
       <div className="chat-main">
         {activeChat ? (
           <>
-            {/* HEADER */}
             <div className="chat-header">
               <div className="chat-user-info">
                 <div className="chat-avatar">
@@ -286,12 +298,16 @@ function Chat() {
                     >
                       Edit Name
                     </div>
+
+                    {/* NEW VIEW PROFILE OPTION */}
+                    <div onClick={viewProfile}>
+                      View Profile
+                    </div>
                   </div>
                 )}
               </div>
             </div>
 
-            {/* MESSAGES */}
             <div className="chat-messages">
               {messages.map((msg, index) => {
                 const showDate =
@@ -325,7 +341,6 @@ function Chat() {
               })}
             </div>
 
-            {/* INPUT */}
             <div className="chat-input">
               <input
                 type="text"

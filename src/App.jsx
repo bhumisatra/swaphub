@@ -12,6 +12,7 @@ import Chat from "./pages/Chat";
 import Requests from "./pages/Requests";
 import Home from "./pages/Home";
 import Settings from "./pages/Settings";
+import ViewProfile from "./pages/ViewProfile";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -60,6 +61,7 @@ function App() {
 
           {/* Nested Pages */}
           <Route path="profile" element={<Profile />} />
+          <Route path="profile/:uid" element={<ViewProfile />} />  {/* ✅ Added */}
           <Route path="chat" element={<Chat />} />
           <Route path="requests" element={<Requests />} />
           <Route path="settings" element={<Settings />} />
