@@ -1,115 +1,123 @@
 import { useEffect, useState } from "react";
+import { auth, db } from "../firebase";
 import {
   collection,
-  addDoc,
   query,
   where,
+  getDocs,
+  addDoc,
   onSnapshot,
   orderBy,
-  getDocs,
-  doc,
-  getDoc
+  serverTimestamp,
 } from "firebase/firestore";
-import { db } from "../firebase";
-import { getAuth } from "firebase/auth";
 import "../styles/chat.css";
 
-export default function Chat() {
-  const auth = getAuth();
+function Chat() {
   const currentUser = auth.currentUser;
 
-  const [usernameInput, setUsernameInput] = useState("");
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [chatId, setChatId] = useState(null);
+  const [usernameSearch, setUsernameSearch] = useState("");
+  const [chatList, setChatList] = useState([]);
+  const [activeChat, setActiveChat] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
-  const [chatList, setChatList] = useState([]);
 
+  // 🔹 Generate unique chatId
   const generateChatId = (uid1, uid2) => {
-    return uid1 > uid2 ? uid1 + "_" + uid2 : uid2 + "_" + uid1;
+    return uid1 > uid2 ? uid1 + uid2 : uid2 + uid1;
   };
 
-  const searchUser = async () => {
+  // 🔹 Start chat by username
+  const startChat = async () => {
+    if (!usernameSearch) return;
+
     const q = query(
       collection(db, "users"),
-      where("username", "==", usernameInput)
+      where("username", "==", usernameSearch)
     );
 
-    const snapshot = await getDocs(q);
-    if (!snapshot.empty) {
-      const user = snapshot.docs[0].data();
-      setSelectedUser(user);
+    const snap = await getDocs(q);
 
-      const id = generateChatId(currentUser.uid, snapshot.docs[0].id);
-      setChatId(id);
-
-      if (!chatList.find(c => c.chatId === id)) {
-        setChatList([...chatList, { chatId: id, user }]);
-      }
+    if (snap.empty) {
+      alert("User not found");
+      return;
     }
+
+    const otherUser = snap.docs[0];
+    const chatId = generateChatId(currentUser.uid, otherUser.id);
+
+    setActiveChat({
+      chatId,
+      username: otherUser.data().username,
+      uid: otherUser.id,
+    });
+
+    setUsernameSearch("");
   };
 
+  // 🔹 Load messages
   useEffect(() => {
-    if (!chatId) return;
+    if (!activeChat) return;
 
     const q = query(
-      collection(db, "messages"),
-      where("chatId", "==", chatId),
+      collection(db, "chats", activeChat.chatId, "messages"),
       orderBy("createdAt")
     );
 
-    const unsub = onSnapshot(q, snapshot => {
-      setMessages(snapshot.docs.map(doc => doc.data()));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      setMessages(snapshot.docs.map((doc) => doc.data()));
     });
 
-    return () => unsub();
-  }, [chatId]);
+    return () => unsubscribe();
+  }, [activeChat]);
 
+  // 🔹 Send message
   const sendMessage = async () => {
-    if (!newMessage.trim()) return;
+    if (!newMessage || !activeChat) return;
 
-    await addDoc(collection(db, "messages"), {
-      chatId,
-      text: newMessage,
-      sender: currentUser.uid,
-      createdAt: new Date()
-    });
+    await addDoc(
+      collection(db, "chats", activeChat.chatId, "messages"),
+      {
+        text: newMessage,
+        senderId: currentUser.uid,
+        createdAt: serverTimestamp(),
+      }
+    );
 
     setNewMessage("");
   };
 
   return (
-    <div className="chat-container">
+    <div className="chat-wrapper">
+
+      {/* LEFT SIDE - CHAT LIST */}
       <div className="chat-sidebar">
-        <h2>Chats</h2>
-
-        <div className="search-box">
+        <div className="chat-search">
           <input
-            placeholder="Search username"
-            value={usernameInput}
-            onChange={e => setUsernameInput(e.target.value)}
+            type="text"
+            placeholder="Search username..."
+            value={usernameSearch}
+            onChange={(e) => setUsernameSearch(e.target.value)}
           />
-          <button onClick={searchUser}>Search</button>
+          <button onClick={startChat}>Start</button>
         </div>
 
-        <div className="chat-list">
-          {chatList.map((chat, index) => (
-            <div
-              key={index}
-              className="chat-user"
-              onClick={() => setChatId(chat.chatId)}
-            >
-              @{chat.user.username}
-            </div>
-          ))}
-        </div>
+        {activeChat && (
+          <div
+            className="chat-item active"
+            onClick={() => setActiveChat(activeChat)}
+          >
+            @{activeChat.username}
+          </div>
+        )}
       </div>
 
+      {/* RIGHT SIDE - CHAT WINDOW */}
       <div className="chat-main">
-        {chatId ? (
+
+        {activeChat ? (
           <>
             <div className="chat-header">
-              @{selectedUser?.username}
+              @{activeChat.username}
             </div>
 
             <div className="chat-messages">
@@ -117,7 +125,7 @@ export default function Chat() {
                 <div
                   key={index}
                   className={
-                    msg.sender === currentUser.uid
+                    msg.senderId === currentUser.uid
                       ? "message own"
                       : "message"
                   }
@@ -129,19 +137,23 @@ export default function Chat() {
 
             <div className="chat-input">
               <input
+                type="text"
                 placeholder="Type a message"
                 value={newMessage}
-                onChange={e => setNewMessage(e.target.value)}
+                onChange={(e) => setNewMessage(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && sendMessage()}
               />
               <button onClick={sendMessage}>Send</button>
             </div>
           </>
         ) : (
-          <div className="no-chat">
-            Select a chat to start messaging
+          <div className="chat-placeholder">
+            Select or start a conversation
           </div>
         )}
       </div>
     </div>
   );
 }
+
+export default Chat;

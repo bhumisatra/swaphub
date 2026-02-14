@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { signOut } from "firebase/auth";
 import { auth } from "../firebase";
 import "../styles/dashboard.css";
 
 function Dashboard() {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(true);
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -14,51 +14,45 @@ function Dashboard() {
   };
 
   return (
-    <div className="dashboard-wrapper">
-
-      {/* Top Bar */}
-      <div className="topbar">
-        <div className="menu-icon" onClick={() => setOpen(true)}>
-          ☰
-        </div>
-        <h2>SwapHub</h2>
-      </div>
-
-      {/* Overlay (click to close) */}
-      {open && (
-        <div className="overlay" onClick={() => setOpen(false)}></div>
-      )}
+    <div className="dashboard-container">
 
       {/* Sidebar */}
-      <div className={`sidebar ${open ? "active" : ""}`}>
+      <div className={`sidebar ${open ? "open" : "closed"}`}>
+        <h2 className="logo">SwapHub</h2>
 
-        <div className="close-btn" onClick={() => setOpen(false)}>
-          ✖
+        <NavLink to="/dashboard" className="menu-item">
+          Dashboard
+        </NavLink>
+
+        <NavLink to="profile" className="menu-item">
+          Profile
+        </NavLink>
+
+        <NavLink to="chat" className="menu-item">
+          Chat
+        </NavLink>
+
+        <NavLink to="requests" className="menu-item">
+          Requests
+        </NavLink>
+
+        <div className="menu-item logout" onClick={handleLogout}>
+          Logout
+        </div>
+      </div>
+
+      {/* Main Area */}
+      <div className="main-content">
+        <div className="topbar">
+          <button className="hamburger" onClick={() => setOpen(!open)}>
+            ☰
+          </button>
         </div>
 
-        <button onClick={() => { navigate("/requests"); setOpen(false); }}>
-          View Requests
-        </button>
-
-        <button onClick={() => { navigate("/chat"); setOpen(false); }}>
-          Open Chats
-        </button>
-
-        <button onClick={() => { navigate("/profile"); setOpen(false); }}>
-          Edit Profile
-        </button>
-
-        <button onClick={handleLogout}>
-          Logout
-        </button>
+        <div className="content">
+          <Outlet />
+        </div>
       </div>
-
-      {/* Main Content */}
-      <div className="dashboard-content">
-        <h1>Welcome to SwapHub 🎉</h1>
-        <p>Use the menu to navigate.</p>
-      </div>
-
     </div>
   );
 }

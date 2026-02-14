@@ -7,15 +7,15 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import ProfileSetup from "./pages/ProfileSetup";
 import Dashboard from "./pages/Dashboard";
-import Requests from "./pages/Requests";
-import Chat from "./pages/Chat";
 import Profile from "./pages/Profile";
+import Chat from "./pages/Chat";
+import Requests from "./pages/Requests";
+import Home from "./pages/Home";
 
 function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Firebase auth listener (One-Time Login System)
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
@@ -31,7 +31,7 @@ function App() {
     <Router>
       <Routes>
 
-        {/* Login Page */}
+        {/* Login */}
         <Route
           path="/"
           element={user ? <Navigate to="/dashboard" /> : <Login />}
@@ -49,29 +49,16 @@ function App() {
           element={user ? <ProfileSetup /> : <Navigate to="/" />}
         />
 
-        {/* Dashboard */}
+        {/* Dashboard Layout with Nested Routes */}
         <Route
           path="/dashboard"
           element={user ? <Dashboard /> : <Navigate to="/" />}
-        />
-
-        {/* Requests Page */}
-        <Route
-          path="/requests"
-          element={user ? <Requests /> : <Navigate to="/" />}
-        />
-
-        {/* Chat Page */}
-        <Route
-          path="/chat"
-          element={user ? <Chat /> : <Navigate to="/" />}
-        />
-
-        {/* Profile Page */}
-        <Route
-          path="/profile"
-          element={user ? <Profile /> : <Navigate to="/" />}
-        />
+        >
+          <Route index element={<Home />} />
+          <Route path="profile" element={<Profile />} />
+          <Route path="chat" element={<Chat />} />
+          <Route path="requests" element={<Requests />} />
+        </Route>
 
         {/* Unknown Route */}
         <Route path="*" element={<Navigate to="/" />} />
