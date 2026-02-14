@@ -9,6 +9,9 @@ import {
   onSnapshot,
   orderBy,
   serverTimestamp,
+  setDoc,
+  doc,
+  updateDoc,
 } from "firebase/firestore";
 import "../styles/chat.css";
 
@@ -21,12 +24,29 @@ function Chat() {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
 
-  // 🔹 Generate unique chatId
   const generateChatId = (uid1, uid2) => {
     return uid1 > uid2 ? uid1 + uid2 : uid2 + uid1;
   };
 
-  // 🔹 Start chat by username
+  // 🔹 Load all chats of current user
+  useEffect(() => {
+    const q = query(
+      collection(db, "chats"),
+      where("participants", "array-contains", currentUser.uid)
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const chats = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setChatList(chats);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  // 🔹 Start chat
   const startChat = async () => {
     if (!usernameSearch) return;
 
@@ -45,11 +65,21 @@ function Chat() {
     const otherUser = snap.docs[0];
     const chatId = generateChatId(currentUser.uid, otherUser.id);
 
-    setActiveChat({
-      chatId,
-      username: otherUser.data().username,
-      uid: otherUser.id,
-    });
+    const chatRef = doc(db, "chats", chatId);
+
+    await setDoc(
+      chatRef,
+      {
+        participants: [currentUser.uid, otherUser.id],
+        usernames: {
+          [currentUser.uid]: currentUser.email,
+          [otherUser.id]: otherUser.data().username,
+        },
+        lastMessage: "",
+        createdAt: serverTimestamp(),
+      },
+      { merge: true }
+    );
 
     setUsernameSearch("");
   };
@@ -59,7 +89,7 @@ function Chat() {
     if (!activeChat) return;
 
     const q = query(
-      collection(db, "chats", activeChat.chatId, "messages"),
+      collection(db, "chats", activeChat.id, "messages"),
       orderBy("createdAt")
     );
 
@@ -75,7 +105,7 @@ function Chat() {
     if (!newMessage || !activeChat) return;
 
     await addDoc(
-      collection(db, "chats", activeChat.chatId, "messages"),
+      collection(db, "chats", activeChat.id, "messages"),
       {
         text: newMessage,
         senderId: currentUser.uid,
@@ -83,14 +113,19 @@ function Chat() {
       }
     );
 
+    await updateDoc(doc(db, "chats", activeChat.id), {
+      lastMessage: newMessage,
+    });
+
     setNewMessage("");
   };
 
   return (
     <div className="chat-wrapper">
 
-      {/* LEFT SIDE - CHAT LIST */}
+      {/* LEFT SIDE */}
       <div className="chat-sidebar">
+
         <div className="chat-search">
           <input
             type="text"
@@ -101,23 +136,34 @@ function Chat() {
           <button onClick={startChat}>Start</button>
         </div>
 
-        {activeChat && (
-          <div
-            className="chat-item active"
-            onClick={() => setActiveChat(activeChat)}
-          >
-            @{activeChat.username}
-          </div>
-        )}
+        {chatList.map((chat) => {
+          const otherUid = chat.participants.find(
+            (uid) => uid !== currentUser.uid
+          );
+
+          return (
+            <div
+              key={chat.id}
+              className={`chat-item ${
+                activeChat?.id === chat.id ? "active" : ""
+              }`}
+              onClick={() => setActiveChat(chat)}
+            >
+              {chat.usernames?.[otherUid] || "User"}
+              <div style={{ fontSize: "12px", color: "gray" }}>
+                {chat.lastMessage}
+              </div>
+            </div>
+          );
+        })}
       </div>
 
-      {/* RIGHT SIDE - CHAT WINDOW */}
+      {/* RIGHT SIDE */}
       <div className="chat-main">
-
         {activeChat ? (
           <>
             <div className="chat-header">
-              @{activeChat.username}
+              Chat
             </div>
 
             <div className="chat-messages">
