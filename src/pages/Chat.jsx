@@ -79,7 +79,10 @@ function Chat() {
           [currentUser.uid]: currentUser.email,
           [otherUser.id]: otherUser.data().username,
         },
-        lastMessage: "",
+        unread: {
+          [currentUser.uid]: 0,
+          [otherUser.id]: 0,
+        },
         createdAt: serverTimestamp(),
       },
       { merge: true }
@@ -132,6 +135,10 @@ function Chat() {
   const sendMessage = async () => {
     if (!newMessage || !activeChat) return;
 
+    const otherUid = activeChat.participants.find(
+      (uid) => uid !== currentUser.uid
+    );
+
     await addDoc(
       collection(db, "chats", activeChat.id, "messages"),
       {
@@ -142,10 +149,20 @@ function Chat() {
     );
 
     await updateDoc(doc(db, "chats", activeChat.id), {
-      lastMessage: newMessage,
+      [`unread.${otherUid}`]:
+        (activeChat.unread?.[otherUid] || 0) + 1,
     });
 
     setNewMessage("");
+  };
+
+  // ================= OPEN CHAT (RESET UNREAD) =================
+  const openChat = async (chat) => {
+    setActiveChat(chat);
+
+    await updateDoc(doc(db, "chats", chat.id), {
+      [`unread.${currentUser.uid}`]: 0,
+    });
   };
 
   // ================= SAVE NICKNAME =================
@@ -215,11 +232,16 @@ function Chat() {
               className={`chat-item ${
                 activeChat?.id === chat.id ? "active" : ""
               }`}
-              onClick={() => setActiveChat(chat)}
+              onClick={() => openChat(chat)}
             >
-              {chat.usernames?.[otherUid] || "User"}
-              <div className="last-message">
-                {chat.lastMessage}
+              <div className="chat-name-row">
+                <span>
+                  {chat.usernames?.[otherUid] || "User"}
+                </span>
+
+                {chat.unread?.[currentUser.uid] > 0 && (
+                  <span className="unread-dot"></span>
+                )}
               </div>
             </div>
           );
@@ -277,26 +299,27 @@ function Chat() {
                   formatDate(msg.createdAt) !==
                     formatDate(messages[index - 1]?.createdAt);
 
+                const isOwn =
+                  msg.senderId === currentUser.uid;
+
                 return (
-                  <div key={msg.id}>
+                  <div key={msg.id} className="message-wrapper">
+
                     {showDate && (
                       <div className="date-separator">
                         {formatDate(msg.createdAt)}
                       </div>
                     )}
 
-                    <div
-                      className={
-                        msg.senderId === currentUser.uid
-                          ? "message own"
-                          : "message"
-                      }
-                    >
-                      <span>{msg.text}</span>
-                      <span className="message-time">
-                        {formatTime(msg.createdAt)}
-                      </span>
+                    <div className={`message-row ${isOwn ? "right" : "left"}`}>
+                      <div className={`message ${isOwn ? "own" : ""}`}>
+                        {msg.text}
+                        <span className="message-time">
+                          {formatTime(msg.createdAt)}
+                        </span>
+                      </div>
                     </div>
+
                   </div>
                 );
               })}
