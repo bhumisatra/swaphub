@@ -12,6 +12,7 @@ import {
   setDoc,
   doc,
   updateDoc,
+  getDoc
 } from "firebase/firestore";
 import "../styles/chat.css";
 
@@ -24,11 +25,16 @@ function Chat() {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
 
+  const [otherUserData, setOtherUserData] = useState(null);
+  const [showMenu, setShowMenu] = useState(false);
+  const [editingName, setEditingName] = useState(false);
+  const [nickname, setNickname] = useState("");
+
   const generateChatId = (uid1, uid2) => {
     return uid1 > uid2 ? uid1 + uid2 : uid2 + uid1;
   };
 
-  // 🔹 Load all chats of current user
+  // ================= LOAD CHATS =================
   useEffect(() => {
     const q = query(
       collection(db, "chats"),
@@ -46,7 +52,7 @@ function Chat() {
     return () => unsubscribe();
   }, []);
 
-  // 🔹 Start chat
+  // ================= START CHAT =================
   const startChat = async () => {
     if (!usernameSearch) return;
 
@@ -65,10 +71,8 @@ function Chat() {
     const otherUser = snap.docs[0];
     const chatId = generateChatId(currentUser.uid, otherUser.id);
 
-    const chatRef = doc(db, "chats", chatId);
-
     await setDoc(
-      chatRef,
+      doc(db, "chats", chatId),
       {
         participants: [currentUser.uid, otherUser.id],
         usernames: {
@@ -84,7 +88,26 @@ function Chat() {
     setUsernameSearch("");
   };
 
-  // 🔹 Load messages
+  // ================= LOAD OTHER USER DATA =================
+  useEffect(() => {
+    if (!activeChat) return;
+
+    const otherUid = activeChat.participants.find(
+      (uid) => uid !== currentUser.uid
+    );
+
+    const fetchUser = async () => {
+      const snap = await getDoc(doc(db, "users", otherUid));
+      if (snap.exists()) {
+        setOtherUserData(snap.data());
+        setNickname(snap.data().nickname || snap.data().username);
+      }
+    };
+
+    fetchUser();
+  }, [activeChat]);
+
+  // ================= LOAD MESSAGES =================
   useEffect(() => {
     if (!activeChat) return;
 
@@ -94,13 +117,18 @@ function Chat() {
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      setMessages(snapshot.docs.map((doc) => doc.data()));
+      setMessages(
+        snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }))
+      );
     });
 
     return () => unsubscribe();
   }, [activeChat]);
 
-  // 🔹 Send message
+  // ================= SEND MESSAGE =================
   const sendMessage = async () => {
     if (!newMessage || !activeChat) return;
 
@@ -120,12 +148,52 @@ function Chat() {
     setNewMessage("");
   };
 
+  // ================= SAVE NICKNAME =================
+  const saveNickname = async () => {
+    const otherUid = activeChat.participants.find(
+      (uid) => uid !== currentUser.uid
+    );
+
+    await updateDoc(doc(db, "users", otherUid), {
+      nickname: nickname,
+    });
+
+    setEditingName(false);
+  };
+
+  // ================= FORMAT TIME =================
+  const formatTime = (timestamp) => {
+    if (!timestamp) return "";
+    const date = timestamp.toDate();
+    return date.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  // ================= FORMAT DATE =================
+  const formatDate = (timestamp) => {
+    if (!timestamp) return "";
+
+    const date = timestamp.toDate();
+    const today = new Date();
+    const yesterday = new Date();
+    yesterday.setDate(today.getDate() - 1);
+
+    if (date.toDateString() === today.toDateString())
+      return "Today";
+
+    if (date.toDateString() === yesterday.toDateString())
+      return "Yesterday";
+
+    return date.toLocaleDateString();
+  };
+
   return (
     <div className="chat-wrapper">
 
       {/* LEFT SIDE */}
       <div className="chat-sidebar">
-
         <div className="chat-search">
           <input
             type="text"
@@ -150,7 +218,7 @@ function Chat() {
               onClick={() => setActiveChat(chat)}
             >
               {chat.usernames?.[otherUid] || "User"}
-              <div style={{ fontSize: "12px", color: "gray" }}>
+              <div className="last-message">
                 {chat.lastMessage}
               </div>
             </div>
@@ -162,39 +230,95 @@ function Chat() {
       <div className="chat-main">
         {activeChat ? (
           <>
+            {/* HEADER */}
             <div className="chat-header">
-              Chat
-            </div>
-
-            <div className="chat-messages">
-              {messages.map((msg, index) => (
-                <div
-                  key={index}
-                  className={
-                    msg.senderId === currentUser.uid
-                      ? "message own"
-                      : "message"
-                  }
-                >
-                  {msg.text}
+              <div className="chat-user-info">
+                <div className="chat-avatar">
+                  {otherUserData?.username?.charAt(0).toUpperCase()}
                 </div>
-              ))}
+
+                {editingName ? (
+                  <input
+                    value={nickname}
+                    onChange={(e) => setNickname(e.target.value)}
+                    onBlur={saveNickname}
+                    autoFocus
+                  />
+                ) : (
+                  <span className="chat-username">
+                    {nickname}
+                  </span>
+                )}
+              </div>
+
+              <div className="chat-menu">
+                <button onClick={() => setShowMenu(!showMenu)}>⋮</button>
+
+                {showMenu && (
+                  <div className="dropdown-menu">
+                    <div
+                      onClick={() => {
+                        setEditingName(true);
+                        setShowMenu(false);
+                      }}
+                    >
+                      Edit Name
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
+            {/* MESSAGES */}
+            <div className="chat-messages">
+              {messages.map((msg, index) => {
+                const showDate =
+                  index === 0 ||
+                  formatDate(msg.createdAt) !==
+                    formatDate(messages[index - 1]?.createdAt);
+
+                return (
+                  <div key={msg.id}>
+                    {showDate && (
+                      <div className="date-separator">
+                        {formatDate(msg.createdAt)}
+                      </div>
+                    )}
+
+                    <div
+                      className={
+                        msg.senderId === currentUser.uid
+                          ? "message own"
+                          : "message"
+                      }
+                    >
+                      <span>{msg.text}</span>
+                      <span className="message-time">
+                        {formatTime(msg.createdAt)}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* INPUT */}
             <div className="chat-input">
               <input
                 type="text"
                 placeholder="Type a message"
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+                onKeyDown={(e) =>
+                  e.key === "Enter" && sendMessage()
+                }
               />
               <button onClick={sendMessage}>Send</button>
             </div>
           </>
         ) : (
           <div className="chat-placeholder">
-            Select or start a conversation
+            Select a conversation
           </div>
         )}
       </div>
