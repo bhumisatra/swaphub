@@ -1,34 +1,59 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { auth, db } from "../firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, setDoc } from "firebase/firestore";
+import { useNavigate } from "react-router-dom";
 import "../styles/profile.css";
 
-function Profile() {
-  const [userData, setUserData] = useState(null);
+function ProfileSetup() {
+  const [name, setName] = useState("");
+  const [dob, setDob] = useState("");
+  const [gender, setGender] = useState("");
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const docRef = doc(db, "users", auth.currentUser.uid);
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        setUserData(docSnap.data());
-      }
-    };
-    fetchData();
-  }, []);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  if (!userData) return <p>Loading...</p>;
+    await setDoc(doc(db, "users", auth.currentUser.uid), {
+      name,
+      dob,
+      gender,
+      email: auth.currentUser.email
+    });
+
+    navigate("/dashboard");
+  };
 
   return (
     <div className="profile-container">
       <div className="profile-card">
-        <h2>{userData.name}</h2>
-        <p><strong>Email:</strong> {userData.email}</p>
-        <p><strong>DOB:</strong> {userData.dob}</p>
-        <p><strong>Gender:</strong> {userData.gender}</p>
+        <h2>Complete Your Profile</h2>
+
+        <form onSubmit={handleSubmit}>
+          <input
+            type="text"
+            placeholder="Full Name"
+            onChange={(e) => setName(e.target.value)}
+            required
+          />
+
+          <input
+            type="date"
+            onChange={(e) => setDob(e.target.value)}
+            required
+          />
+
+          <select onChange={(e) => setGender(e.target.value)} required>
+            <option value="">Select Gender</option>
+            <option>Male</option>
+            <option>Female</option>
+            <option>Other</option>
+          </select>
+
+          <button>Save & Continue</button>
+        </form>
       </div>
     </div>
   );
 }
 
-export default Profile;
+export default ProfileSetup;

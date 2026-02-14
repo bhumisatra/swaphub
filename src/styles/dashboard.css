@@ -1,22 +1,20 @@
-.profile-container {
+.dashboard-container {
   height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  background: #f4f6fb;
+  background: #eef2ff;
 }
 
-.profile-card {
+.dashboard-card {
   background: white;
   padding: 40px;
-  width: 400px;
   border-radius: 15px;
   box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  text-align: center;
 }
 
-.profile-card input,
-.profile-card select {
-  width: 100%;
-  margin-bottom: 15px;
-  padding: 10px;
+.dashboard-card button {
+  margin: 10px;
+  padding: 10px 20px;
 }

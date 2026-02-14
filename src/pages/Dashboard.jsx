@@ -1,54 +1,29 @@
-import { useEffect, useState } from "react";
-import { db, auth } from "../firebase";
-import { collection, onSnapshot } from "firebase/firestore";
+import { auth } from "../firebase";
+import { signOut } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
-import Navbar from "../components/Navbar";
+import "../styles/dashboard.css";
 
 function Dashboard() {
-  const [chats, setChats] = useState([]);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const unsubscribe = onSnapshot(
-      collection(db, "requests"),
-      (snapshot) => {
-        const myChats = snapshot.docs
-          .map((doc) => doc.data())
-          .filter(
-            (req) =>
-              req.userId === auth.currentUser.uid ||
-              req.acceptedBy === auth.currentUser.uid
-          );
-
-        setChats(myChats);
-      }
-    );
-
-    return () => unsubscribe();
-  }, []);
+  const logout = async () => {
+    await signOut(auth);
+    navigate("/");
+  };
 
   return (
-    <>
-      <Navbar />
-      <div className="container">
+    <div className="dashboard-container">
+      <div className="dashboard-card">
         <h2>Welcome to SwapHub 🎉</h2>
+        <p>You are successfully logged in.</p>
 
-        <h3>Your Active Chats</h3>
+        <button onClick={() => navigate("/profile-setup")}>
+          Edit Profile
+        </button>
 
-        {chats.map((chat, index) => (
-          <div key={index} className="card">
-            <h4>{chat.title}</h4>
-            {chat.chatId && (
-              <button
-                onClick={() => navigate(`/chat/${chat.chatId}`)}
-              >
-                Open Chat
-              </button>
-            )}
-          </div>
-        ))}
+        <button onClick={logout}>Logout</button>
       </div>
-    </>
+    </div>
   );
 }
 
