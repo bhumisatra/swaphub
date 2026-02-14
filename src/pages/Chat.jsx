@@ -1,171 +1,115 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   collection,
+  addDoc,
   query,
   where,
-  getDocs,
-  addDoc,
-  serverTimestamp,
   onSnapshot,
+  orderBy,
+  getDocs,
   doc,
-  orderBy
+  getDoc
 } from "firebase/firestore";
 import { db } from "../firebase";
 import { getAuth } from "firebase/auth";
+import "../styles/chat.css";
 
-const Chat = () => {
+export default function Chat() {
   const auth = getAuth();
   const currentUser = auth.currentUser;
 
-  const [searchUsername, setSearchUsername] = useState("");
+  const [usernameInput, setUsernameInput] = useState("");
   const [selectedUser, setSelectedUser] = useState(null);
-  const [message, setMessage] = useState("");
+  const [chatId, setChatId] = useState(null);
   const [messages, setMessages] = useState([]);
-  const [chats, setChats] = useState([]);
+  const [newMessage, setNewMessage] = useState("");
+  const [chatList, setChatList] = useState([]);
 
-  // 🔥 SEARCH USER
-  const handleSearch = async () => {
-    if (!searchUsername) return;
+  const generateChatId = (uid1, uid2) => {
+    return uid1 > uid2 ? uid1 + "_" + uid2 : uid2 + "_" + uid1;
+  };
 
+  const searchUser = async () => {
     const q = query(
       collection(db, "users"),
-      where("username", "==", searchUsername.toLowerCase())
+      where("username", "==", usernameInput)
     );
 
-    const querySnapshot = await getDocs(q);
+    const snapshot = await getDocs(q);
+    if (!snapshot.empty) {
+      const user = snapshot.docs[0].data();
+      setSelectedUser(user);
 
-    if (!querySnapshot.empty) {
-      const userData = querySnapshot.docs[0].data();
-      const otherUserId = querySnapshot.docs[0].id;
+      const id = generateChatId(currentUser.uid, snapshot.docs[0].id);
+      setChatId(id);
 
-      const chatId =
-        currentUser.uid < otherUserId
-          ? `${currentUser.uid}_${otherUserId}`
-          : `${otherUserId}_${currentUser.uid}`;
-
-      const chatQuery = query(
-        collection(db, "chats"),
-        where("chatId", "==", chatId)
-      );
-
-      const existing = await getDocs(chatQuery);
-
-      if (existing.empty) {
-        await addDoc(collection(db, "chats"), {
-          chatId,
-          participants: [currentUser.uid, otherUserId],
-          createdAt: serverTimestamp(),
-          updatedAt: serverTimestamp(),
-        });
+      if (!chatList.find(c => c.chatId === id)) {
+        setChatList([...chatList, { chatId: id, user }]);
       }
-
-      setSelectedUser({
-        ...userData,
-        uid: otherUserId,
-        chatId,
-      });
-    } else {
-      alert("User not found");
     }
   };
 
-  // 🔥 LOAD SIDEBAR CHATS
   useEffect(() => {
-    if (!currentUser) return;
+    if (!chatId) return;
 
     const q = query(
-      collection(db, "chats"),
-      where("participants", "array-contains", currentUser.uid)
+      collection(db, "messages"),
+      where("chatId", "==", chatId),
+      orderBy("createdAt")
     );
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const chatList = snapshot.docs.map((doc) => doc.data());
-      setChats(chatList);
+    const unsub = onSnapshot(q, snapshot => {
+      setMessages(snapshot.docs.map(doc => doc.data()));
     });
 
-    return () => unsubscribe();
-  }, [currentUser]);
+    return () => unsub();
+  }, [chatId]);
 
-  // 🔥 LOAD MESSAGES
-  useEffect(() => {
-    if (!selectedUser) return;
-
-    const messagesRef = collection(
-      db,
-      "chats",
-      selectedUser.chatId,
-      "messages"
-    );
-
-    const q = query(messagesRef, orderBy("createdAt"));
-
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const msgs = snapshot.docs.map((doc) => doc.data());
-      setMessages(msgs);
-    });
-
-    return () => unsubscribe();
-  }, [selectedUser]);
-
-  // 🔥 SEND MESSAGE
   const sendMessage = async () => {
-    if (!message.trim()) return;
+    if (!newMessage.trim()) return;
 
-    const messagesRef = collection(
-      db,
-      "chats",
-      selectedUser.chatId,
-      "messages"
-    );
-
-    await addDoc(messagesRef, {
-      text: message,
-      senderId: currentUser.uid,
-      createdAt: serverTimestamp(),
+    await addDoc(collection(db, "messages"), {
+      chatId,
+      text: newMessage,
+      sender: currentUser.uid,
+      createdAt: new Date()
     });
 
-    setMessage("");
+    setNewMessage("");
   };
 
   return (
     <div className="chat-container">
-      {/* SIDEBAR */}
       <div className="chat-sidebar">
-        <h3>Chats</h3>
+        <h2>Chats</h2>
 
-        <input
-          type="text"
-          placeholder="Search username"
-          value={searchUsername}
-          onChange={(e) => setSearchUsername(e.target.value)}
-        />
-        <button onClick={handleSearch}>Search</button>
+        <div className="search-box">
+          <input
+            placeholder="Search username"
+            value={usernameInput}
+            onChange={e => setUsernameInput(e.target.value)}
+          />
+          <button onClick={searchUser}>Search</button>
+        </div>
 
-        {chats.map((chat) => {
-          const otherUserId = chat.participants.find(
-            (id) => id !== currentUser.uid
-          );
-
-          return (
+        <div className="chat-list">
+          {chatList.map((chat, index) => (
             <div
-              key={chat.chatId}
+              key={index}
               className="chat-user"
-              onClick={() =>
-                setSelectedUser({ uid: otherUserId, chatId: chat.chatId })
-              }
+              onClick={() => setChatId(chat.chatId)}
             >
-              {chat.chatId}
+              @{chat.user.username}
             </div>
-          );
-        })}
+          ))}
+        </div>
       </div>
 
-      {/* CHAT WINDOW */}
-      <div className="chat-window">
-        {selectedUser ? (
+      <div className="chat-main">
+        {chatId ? (
           <>
             <div className="chat-header">
-              @{selectedUser.username || selectedUser.uid}
+              @{selectedUser?.username}
             </div>
 
             <div className="chat-messages">
@@ -173,7 +117,7 @@ const Chat = () => {
                 <div
                   key={index}
                   className={
-                    msg.senderId === currentUser.uid
+                    msg.sender === currentUser.uid
                       ? "message own"
                       : "message"
                   }
@@ -185,22 +129,19 @@ const Chat = () => {
 
             <div className="chat-input">
               <input
-                type="text"
-                placeholder="Type message..."
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
+                placeholder="Type a message"
+                value={newMessage}
+                onChange={e => setNewMessage(e.target.value)}
               />
               <button onClick={sendMessage}>Send</button>
             </div>
           </>
         ) : (
           <div className="no-chat">
-            Select a user to start chatting
+            Select a chat to start messaging
           </div>
         )}
       </div>
     </div>
   );
-};
-
-export default Chat;
+}

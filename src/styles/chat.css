@@ -1,80 +1,103 @@
 .chat-container {
   display: flex;
   height: 100vh;
-  background: #ece5dd;
+  font-family: Arial, sans-serif;
 }
 
-/* LEFT PANEL */
-.chat-users {
-  width: 25%;
-  background: white;
+/* LEFT SIDEBAR */
+
+.chat-sidebar {
+  width: 30%;
+  background: #f0f2f5;
   border-right: 1px solid #ddd;
   padding: 20px;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }
 
-.chat-users h3 {
+.chat-sidebar h2 {
+  margin-bottom: 15px;
+}
+
+.search-box {
+  display: flex;
+  gap: 10px;
   margin-bottom: 20px;
+}
+
+.search-box input {
+  flex: 1;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.search-box button {
+  padding: 8px 12px;
+  border: none;
+  background: #25d366;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.chat-list {
+  flex: 1;
+  overflow-y: auto;
 }
 
 .chat-user {
   padding: 12px;
-  border-radius: 8px;
-  cursor: pointer;
+  background: white;
+  border-radius: 10px;
   margin-bottom: 10px;
+  cursor: pointer;
+  transition: 0.2s;
 }
 
 .chat-user:hover {
-  background: #f2f2f2;
+  background: #e4e6eb;
 }
 
-.chat-user.active {
-  background: #6a5acd;
-  color: white;
-}
+/* RIGHT CHAT AREA */
 
-/* RIGHT PANEL */
-.chat-box {
-  width: 75%;
+.chat-main {
+  width: 70%;
   display: flex;
   flex-direction: column;
+  background: #efeae2;
 }
 
 .chat-header {
   padding: 15px;
-  background: #6a5acd;
+  background: #075e54;
   color: white;
+  font-weight: bold;
 }
 
 .chat-messages {
   flex: 1;
-  padding: 15px;
+  padding: 20px;
   overflow-y: auto;
-  display: flex;
-  flex-direction: column;
 }
 
-.my-message {
-  background: #dcf8c6;
-  padding: 10px 15px;
-  border-radius: 15px;
-  margin-bottom: 10px;
-  max-width: 60%;
-  align-self: flex-end;
-}
-
-.other-message {
+.message {
   background: white;
   padding: 10px 15px;
-  border-radius: 15px;
   margin-bottom: 10px;
+  border-radius: 15px;
   max-width: 60%;
+}
+
+.message.own {
+  background: #dcf8c6;
+  margin-left: auto;
 }
 
 .chat-input {
   display: flex;
-  padding: 10px;
-  background: white;
+  padding: 15px;
+  background: #f0f0f0;
 }
 
 .chat-input input {
@@ -82,42 +105,20 @@
   padding: 10px;
   border-radius: 20px;
   border: 1px solid #ccc;
-  outline: none;
 }
 
 .chat-input button {
   margin-left: 10px;
-  padding: 10px 20px;
-  border-radius: 20px;
+  padding: 10px 15px;
   border: none;
-  background: #6a5acd;
+  border-radius: 20px;
+  background: #25d366;
   color: white;
+  cursor: pointer;
 }
 
 .no-chat {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100%;
-  color: gray;
-}
-.add-friend {
-  display: flex;
-  margin-bottom: 15px;
-}
-
-.add-friend input {
-  flex: 1;
-  padding: 8px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
-}
-
-.add-friend button {
-  margin-left: 5px;
-  padding: 8px 12px;
-  border: none;
-  background: #6a5acd;
-  color: white;
-  border-radius: 5px;
+  margin: auto;
+  font-size: 18px;
+  color: #666;
 }
