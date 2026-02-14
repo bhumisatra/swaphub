@@ -1,53 +1,81 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { auth } from "./firebase";
+import { onAuthStateChanged } from "firebase/auth";
 
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import ProfileSetup from "./pages/ProfileSetup";
 import Dashboard from "./pages/Dashboard";
+import Requests from "./pages/Requests";
+import Chat from "./pages/Chat";
+import Profile from "./pages/Profile";
 
 function App() {
-  const [user, setUser] = useState(
-    JSON.parse(localStorage.getItem("user")) || null
-  );
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // Protect private routes
-  const ProtectedRoute = ({ children }) => {
-    if (!user) {
-      return <Navigate to="/" />;
-    }
-    return children;
-  };
+  // Firebase auth listener (One-Time Login System)
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  if (loading) return <h2>Loading...</h2>;
 
   return (
     <Router>
       <Routes>
-        {/* Public Routes */}
-        <Route path="/" element={<Login setUser={setUser} />} />
-        <Route path="/signup" element={<Signup setUser={setUser} />} />
 
-        {/* Profile Setup After Signup */}
+        {/* Login Page */}
+        <Route
+          path="/"
+          element={user ? <Navigate to="/dashboard" /> : <Login />}
+        />
+
+        {/* Signup */}
+        <Route
+          path="/signup"
+          element={user ? <Navigate to="/dashboard" /> : <Signup />}
+        />
+
+        {/* Profile Setup */}
         <Route
           path="/profile-setup"
-          element={
-            <ProtectedRoute>
-              <ProfileSetup user={user} setUser={setUser} />
-            </ProtectedRoute>
-          }
+          element={user ? <ProfileSetup /> : <Navigate to="/" />}
         />
 
-        {/* Dashboard After Login */}
+        {/* Dashboard */}
         <Route
           path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <Dashboard user={user} setUser={setUser} />
-            </ProtectedRoute>
-          }
+          element={user ? <Dashboard /> : <Navigate to="/" />}
         />
 
-        {/* If wrong route */}
+        {/* Requests Page */}
+        <Route
+          path="/requests"
+          element={user ? <Requests /> : <Navigate to="/" />}
+        />
+
+        {/* Chat Page */}
+        <Route
+          path="/chat"
+          element={user ? <Chat /> : <Navigate to="/" />}
+        />
+
+        {/* Profile Page */}
+        <Route
+          path="/profile"
+          element={user ? <Profile /> : <Navigate to="/" />}
+        />
+
+        {/* Unknown Route */}
         <Route path="*" element={<Navigate to="/" />} />
+
       </Routes>
     </Router>
   );

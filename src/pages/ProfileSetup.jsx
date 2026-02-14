@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { auth, db } from "../firebase";
+import { auth } from "../firebase";
+import { db } from "../firebase";
 import { doc, setDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
-import "../styles/profile.css";
 
 function ProfileSetup() {
   const [name, setName] = useState("");
@@ -10,48 +10,55 @@ function ProfileSetup() {
   const [gender, setGender] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
 
-    await setDoc(doc(db, "users", auth.currentUser.uid), {
-      name,
-      dob,
-      gender,
-      email: auth.currentUser.email
-    });
+    try {
+      const user = auth.currentUser;
 
-    navigate("/dashboard");
+      await setDoc(doc(db, "users", user.uid), {
+        name,
+        dob,
+        gender,
+        email: user.email,
+        createdAt: new Date()
+      });
+
+      alert("Profile saved successfully!");
+      navigate("/dashboard");
+
+    } catch (error) {
+      alert(error.message);
+    }
   };
 
   return (
-    <div className="profile-container">
-      <div className="profile-card">
-        <h2>Complete Your Profile</h2>
+    <div>
+      <h2>Complete Your Profile</h2>
 
-        <form onSubmit={handleSubmit}>
-          <input
-            type="text"
-            placeholder="Full Name"
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
+      <form onSubmit={handleSave}>
+        <input
+          type="text"
+          placeholder="Full Name"
+          onChange={(e) => setName(e.target.value)}
+          required
+        />
 
-          <input
-            type="date"
-            onChange={(e) => setDob(e.target.value)}
-            required
-          />
+        <input
+          type="date"
+          onChange={(e) => setDob(e.target.value)}
+          required
+        />
 
-          <select onChange={(e) => setGender(e.target.value)} required>
-            <option value="">Select Gender</option>
-            <option>Male</option>
-            <option>Female</option>
-            <option>Other</option>
-          </select>
+        <select onChange={(e) => setGender(e.target.value)} required>
+          <option value="">Select Gender</option>
+          <option>Male</option>
+          <option>Female</option>
+          <option>Other</option>
+        </select>
 
-          <button>Save & Continue</button>
-        </form>
-      </div>
+        <button type="submit">Save Profile</button>
+      </form>
     </div>
   );
 }

@@ -3,18 +3,25 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background: #eef2ff;
+  background: linear-gradient(135deg, #6a5acd, #483d8b);
 }
 
 .dashboard-card {
   background: white;
   padding: 40px;
-  border-radius: 15px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  border-radius: 20px;
   text-align: center;
+  width: 400px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.2);
 }
 
-.dashboard-card button {
-  margin: 10px;
-  padding: 10px 20px;
+.dashboard-buttons button {
+  width: 100%;
+  margin: 10px 0;
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  background: #6a5acd;
+  color: white;
+  cursor: pointer;
 }
