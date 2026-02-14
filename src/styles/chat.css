@@ -111,36 +111,42 @@
   color: white;
   cursor: pointer;
 }
-/* ========================= */
-/* MOBILE CHAT DESIGN ONLY */
-/* ========================= */
+/* ===================== */
+/* MOBILE RESPONSIVE FIX */
+/* ===================== */
 
 @media (max-width: 768px) {
 
-  .chat-container {
-    flex-direction: column;
+  .chat-wrapper {
+    flex-direction: column !important;
     height: 100vh;
+    width: 100%;
   }
 
   .chat-sidebar {
-    width: 100%;
-    height: 100%;
+    width: 100% !important;
+    border-right: none !important;
+  }
+
+  .chat-main {
+    width: 100% !important;
   }
 
   .chat-messages {
     height: calc(100vh - 120px);
   }
 
-  .chat-input-area {
+  .chat-input {
     position: fixed;
     bottom: 0;
+    left: 0;
     width: 100%;
     background: white;
     padding: 10px;
     display: flex;
   }
 
-  .chat-input-area input {
+  .chat-input input {
     flex: 1;
   }
 
