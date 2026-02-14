@@ -1,58 +1,70 @@
-import { useState, useEffect } from "react";
-import { db, auth } from "../firebase";
-import { collection, addDoc, query, where, onSnapshot } from "firebase/firestore";
 import { useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { db, auth } from "../firebase";
+import {
+  collection,
+  addDoc,
+  query,
+  orderBy,
+  onSnapshot
+} from "firebase/firestore";
+import Navbar from "../components/Navbar";
 
 function Chat() {
   const { id } = useParams();
-  const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
-
-  const sendMessage = async () => {
-    if (!message) return;
-
-    await addDoc(collection(db, "messages"), {
-      text: message,
-      chatId: id,
-      user: auth.currentUser.email,
-      createdAt: new Date()
-    });
-
-    setMessage("");
-  };
 
   useEffect(() => {
     const q = query(
-      collection(db, "messages"),
-      where("chatId", "==", id)
+      collection(db, "chats", id, "messages"),
+      orderBy("createdAt")
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      setMessages(snapshot.docs.map(doc => doc.data()));
+      setMessages(snapshot.docs.map((doc) => doc.data()));
     });
 
     return () => unsubscribe();
   }, [id]);
 
+  const sendMessage = async (e) => {
+    e.preventDefault();
+
+    const text = e.target.message.value;
+
+    await addDoc(collection(db, "chats", id, "messages"), {
+      text: text,
+      sender: auth.currentUser.uid,
+      email: auth.currentUser.email,
+      createdAt: new Date()
+    });
+
+    e.target.reset();
+  };
+
   return (
-    <div style={{ padding: "40px" }}>
-      <h2>Chat</h2>
-
-      <div>
+    <>
+      <Navbar />
+      <div className="chat-container">
         {messages.map((msg, index) => (
-          <p key={index}>
-            <strong>{msg.user}:</strong> {msg.text}
-          </p>
+          <div
+            key={index}
+            className={
+              msg.sender === auth.currentUser.uid
+                ? "my-message"
+                : "other-message"
+            }
+          >
+            {msg.text}
+          </div>
         ))}
-      </div>
 
-      <input
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
-        placeholder="Type message..."
-      />
-      <button onClick={sendMessage}>Send</button>
-    </div>
+        <form onSubmit={sendMessage}>
+          <input name="message" placeholder="Type message..." required />
+          <button>Send</button>
+        </form>
+      </div>
+    </>
   );
 }
 

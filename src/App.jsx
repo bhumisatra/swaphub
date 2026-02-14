@@ -1,16 +1,67 @@
-import "./index.css";
+import { Routes, Route } from "react-router-dom";
+
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+import Dashboard from "./pages/Dashboard";
+import AddRequest from "./pages/AddRequest";
+import Requests from "./pages/Requests";
+import Chat from "./pages/Chat";
+import Profile from "./pages/Profile";
+import PrivateRoute from "./components/PrivateRoute";
 
 function App() {
   return (
-    <div className="container">
-      <h1 className="title">SwapHub</h1>
-      <p className="subtitle">Skill Exchange Platform 🚀</p>
+    <Routes>
 
-      <div className="card">
-        <button className="btn">Login</button>
-        <button className="btn secondary">Sign Up</button>
-      </div>
-    </div>
+      <Route path="/" element={<Login />} />
+      <Route path="/signup" element={<Signup />} />
+
+      <Route
+        path="/dashboard"
+        element={
+          <PrivateRoute>
+            <Dashboard />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/add-request"
+        element={
+          <PrivateRoute>
+            <AddRequest />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/requests"
+        element={
+          <PrivateRoute>
+            <Requests />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/chat/:id"
+        element={
+          <PrivateRoute>
+            <Chat />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/profile"
+        element={
+          <PrivateRoute>
+            <Profile />
+          </PrivateRoute>
+        }
+      />
+
+    </Routes>
   );
 }
 

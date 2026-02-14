@@ -1,40 +1,31 @@
-import { useState } from "react";
-import { auth } from "../firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { useNavigate, Link } from "react-router-dom";
+import { auth } from "../firebase";
+import { Link, useNavigate } from "react-router-dom";
 
 function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    await signInWithEmailAndPassword(auth, email, password);
-    navigate("/requests");
+    const email = e.target.email.value;
+    const password = e.target.password.value;
+
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      navigate("/dashboard");
+    } catch (error) {
+      alert(error.message);
+    }
   };
 
   return (
-    <div style={{ padding: "40px" }}>
+    <div className="container">
       <h2>SwapHub Login</h2>
       <form onSubmit={handleLogin}>
-        <input
-          type="email"
-          placeholder="Email"
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <br /><br />
-        <input
-          type="password"
-          placeholder="Password"
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-        <br /><br />
+        <input name="email" type="email" placeholder="Email" required />
+        <input name="password" type="password" placeholder="Password" required />
         <button type="submit">Login</button>
       </form>
-
       <p>
         Don't have account? <Link to="/signup">Signup</Link>
       </p>
