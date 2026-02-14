@@ -1,58 +1,70 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { useNavigate, Link } from "react-router-dom";
 import { auth } from "../firebase";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import loginImage from "../assets/whatsapp.jpeg"; // ✅ Local Image
 import "../styles/login.css";
 
 function Login() {
-  const navigate = useNavigate();
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
-
     try {
       await signInWithEmailAndPassword(auth, email, password);
       navigate("/dashboard");
     } catch (error) {
-      alert(error.message);
+      alert("Invalid credentials");
     }
   };
 
   return (
     <div className="login-container">
-      <form className="login-box" onSubmit={handleLogin}>
-        <h2>Login</h2>
+      
+      {/* Floating circles */}
+      <div className="circle top"></div>
+      <div className="circle bottom"></div>
 
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
+      <div className="login-card">
+        
+        {/* Left Side */}
+        <div className="login-left">
+          <h1>LOGIN</h1>
 
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
+          <form onSubmit={handleLogin}>
+            <input
+              type="email"
+              placeholder="USERNAME"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
 
-        <button type="submit">Login</button>
+            <input
+              type="password"
+              placeholder="PASSWORD"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
 
-        {/* SIGNUP LINK */}
-        <p style={{ marginTop: "15px", textAlign: "center" }}>
-          Don't have an account?{" "}
-          <span
-            style={{ color: "#6a5acd", cursor: "pointer" }}
-            onClick={() => navigate("/signup")}
-          >
-            Sign Up
-          </span>
-        </p>
-      </form>
+            <button type="submit">SUBMIT</button>
+          </form>
+
+          <div className="login-links">
+            <Link to="/signup">REGISTER</Link>
+            <span>FORGOT PASSWORD</span>
+          </div>
+        </div>
+
+        {/* Right Side Illustration */}
+        <div className="login-right">
+          <img src={loginImage} alt="Login Illustration" />
+        </div>
+
+      </div>
     </div>
   );
 }
