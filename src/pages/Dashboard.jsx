@@ -1,42 +1,57 @@
-import { useState } from "react";
-import { NavLink, Outlet, useNavigate } from "react-router-dom";
-import { signOut } from "firebase/auth";
-import { auth } from "../firebase";
+import { useState, useRef, useEffect } from "react";
+import { NavLink, Outlet } from "react-router-dom";
 import "../styles/dashboard.css";
 
 function Dashboard() {
   const [open, setOpen] = useState(true);
-  const navigate = useNavigate();
+  const sidebarRef = useRef(null);
 
-  const handleLogout = async () => {
-    await signOut(auth);
-    navigate("/");
-  };
+  // Close sidebar when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (
+        open &&
+        sidebarRef.current &&
+        !sidebarRef.current.contains(event.target)
+      ) {
+        setOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [open]);
 
   return (
     <div className="dashboard-container">
-
+      
       {/* Sidebar */}
-      <div className={`sidebar ${open ? "open" : "closed"}`}>
+      <div
+        ref={sidebarRef}
+        className={`sidebar ${open ? "open" : "closed"}`}
+      >
         <h2 className="logo">SwapHub</h2>
 
-        <NavLink to="/dashboard" className="menu-item">
+        <NavLink to="/dashboard" end className="menu-item">
           Dashboard
         </NavLink>
 
-        <NavLink to="profile" className="menu-item">
+        <NavLink to="/dashboard/profile" className="menu-item">
           Profile
         </NavLink>
 
-        <NavLink to="chat" className="menu-item">
+        <NavLink to="/dashboard/chat" className="menu-item">
           Chat
         </NavLink>
 
-        <NavLink to="requests" className="menu-item">
+        <NavLink to="/dashboard/requests" className="menu-item">
           Requests
         </NavLink>
 
-        <div className="menu-item logout" onClick={handleLogout}>
+        <div className="menu-item logout">
           Logout
         </div>
       </div>

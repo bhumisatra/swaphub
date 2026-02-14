@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { auth, db } from "../firebase";
+import { auth, db, storage } from "../firebase";
 import {
   doc,
   getDoc,
@@ -9,12 +9,14 @@ import {
   where,
   getDocs
 } from "firebase/firestore";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import "../styles/profile.css";
 
 function Profile() {
   const [userData, setUserData] = useState(null);
   const [usernameInput, setUsernameInput] = useState("");
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   const currentUser = auth.currentUser;
 
@@ -31,12 +33,31 @@ function Profile() {
     fetchUser();
   }, []);
 
+  // ✅ PROFILE IMAGE UPLOAD
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setUploading(true);
+
+    const storageRef = ref(storage, `profileImages/${currentUser.uid}`);
+    await uploadBytes(storageRef, file);
+    const downloadURL = await getDownloadURL(storageRef);
+
+    await updateDoc(doc(db, "users", currentUser.uid), {
+      photoURL: downloadURL
+    });
+
+    setUserData({ ...userData, photoURL: downloadURL });
+    setUploading(false);
+  };
+
+  // ✅ USERNAME LOGIC (unchanged)
   const handleSetUsername = async () => {
     if (!usernameInput) return alert("Enter username");
 
     setSaving(true);
 
-    // 🔍 Check uniqueness
     const q = query(
       collection(db, "users"),
       where("username", "==", usernameInput.toLowerCase())
@@ -50,7 +71,6 @@ function Profile() {
       return;
     }
 
-    // 💾 Save username
     await updateDoc(doc(db, "users", currentUser.uid), {
       username: usernameInput.toLowerCase()
     });
@@ -64,6 +84,10 @@ function Profile() {
 
   if (!userData) return <h2>Loading...</h2>;
 
+  const firstLetter = userData.username
+    ? userData.username.charAt(0).toUpperCase()
+    : userData.email.charAt(0).toUpperCase();
+
   return (
     <div className="profile-wrapper">
 
@@ -72,11 +96,25 @@ function Profile() {
 
       {/* Header */}
       <div className="profile-header">
+
+        {/* 🔥 Professional Avatar */}
         <div className="profile-avatar">
-          {userData.username
-            ? userData.username.charAt(0).toUpperCase()
-            : userData.email.charAt(0).toUpperCase()}
+          {userData.photoURL ? (
+            <img src={userData.photoURL} alt="Profile" />
+          ) : (
+            firstLetter
+          )}
         </div>
+
+        <label className="upload-btn">
+          {uploading ? "Uploading..." : "Change Photo"}
+          <input
+            type="file"
+            accept="image/*"
+            hidden
+            onChange={handleImageUpload}
+          />
+        </label>
 
         <h2>{userData.name || "User"}</h2>
 
@@ -88,9 +126,7 @@ function Profile() {
               type="text"
               placeholder="Set unique username"
               value={usernameInput}
-              onChange={(e) =>
-                setUsernameInput(e.target.value)
-              }
+              onChange={(e) => setUsernameInput(e.target.value)}
               style={{ padding: "8px" }}
             />
             <button
