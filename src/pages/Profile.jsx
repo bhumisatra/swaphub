@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { auth, db, storage } from "../firebase";
+import { auth, db } from "../firebase";
 import {
   doc,
   getDoc,
@@ -9,7 +9,6 @@ import {
   where,
   getDocs
 } from "firebase/firestore";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import "../styles/profile.css";
 
 function Profile() {
@@ -33,26 +32,50 @@ function Profile() {
     fetchUser();
   }, []);
 
-  // ✅ PROFILE IMAGE UPLOAD
+  // ✅ CLOUDINARY IMAGE UPLOAD
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
     setUploading(true);
 
-    const storageRef = ref(storage, `profileImages/${currentUser.uid}`);
-    await uploadBytes(storageRef, file);
-    const downloadURL = await getDownloadURL(storageRef);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", "swaphub_profile");
 
-    await updateDoc(doc(db, "users", currentUser.uid), {
-      photoURL: downloadURL
-    });
+      const response = await fetch(
+        "https://api.cloudinary.com/v1_1/dfq0pmt5y/image/upload",
+        {
+          method: "POST",
+          body: formData
+        }
+      );
 
-    setUserData({ ...userData, photoURL: downloadURL });
+      const data = await response.json();
+
+      if (!data.secure_url) {
+        alert("Upload failed");
+        setUploading(false);
+        return;
+      }
+
+      // Save URL to Firestore
+      await updateDoc(doc(db, "users", currentUser.uid), {
+        photoURL: data.secure_url
+      });
+
+      setUserData({ ...userData, photoURL: data.secure_url });
+
+    } catch (error) {
+      console.error(error);
+      alert("Upload error");
+    }
+
     setUploading(false);
   };
 
-  // ✅ USERNAME LOGIC (unchanged)
+  // ✅ USERNAME SYSTEM
   const handleSetUsername = async () => {
     if (!usernameInput) return alert("Enter username");
 
@@ -97,7 +120,7 @@ function Profile() {
       {/* Header */}
       <div className="profile-header">
 
-        {/* 🔥 Professional Avatar */}
+        {/* Avatar */}
         <div className="profile-avatar">
           {userData.photoURL ? (
             <img src={userData.photoURL} alt="Profile" />
@@ -121,18 +144,14 @@ function Profile() {
         {userData.username ? (
           <p>@{userData.username}</p>
         ) : (
-          <div style={{ marginTop: "15px" }}>
+          <div className="username-box">
             <input
               type="text"
               placeholder="Set unique username"
               value={usernameInput}
               onChange={(e) => setUsernameInput(e.target.value)}
-              style={{ padding: "8px" }}
             />
-            <button
-              onClick={handleSetUsername}
-              style={{ marginLeft: "10px" }}
-            >
+            <button onClick={handleSetUsername}>
               {saving ? "Saving..." : "Save"}
             </button>
           </div>
