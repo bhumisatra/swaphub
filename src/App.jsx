@@ -1,17 +1,16 @@
-import { Routes, Route } from "react-router-dom";
-import Login from "./pages/Login";
-import Signup from "./pages/Signup";
-import Requests from "./pages/Requests";
-import Chat from "./pages/Chat";
+import "./index.css";
 
 function App() {
   return (
-    <Routes>
-      <Route path="/" element={<Login />} />
-      <Route path="/signup" element={<Signup />} />
-      <Route path="/requests" element={<Requests />} />
-      <Route path="/chat/:id" element={<Chat />} />
-    </Routes>
+    <div className="container">
+      <h1 className="title">SwapHub</h1>
+      <p className="subtitle">Skill Exchange Platform 🚀</p>
+
+      <div className="card">
+        <button className="btn">Login</button>
+        <button className="btn secondary">Sign Up</button>
+      </div>
+    </div>
   );
 }
 
