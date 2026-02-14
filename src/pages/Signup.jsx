@@ -1,123 +1,90 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { auth, db } from "../firebase";
-import {
-  createUserWithEmailAndPassword
-} from "firebase/auth";
-import {
-  collection,
-  query,
-  where,
-  getDocs,
-  setDoc,
-  doc
-} from "firebase/firestore";
-import "../styles/signupDetails.css";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore";
+import signupImage from "../assets/whatsapp.jpeg"; // same image
+import "../styles/signup.css";
 
 function Signup() {
-  const navigate = useNavigate();
-
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [username, setUsername] = useState("");
-  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleSignup = async (e) => {
     e.preventDefault();
 
-    if (username.length < 4) {
-      alert("Username must be at least 4 characters");
-      return;
-    }
-
     try {
-      setLoading(true);
-
-      // 🔎 Check if username exists
-      const q = query(
-        collection(db, "users"),
-        where("username", "==", username.toLowerCase())
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
       );
 
-      const snapshot = await getDocs(q);
-
-      if (!snapshot.empty) {
-        alert("Username already taken");
-        setLoading(false);
-        return;
-      }
-
-      // 🔐 Create user in Firebase Auth
-      const userCredential =
-        await createUserWithEmailAndPassword(auth, email, password);
-
-      const user = userCredential.user;
-
-      // 💾 Save user to Firestore
-      await setDoc(doc(db, "users", user.uid), {
+      await setDoc(doc(db, "users", userCredential.user.uid), {
+        username,
         email,
-        username: username.toLowerCase(),
-        name: "",
-        dob: "",
-        gender: "",
         createdAt: new Date()
       });
 
-      alert("Account Created Successfully!");
-      navigate("/");
+      navigate("/dashboard");
     } catch (error) {
-      alert(error.message);
+      alert("Signup failed");
     }
-
-    setLoading(false);
   };
 
   return (
     <div className="signup-container">
-      <form className="signup-box" onSubmit={handleSignup}>
-        <h2>Create Account</h2>
+      <div className="circle top"></div>
+      <div className="circle bottom"></div>
 
-        <input
-          type="text"
-          placeholder="Choose Username"
-          value={username}
-          onChange={(e) =>
-            setUsername(e.target.value.toLowerCase())
-          }
-          required
-        />
+      <div className="signup-card">
 
-        <input
-          type="email"
-          placeholder="Enter Email"
-          value={email}
-          onChange={(e) =>
-            setEmail(e.target.value)
-          }
-          required
-        />
+        {/* LEFT SIDE */}
+        <div className="signup-left">
+          <h1>CREATE ACCOUNT</h1>
 
-        <input
-          type="password"
-          placeholder="Enter Password"
-          value={password}
-          onChange={(e) =>
-            setPassword(e.target.value)
-          }
-          required
-        />
+          <form onSubmit={handleSignup}>
+            <input
+              type="text"
+              placeholder="USERNAME"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+            />
 
-        <button type="submit">
-          {loading ? "Creating..." : "Sign Up"}
-        </button>
+            <input
+              type="email"
+              placeholder="EMAIL"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
 
-        <p>
-          Already have account?
-          <span onClick={() => navigate("/")}>
-            Login
-          </span>
-        </p>
-      </form>
+            <input
+              type="password"
+              placeholder="PASSWORD"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+
+            <button type="submit">SIGN UP</button>
+          </form>
+
+          <div className="signup-links">
+            <span>Already have an account?</span>
+            <Link to="/">LOGIN</Link>
+          </div>
+        </div>
+
+        {/* RIGHT SIDE */}
+        <div className="signup-right">
+          <img src={signupImage} alt="Signup Illustration" />
+        </div>
+
+      </div>
     </div>
   );
 }
