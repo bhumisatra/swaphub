@@ -12,7 +12,7 @@ import {
   setDoc,
   doc
 } from "firebase/firestore";
-import "../styles/signup.css";
+import "../styles/signupDetails.css";
 
 function Signup() {
   const navigate = useNavigate();
