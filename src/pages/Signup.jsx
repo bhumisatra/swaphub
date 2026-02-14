@@ -1,58 +1,122 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 import { auth, db } from "../firebase";
+import {
+  createUserWithEmailAndPassword
+} from "firebase/auth";
+import {
+  collection,
+  query,
+  where,
+  getDocs,
+  setDoc,
+  doc
+} from "firebase/firestore";
+import "../styles/signup.css";
 
 function Signup() {
   const navigate = useNavigate();
 
-  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [dob, setDob] = useState("");
-  const [gender, setGender] = useState("");
+  const [username, setUsername] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleSignup = async (e) => {
     e.preventDefault();
 
+    if (username.length < 4) {
+      alert("Username must be at least 4 characters");
+      return;
+    }
+
     try {
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
+      setLoading(true);
+
+      // 🔎 Check if username exists
+      const q = query(
+        collection(db, "users"),
+        where("username", "==", username.toLowerCase())
       );
+
+      const snapshot = await getDocs(q);
+
+      if (!snapshot.empty) {
+        alert("Username already taken");
+        setLoading(false);
+        return;
+      }
+
+      // 🔐 Create user in Firebase Auth
+      const userCredential =
+        await createUserWithEmailAndPassword(auth, email, password);
 
       const user = userCredential.user;
 
-      // 🔥 SAVE USER IN FIRESTORE
+      // 💾 Save user to Firestore
       await setDoc(doc(db, "users", user.uid), {
-        name,
         email,
-        dob,
-        gender,
-        createdAt: serverTimestamp()
+        username: username.toLowerCase(),
+        name: "",
+        dob: "",
+        gender: "",
+        createdAt: new Date()
       });
 
       alert("Account Created Successfully!");
-      navigate("/dashboard");
-
+      navigate("/");
     } catch (error) {
       alert(error.message);
     }
+
+    setLoading(false);
   };
 
   return (
-    <div>
-      <h2>Signup</h2>
+    <div className="signup-container">
+      <form className="signup-box" onSubmit={handleSignup}>
+        <h2>Create Account</h2>
 
-      <form onSubmit={handleSignup}>
-        <input placeholder="Name" onChange={(e) => setName(e.target.value)} />
-        <input placeholder="Email" onChange={(e) => setEmail(e.target.value)} />
-        <input type="password" placeholder="Password" onChange={(e) => setPassword(e.target.value)} />
-        <input type="date" onChange={(e) => setDob(e.target.value)} />
-        <input placeholder="Gender" onChange={(e) => setGender(e.target.value)} />
-        <button type="submit">Signup</button>
+        <input
+          type="text"
+          placeholder="Choose Username"
+          value={username}
+          onChange={(e) =>
+            setUsername(e.target.value.toLowerCase())
+          }
+          required
+        />
+
+        <input
+          type="email"
+          placeholder="Enter Email"
+          value={email}
+          onChange={(e) =>
+            setEmail(e.target.value)
+          }
+          required
+        />
+
+        <input
+          type="password"
+          placeholder="Enter Password"
+          value={password}
+          onChange={(e) =>
+            setPassword(e.target.value)
+          }
+          required
+        />
+
+        <button type="submit">
+          {loading ? "Creating..." : "Sign Up"}
+        </button>
+
+        <p>
+          Already have account?
+          <span onClick={() => navigate("/")}>
+            Login
+          </span>
+        </p>
       </form>
     </div>
   );

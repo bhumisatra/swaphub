@@ -2,160 +2,124 @@ import { useEffect, useState } from "react";
 import { auth, db } from "../firebase";
 import {
   collection,
-  addDoc,
-  getDocs,
-  doc,
-  setDoc,
-  getDoc,
   query,
-  orderBy,
+  where,
+  getDocs,
+  addDoc,
   onSnapshot,
-  serverTimestamp
+  orderBy
 } from "firebase/firestore";
 import "../styles/chat.css";
 
 function Chat() {
   const currentUser = auth.currentUser;
 
-  const [friends, setFriends] = useState([]);
+  const [searchUsername, setSearchUsername] = useState("");
   const [selectedUser, setSelectedUser] = useState(null);
-  const [searchEmail, setSearchEmail] = useState("");
   const [messages, setMessages] = useState([]);
-  const [message, setMessage] = useState("");
+  const [newMessage, setNewMessage] = useState("");
 
-  // 🔹 Load friend list
-  useEffect(() => {
-    const fetchFriends = async () => {
-      const snapshot = await getDocs(
-        collection(db, "friends", currentUser.uid, "friendList")
-      );
-
-      setFriends(snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })));
-    };
-
-    fetchFriends();
-  }, []);
-
-  // 🔹 Add Friend by Email
-  const addFriend = async () => {
-    if (!searchEmail) return;
-
-    const snapshot = await getDocs(collection(db, "users"));
-    const user = snapshot.docs.find(
-      doc => doc.data().email === searchEmail
+  // 🔍 Search user by username
+  const handleSearch = async () => {
+    const q = query(
+      collection(db, "users"),
+      where("username", "==", searchUsername.toLowerCase())
     );
 
-    if (!user) {
+    const snapshot = await getDocs(q);
+
+    if (!snapshot.empty) {
+      snapshot.forEach((doc) => {
+        if (doc.id !== currentUser.uid) {
+          setSelectedUser({ id: doc.id, ...doc.data() });
+        }
+      });
+    } else {
       alert("User not found");
-      return;
     }
-
-    if (user.id === currentUser.uid) {
-      alert("Cannot add yourself");
-      return;
-    }
-
-    await setDoc(
-      doc(db, "friends", currentUser.uid, "friendList", user.id),
-      {
-        name: user.data().name,
-        email: user.data().email
-      }
-    );
-
-    alert("Friend Added!");
-    setSearchEmail("");
-    window.location.reload();
   };
 
-  // 🔹 Listen for messages
+  // 💬 Load messages real-time
   useEffect(() => {
     if (!selectedUser) return;
 
     const chatId =
-      currentUser.uid < selectedUser.id
-        ? `${currentUser.uid}_${selectedUser.id}`
-        : `${selectedUser.id}_${currentUser.uid}`;
+      currentUser.uid > selectedUser.id
+        ? currentUser.uid + selectedUser.id
+        : selectedUser.id + currentUser.uid;
 
     const q = query(
       collection(db, "chats", chatId, "messages"),
-      orderBy("timestamp")
+      orderBy("createdAt")
     );
 
-    const unsubscribe = onSnapshot(q, snapshot => {
-      setMessages(snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      setMessages(
+        snapshot.docs.map((doc) => doc.data())
+      );
     });
 
     return () => unsubscribe();
   }, [selectedUser]);
 
-  const sendMessage = async (e) => {
-    e.preventDefault();
-    if (!message.trim() || !selectedUser) return;
+  // 📤 Send message
+  const sendMessage = async () => {
+    if (!newMessage.trim()) return;
 
     const chatId =
-      currentUser.uid < selectedUser.id
-        ? `${currentUser.uid}_${selectedUser.id}`
-        : `${selectedUser.id}_${currentUser.uid}`;
+      currentUser.uid > selectedUser.id
+        ? currentUser.uid + selectedUser.id
+        : selectedUser.id + currentUser.uid;
 
-    await addDoc(collection(db, "chats", chatId, "messages"), {
-      text: message,
-      senderId: currentUser.uid,
-      timestamp: serverTimestamp()
-    });
+    await addDoc(
+      collection(db, "chats", chatId, "messages"),
+      {
+        text: newMessage,
+        sender: currentUser.uid,
+        createdAt: new Date()
+      }
+    );
 
-    setMessage("");
+    setNewMessage("");
   };
 
   return (
     <div className="chat-container">
-
-      {/* LEFT PANEL */}
-      <div className="chat-users">
+      <div className="chat-sidebar">
         <h3>Chats</h3>
 
-        {/* Add Friend */}
-        <div className="add-friend">
-          <input
-            type="text"
-            placeholder="Enter email"
-            value={searchEmail}
-            onChange={(e) => setSearchEmail(e.target.value)}
-          />
-          <button onClick={addFriend}>Add</button>
-        </div>
+        <input
+          placeholder="Enter username"
+          value={searchUsername}
+          onChange={(e) =>
+            setSearchUsername(e.target.value)
+          }
+        />
 
-        {friends.map(user => (
-          <div
-            key={user.id}
-            className={`chat-user ${selectedUser?.id === user.id ? "active" : ""}`}
-            onClick={() => setSelectedUser(user)}
-          >
-            {user.name}
+        <button onClick={handleSearch}>
+          Search
+        </button>
+
+        {selectedUser && (
+          <div className="user-item">
+            @{selectedUser.username}
           </div>
-        ))}
+        )}
       </div>
 
-      {/* RIGHT PANEL */}
-      <div className="chat-box">
+      <div className="chat-main">
         {selectedUser ? (
           <>
             <div className="chat-header">
-              {selectedUser.name}
+              @{selectedUser.username}
             </div>
 
             <div className="chat-messages">
-              {messages.map(msg => (
+              {messages.map((msg, index) => (
                 <div
-                  key={msg.id}
+                  key={index}
                   className={
-                    msg.senderId === currentUser.uid
+                    msg.sender === currentUser.uid
                       ? "my-message"
                       : "other-message"
                   }
@@ -165,18 +129,21 @@ function Chat() {
               ))}
             </div>
 
-            <form className="chat-input" onSubmit={sendMessage}>
+            <div className="chat-input">
               <input
-                type="text"
+                value={newMessage}
+                onChange={(e) =>
+                  setNewMessage(e.target.value)
+                }
                 placeholder="Type message..."
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
               />
-              <button type="submit">Send</button>
-            </form>
+              <button onClick={sendMessage}>
+                Send
+              </button>
+            </div>
           </>
         ) : (
-          <div className="no-chat">
+          <div className="empty-chat">
             Select a user to start chatting
           </div>
         )}
