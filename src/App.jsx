@@ -1,67 +1,55 @@
-import { Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { useState } from "react";
 
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import ProfileSetup from "./pages/ProfileSetup";
 import Dashboard from "./pages/Dashboard";
-import AddRequest from "./pages/AddRequest";
-import Requests from "./pages/Requests";
-import Chat from "./pages/Chat";
-import Profile from "./pages/Profile";
-import PrivateRoute from "./components/PrivateRoute";
 
 function App() {
+  const [user, setUser] = useState(
+    JSON.parse(localStorage.getItem("user")) || null
+  );
+
+  // Protect private routes
+  const ProtectedRoute = ({ children }) => {
+    if (!user) {
+      return <Navigate to="/" />;
+    }
+    return children;
+  };
+
   return (
-    <Routes>
+    <Router>
+      <Routes>
+        {/* Public Routes */}
+        <Route path="/" element={<Login setUser={setUser} />} />
+        <Route path="/signup" element={<Signup setUser={setUser} />} />
 
-      <Route path="/" element={<Login />} />
-      <Route path="/signup" element={<Signup />} />
+        {/* Profile Setup After Signup */}
+        <Route
+          path="/profile-setup"
+          element={
+            <ProtectedRoute>
+              <ProfileSetup user={user} setUser={setUser} />
+            </ProtectedRoute>
+          }
+        />
 
-      <Route
-        path="/dashboard"
-        element={
-          <PrivateRoute>
-            <Dashboard />
-          </PrivateRoute>
-        }
-      />
+        {/* Dashboard After Login */}
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard user={user} setUser={setUser} />
+            </ProtectedRoute>
+          }
+        />
 
-      <Route
-        path="/add-request"
-        element={
-          <PrivateRoute>
-            <AddRequest />
-          </PrivateRoute>
-        }
-      />
-
-      <Route
-        path="/requests"
-        element={
-          <PrivateRoute>
-            <Requests />
-          </PrivateRoute>
-        }
-      />
-
-      <Route
-        path="/chat/:id"
-        element={
-          <PrivateRoute>
-            <Chat />
-          </PrivateRoute>
-        }
-      />
-
-      <Route
-        path="/profile"
-        element={
-          <PrivateRoute>
-            <Profile />
-          </PrivateRoute>
-        }
-      />
-
-    </Routes>
+        {/* If wrong route */}
+        <Route path="*" element={<Navigate to="/" />} />
+      </Routes>
+    </Router>
   );
 }
 

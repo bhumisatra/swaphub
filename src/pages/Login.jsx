@@ -1,34 +1,58 @@
+import { useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import { FaUser, FaLock } from "react-icons/fa";
+import "../styles/login.css";
 
 function Login() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    const email = e.target.email.value;
-    const password = e.target.password.value;
-
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      navigate("/dashboard");
-    } catch (error) {
-      alert(error.message);
+      navigate("/profile-setup");
+    } catch (err) {
+      alert(err.message);
     }
   };
 
   return (
-    <div className="container">
-      <h2>SwapHub Login</h2>
-      <form onSubmit={handleLogin}>
-        <input name="email" type="email" placeholder="Email" required />
-        <input name="password" type="password" placeholder="Password" required />
-        <button type="submit">Login</button>
-      </form>
-      <p>
-        Don't have account? <Link to="/signup">Signup</Link>
-      </p>
+    <div className="login-container">
+      <div className="login-card">
+        <h2>SwapHub Login</h2>
+
+        <form onSubmit={handleLogin}>
+          <div className="input-group">
+            <FaUser className="icon" />
+            <input
+              type="email"
+              placeholder="User name / Email"
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="input-group">
+            <FaLock className="icon" />
+            <input
+              type="password"
+              placeholder="Password"
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+
+          <button className="login-btn">LOG IN NOW →</button>
+        </form>
+
+        <p>
+          Don't have account? <Link to="/signup">Signup</Link>
+        </p>
+      </div>
     </div>
   );
 }
