@@ -1,24 +1,19 @@
-/* ================================
-   GLOBAL COLOR VARIABLES
-================================ */
-
 :root {
   --bg-main: #06141B;
   --bg-soft: #11212D;
-  --card-bg: rgba(37,55,69,0.85);
+  --card-bg: #253745;
 
-  /* 🔥 New Accent (Teal Highlight) */
-  --accent: #00BFA6;
-  --accent-soft: #5EEAD4;
-  --accent-dark: #00897B;
+  --accent: #4A5C6A;
+  --accent-soft: #9BA8AB;
+  --accent-light: #CCD0CF;
 
   --text-main: #CCD0CF;
   --text-muted: #9BA8AB;
-  --border-soft: rgba(155,168,171,0.25);
+  --border-soft: #4A5C6A;
 }
 
 /* ================================
-   PAGE BACKGROUND
+   BODY
 ================================ */
 
 body {
@@ -29,21 +24,17 @@ body {
 }
 
 /* ================================
-   HEADER / TOPBAR
+   TOPBAR
 ================================ */
 
 .topbar {
   background: #11212D;
   color: #CCD0CF;
-  border-bottom: 3px solid var(--accent);
+  border-bottom: 3px solid #4A5C6A;
 }
 
-.topbar * {
-  color: #CCD0CF;
-}
-
-/* ================================
-   SIDEBAR
+  /* ================================
+   SIDEBAR - LIVE MULTI COLOR FLOW
 ================================ */
 
 .sidebar {
@@ -53,16 +44,39 @@ body {
     #11212D,
     #253745,
     #4A5C6A,
+    #9BA8AB,
+    #CCD0CF,
+    #4A5C6A,
     #253745,
     #11212D,
     #06141B
   );
 
-  background-size: 600% 600%;
-  animation: sidebarFlow 18s ease infinite;
+  background-size: 800% 800%;
+  animation: sidebarFlow 20s ease infinite;
 
-  border-right: 2px solid rgba(204,208,207,0.15);
+  border-right: 2px solid #4A5C6A;
   backdrop-filter: blur(12px);
+}
+
+/* Smooth Infinite Flow Animation */
+
+@keyframes sidebarFlow {
+  0% {
+    background-position: 0% 50%;
+  }
+  25% {
+    background-position: 50% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  75% {
+    background-position: 50% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 /* ================================
@@ -70,44 +84,23 @@ body {
 ================================ */
 
 h1, h2, h3 {
-  color: var(--accent-soft);
-  font-weight: 600;
+  color: #CCD0CF;
 }
 
 /* ================================
-   UNIVERSAL CARD DESIGN
+   CARDS
 ================================ */
 
 .card, .glass-card {
-  background: var(--card-bg);
-  backdrop-filter: blur(16px);
+  background: #253745;
   border-radius: 18px;
-  border: 1px solid var(--border-soft);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-  transition: all 0.25s ease;
-  position: relative;
-  overflow: hidden;
+  border: 1px solid #4A5C6A;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  transition: 0.25s ease;
 }
 
-.card::before,
-.glass-card::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(120deg, transparent, rgba(0,191,166,0.15), transparent);
-  opacity: 0;
-  transition: 0.3s;
-}
-
-.card:hover::before,
-.glass-card:hover::before {
-  opacity: 1;
-}
-
-.card:hover,
-.glass-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 14px 40px rgba(0,0,0,0.6);
+.card:hover {
+  box-shadow: 0 14px 40px rgba(0,0,0,0.7);
 }
 
 /* ================================
@@ -115,29 +108,27 @@ h1, h2, h3 {
 ================================ */
 
 button, .primary-btn {
-  background: linear-gradient(135deg, #00BFA6, #00897B);
-  color: #06141B;
+  background: #4A5C6A;
+  color: #CCD0CF;
   border: none;
   padding: 10px 18px;
   border-radius: 12px;
-  cursor: pointer;
   transition: 0.2s;
 }
 
-button:hover, .primary-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0,191,166,0.4);
+button:hover {
+  background: #9BA8AB;
+  color: #06141B;
 }
 
-/* outline button */
 .secondary-btn {
   background: transparent;
-  border: 2px solid var(--accent);
-  color: var(--accent-soft);
+  border: 2px solid #9BA8AB;
+  color: #9BA8AB;
 }
 
 .secondary-btn:hover {
-  background: var(--accent);
+  background: #9BA8AB;
   color: #06141B;
 }
 
@@ -146,31 +137,30 @@ button:hover, .primary-btn:hover {
 ================================ */
 
 input, textarea, select {
-  background: rgba(17,33,45,0.8);
+  background: #11212D;
   color: #CCD0CF;
-  border: 1px solid var(--border-soft);
+  border: 1px solid #4A5C6A;
   border-radius: 12px;
   padding: 10px;
-  outline: none;
 }
 
 input:focus, textarea:focus, select:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(0,191,166,0.25);
+  border-color: #9BA8AB;
+  box-shadow: 0 0 0 3px rgba(155,168,171,0.25);
 }
 
 /* ================================
-   CHAT BUBBLES
+   CHAT
 ================================ */
 
 .message.me {
-  background: linear-gradient(135deg, #00BFA6, #00897B);
-  color: #06141B;
+  background: #4A5C6A;
+  color: #CCD0CF;
 }
 
 .message.other {
   background: #11212D;
-  border: 1px solid var(--border-soft);
+  border: 1px solid #4A5C6A;
   color: #CCD0CF;
 }
 
@@ -179,12 +169,11 @@ input:focus, textarea:focus, select:focus {
 ================================ */
 
 a {
-  color: var(--accent-soft);
-  text-decoration: none;
+  color: #9BA8AB;
 }
 
 a:hover {
-  text-decoration: underline;
+  color: #CCD0CF;
 }
 
 /* ================================
@@ -200,10 +189,10 @@ a:hover {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--accent);
+  background: #4A5C6A;
   border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--accent-dark);
+  background: #9BA8AB;
 }
