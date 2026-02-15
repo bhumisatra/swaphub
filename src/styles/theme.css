@@ -1,15 +1,11 @@
+/* ================================
+   COLOR VARIABLES
+================================ */
+
 :root {
-  --bg-main: #06141B;
-  --bg-soft: #11212D;
-  --card-bg: #253745;
-
-  --accent: #4A5C6A;
-  --accent-soft: #9BA8AB;
-  --accent-light: #CCD0CF;
-
-  --text-main: #CCD0CF;
-  --text-muted: #9BA8AB;
-  --border-soft: #4A5C6A;
+  --black: #000000;
+  --light-blue: #4DA6FF;
+  --white: #FFFFFF;
 }
 
 /* ================================
@@ -18,9 +14,18 @@
 
 body {
   margin: 0;
-  background: linear-gradient(180deg, #06141B 0%, #11212D 100%);
-  color: var(--text-main);
+  background: var(--black);
+  color: var(--white);
   font-family: 'Inter', sans-serif;
+}
+
+/* ================================
+   SIDEBAR
+================================ */
+
+.sidebar {
+  background: var(--black);
+  border-right: 2px solid var(--light-blue);
 }
 
 /* ================================
@@ -28,55 +33,9 @@ body {
 ================================ */
 
 .topbar {
-  background: #11212D;
-  color: #CCD0CF;
-  border-bottom: 3px solid #4A5C6A;
-}
-
-  /* ================================
-   SIDEBAR - LIVE MULTI COLOR FLOW
-================================ */
-
-.sidebar {
-  background: linear-gradient(
-    270deg,
-    #06141B,
-    #11212D,
-    #253745,
-    #4A5C6A,
-    #9BA8AB,
-    #CCD0CF,
-    #4A5C6A,
-    #253745,
-    #11212D,
-    #06141B
-  );
-
-  background-size: 800% 800%;
-  animation: sidebarFlow 20s ease infinite;
-
-  border-right: 2px solid #4A5C6A;
-  backdrop-filter: blur(12px);
-}
-
-/* Smooth Infinite Flow Animation */
-
-@keyframes sidebarFlow {
-  0% {
-    background-position: 0% 50%;
-  }
-  25% {
-    background-position: 50% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  75% {
-    background-position: 50% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
+  background: var(--black);
+  color: var(--white);
+  border-bottom: 2px solid var(--light-blue);
 }
 
 /* ================================
@@ -84,84 +43,64 @@ body {
 ================================ */
 
 h1, h2, h3 {
-  color: #CCD0CF;
+  color: var(--light-blue);
 }
 
 /* ================================
    CARDS
 ================================ */
 
-.card, .glass-card {
-  background: #253745;
+.card,
+.glass-card {
+  background: var(--white);
+  color: var(--black);
   border-radius: 18px;
-  border: 1px solid #4A5C6A;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-  transition: 0.25s ease;
+  border: 1px solid var(--light-blue);
+  box-shadow: 0 8px 25px rgba(77,166,255,0.25);
+  transition: 0.3s ease;
 }
 
-.card:hover {
-  box-shadow: 0 14px 40px rgba(0,0,0,0.7);
+.card:hover,
+.glass-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 30px rgba(77,166,255,0.45);
 }
 
 /* ================================
    BUTTONS
 ================================ */
 
-button, .primary-btn {
-  background: #4A5C6A;
-  color: #CCD0CF;
+button,
+.primary-btn {
+  background: var(--light-blue);
+  color: var(--black);
   border: none;
   padding: 10px 18px;
   border-radius: 12px;
-  transition: 0.2s;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.3s ease;
 }
 
-button:hover {
-  background: #9BA8AB;
-  color: #06141B;
-}
-
-.secondary-btn {
-  background: transparent;
-  border: 2px solid #9BA8AB;
-  color: #9BA8AB;
-}
-
-.secondary-btn:hover {
-  background: #9BA8AB;
-  color: #06141B;
+button:hover,
+.primary-btn:hover {
+  background: var(--white);
+  color: var(--black);
+  border: 1px solid var(--light-blue);
 }
 
 /* ================================
    INPUTS
 ================================ */
 
-input, textarea, select {
-  background: #11212D;
-  color: #CCD0CF;
-  border: 1px solid #4A5C6A;
-  border-radius: 12px;
+input,
+textarea,
+select {
+  background: var(--white);
+  color: var(--black);
+  border: 1px solid var(--light-blue);
+  border-radius: 10px;
   padding: 10px;
-}
-
-input:focus, textarea:focus, select:focus {
-  border-color: #9BA8AB;
-  box-shadow: 0 0 0 3px rgba(155,168,171,0.25);
-}
-
-/* ================================
-   CHAT
-================================ */
-
-.message.me {
-  background: #4A5C6A;
-  color: #CCD0CF;
-}
-
-.message.other {
-  background: #11212D;
-  border: 1px solid #4A5C6A;
-  color: #CCD0CF;
 }
 
 /* ================================
@@ -169,30 +108,34 @@ input:focus, textarea:focus, select:focus {
 ================================ */
 
 a {
-  color: #9BA8AB;
+  color: var(--light-blue);
+  text-decoration: none;
 }
 
 a:hover {
-  color: #CCD0CF;
+  color: var(--white);
 }
 
 /* ================================
-   SCROLLBAR
+   MENU ITEMS
 ================================ */
 
-::-webkit-scrollbar {
-  width: 8px;
+.menu-item {
+  color: var(--white);
+  transition: 0.3s ease;
 }
 
-::-webkit-scrollbar-track {
-  background: #11212D;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #4A5C6A;
+.menu-item:hover {
+  background: var(--light-blue);
+  color: var(--black);
   border-radius: 10px;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #9BA8AB;
+/* ================================
+   LOGO
+================================ */
+
+.logo {
+  color: var(--light-blue);
+  font-weight: bold;
 }
