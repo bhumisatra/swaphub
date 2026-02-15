@@ -14,7 +14,7 @@ import Home from "./pages/Home";
 import Settings from "./pages/Settings";
 import ViewProfile from "./pages/ViewProfile";
 import EditProfile from "./pages/EditProfile";
-import Community from "./pages/CommunityChat"; // ⭐ ADDED
+import Community from "./pages/CommunityChat";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
@@ -26,7 +26,6 @@ function App() {
       setUser(currentUser);
       setLoading(false);
     });
-
     return () => unsubscribe();
   }, []);
 
@@ -36,25 +35,12 @@ function App() {
     <Router>
       <Routes>
 
-        {/* Login */}
-        <Route
-          path="/"
-          element={user ? <Navigate to="/dashboard" /> : <Login />}
-        />
+        {/* LOGIN */}
+        <Route path="/" element={user ? <Navigate to="/dashboard" /> : <Login />} />
+        <Route path="/signup" element={user ? <Navigate to="/dashboard" /> : <Signup />} />
+        <Route path="/profile-setup" element={user ? <ProfileSetup /> : <Navigate to="/" />} />
 
-        {/* Signup */}
-        <Route
-          path="/signup"
-          element={user ? <Navigate to="/dashboard" /> : <Signup />}
-        />
-
-        {/* Profile Setup */}
-        <Route
-          path="/profile-setup"
-          element={user ? <ProfileSetup /> : <Navigate to="/" />}
-        />
-
-        {/* 🔥 PROTECTED DASHBOARD */}
+        {/* DASHBOARD */}
         <Route
           path="/dashboard"
           element={
@@ -63,23 +49,28 @@ function App() {
             </ProtectedRoute>
           }
         >
+          {/* DEFAULT HOME */}
           <Route index element={<Home />} />
 
-          {/* PROFILE FLOW */}
+          {/* PROFILE */}
           <Route path="profile" element={<Profile />} />
           <Route path="edit-profile" element={<EditProfile />} />
           <Route path="profile/:uid" element={<ViewProfile />} />
 
-          {/* ⭐ COMMUNITY CHAT ROUTE */}
-          <Route path="community/:category" element={<Community />} />
+          {/* ⭐ COMMUNITY CHAT */}
+          <Route path="community/:name" element={<Community />} />
 
-          {/* OTHER PAGES */}
+          {/* ⭐ FIXED CHAT ROUTES */}
           <Route path="chat" element={<Chat />} />
+          <Route path="chat/:chatId" element={<Chat />} />
+
+          {/* OTHER FEATURES */}
           <Route path="requests" element={<Requests />} />
           <Route path="settings" element={<Settings />} />
+
         </Route>
 
-        {/* Unknown */}
+        {/* FALLBACK */}
         <Route path="*" element={<Navigate to="/" />} />
 
       </Routes>

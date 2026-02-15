@@ -22,11 +22,12 @@ function Signup() {
         password
       );
 
-      await setDoc(doc(db, "users", userCredential.user.uid), {
-        username,
-        email,
-        createdAt: new Date()
-      });
+await setDoc(doc(db, "users", userCredential.user.uid), {
+  uid: userCredential.user.uid,
+  username: username.toLowerCase(),
+  email: userCredential.user.email,
+  createdAt: new Date()
+});
 
       navigate("/dashboard");
     } catch (error) {
