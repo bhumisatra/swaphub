@@ -1,63 +1,109 @@
-.profile-view-wrapper {
-  min-height: 100vh;
-  background: #0b141a;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 40px;
-}
-
-.profile-card {
-  background: #111b21;
-  padding: 40px;
-  border-radius: 15px;
-  width: 400px;
-  text-align: center;
+.profile-page {
+  height: 100%;
+  overflow-y: auto;
+  padding-bottom: 60px;
   color: white;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+  scroll-behavior: smooth;
 }
 
-.profile-image-wrapper {
-  margin-bottom: 20px;
+/* THEMES */
+
+.male-theme {
+  background: linear-gradient(135deg,#0f2027,#203a43,#2c5364,#1c92d2);
 }
 
-.profile-image {
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
+.female-theme {
+  background: linear-gradient(135deg,#ff9a9e,#fad0c4,#fbc2eb,#a18cd1);
+}
+
+/* HERO */
+
+.profile-hero {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 80px 10%;
+  flex-wrap: wrap;
+}
+
+.hero-text h1 {
+  font-size: 38px;
+  margin-bottom: 10px;
+}
+
+.hero-text p {
+  opacity: 0.9;
+}
+
+.hero-avatar img,
+.avatar-letter {
+  width: 160px;
+  height: 160px;
+  border-radius: 20px;
   object-fit: cover;
-  border: 3px solid #008069;
+  background: rgba(255,255,255,0.15);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:60px;
+  font-weight:bold;
 }
 
-.profile-avatar {
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  background: #202c33;
+/* SECTIONS */
+
+.profile-section {
+  padding: 60px 10%;
+}
+
+.profile-section h2 {
+  margin-bottom: 20px;
+  font-size: 28px;
+}
+
+/* CARD */
+
+.card {
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(15px);
+  padding: 20px;
+  border-radius: 15px;
+}
+
+/* SKILLS */
+
+.skills {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 40px;
-  font-weight: bold;
-  margin: auto;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
-.profile-info h2 {
-  margin-bottom: 5px;
+.skill {
+  padding: 8px 14px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 20px;
 }
 
-.profile-email {
-  font-size: 14px;
-  color: #aebac1;
+/* PROJECTS */
+
+.projects {
+  display: grid;
+  grid-template-columns: repeat(auto-fit,minmax(250px,1fr));
+  gap: 20px;
 }
 
-.profile-bio {
-  margin-top: 15px;
-  font-size: 15px;
-  color: #d1d7db;
+.project-card {
+  background: rgba(255,255,255,0.1);
+  padding: 20px;
+  border-radius: 15px;
 }
 
-.profile-loading {
-  color: white;
-  font-size: 18px;
+/* CONTACT */
+
+.contact {
+  text-align:center;
+}
+
+.email {
+  font-size:18px;
+  opacity:0.9;
 }
