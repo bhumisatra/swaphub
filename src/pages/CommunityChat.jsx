@@ -9,7 +9,6 @@ import {
   query,
   orderBy,
   doc,
-  getDoc,
   setDoc
 } from "firebase/firestore";
 import "../styles/community.css";
@@ -34,7 +33,6 @@ export default function Community() {
     const unsub = onSnapshot(groupsRef, (snap) => {
       let list = snap.docs.map(d => d.id);
 
-      // ensure general exists
       if (!list.includes("general")) list.unshift("general");
 
       setGroups(list);
@@ -80,6 +78,11 @@ export default function Community() {
     setText("");
   };
 
+  // ENTER TO SEND
+  const handleKey = (e) => {
+    if (e.key === "Enter") sendMessage();
+  };
+
   // CREATE GROUP
   const createGroup = async () => {
     const g = prompt("Enter group name");
@@ -90,13 +93,20 @@ export default function Community() {
     });
   };
 
-  // SEARCH SORT (typed group goes top)
+  // SEARCH SORT
   const filteredGroups = [...groups].sort((a, b) => {
     if (!search) return 0;
     if (a.includes(search.toLowerCase())) return -1;
     if (b.includes(search.toLowerCase())) return 1;
     return 0;
   });
+
+  // TIME FORMAT
+  const formatTime = (timestamp) => {
+    if (!timestamp?.toDate) return "";
+    const date = timestamp.toDate();
+    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  };
 
   return (
     <div className="community-wrapper">
@@ -134,18 +144,26 @@ export default function Community() {
 
         <div className="messages-box">
           {!loaded && <p>Connecting...</p>}
-          {messages.map(msg => (
-            <div key={msg.id} className="message">
-              <b>{msg.user}</b>
-              <p>{msg.text}</p>
-            </div>
-          ))}
+
+          {messages.map(msg => {
+            const isMe = msg.user === auth.currentUser?.email;
+
+            return (
+              <div key={msg.id} className={`message-row ${isMe ? "me" : "other"}`}>
+                <div className="bubble">
+                  <div className="msg-text">{msg.text}</div>
+                  <div className="msg-time">{formatTime(msg.time)}</div>
+                </div>
+              </div>
+            );
+          })}
         </div>
 
         <div className="send-box">
           <input
             value={text}
             onChange={(e) => setText(e.target.value)}
+            onKeyDown={handleKey}
             placeholder={`Message #${selectedGroup}`}
           />
           <button onClick={sendMessage}>Send</button>
