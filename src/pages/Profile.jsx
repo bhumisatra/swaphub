@@ -1,209 +1,196 @@
-import React, { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { auth, db } from "../firebase";
+import {
+  doc,
+  getDoc,
+  updateDoc,
+  collection,
+  query,
+  where,
+  getDocs
+} from "firebase/firestore";
+import { useNavigate } from "react-router-dom";
 import "../styles/profile.css";
 
 function Profile() {
-  const [isEditing, setIsEditing] = useState(false);
+  const [userData, setUserData] = useState(null);
+  const [usernameInput, setUsernameInput] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
-  const [user, setUser] = useState({
-    name: "",
-    username: "",
-    email: "",
-    gender: "",
-    dob: "",
-    swaps: "",
-    rating: "",
-    reviews: "",
-    skills: ""
-  });
+  const navigate = useNavigate();
 
-  // Load data
+  // 🔥 WAIT FOR AUTH USER SAFELY
   useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem("swaphubUser"));
-    if (storedUser) {
-      setUser(storedUser);
-    }
+    const unsubscribe = auth.onAuthStateChanged(async (user) => {
+      if (!user) return;
+
+      const docRef = doc(db, "users", user.uid);
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        setUserData(docSnap.data());
+      }
+    });
+
+    return () => unsubscribe();
   }, []);
 
-  // Handle input
-  const handleChange = (e) => {
-    setUser({ ...user, [e.target.name]: e.target.value });
+  // ✅ CLOUDINARY IMAGE UPLOAD
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file || !auth.currentUser) return;
+
+    setUploading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", "swaphub_profile");
+
+      const response = await fetch(
+        "https://api.cloudinary.com/v1_1/dfq0pmt5y/image/upload",
+        {
+          method: "POST",
+          body: formData
+        }
+      );
+
+      const data = await response.json();
+
+      if (!data.secure_url) {
+        alert("Upload failed");
+        setUploading(false);
+        return;
+      }
+
+      await updateDoc(doc(db, "users", auth.currentUser.uid), {
+        photoURL: data.secure_url
+      });
+
+      setUserData({ ...userData, photoURL: data.secure_url });
+
+    } catch (error) {
+      console.error(error);
+      alert("Upload error");
+    }
+
+    setUploading(false);
   };
 
-  // Save data
-  const handleSave = () => {
-    localStorage.setItem("swaphubUser", JSON.stringify(user));
-    setIsEditing(false);
+  // ✅ USERNAME SYSTEM
+  const handleSetUsername = async () => {
+    if (!usernameInput || !auth.currentUser) return alert("Enter username");
+
+    setSaving(true);
+
+    const q = query(
+      collection(db, "users"),
+      where("username", "==", usernameInput.toLowerCase())
+    );
+
+    const snapshot = await getDocs(q);
+
+    if (!snapshot.empty) {
+      alert("Username already taken");
+      setSaving(false);
+      return;
+    }
+
+    await updateDoc(doc(db, "users", auth.currentUser.uid), {
+      username: usernameInput.toLowerCase()
+    });
+
+    setUserData({ ...userData, username: usernameInput.toLowerCase() });
+    setUsernameInput("");
+    setSaving(false);
+
+    alert("Username saved successfully!");
   };
+
+  if (!userData) return <h2>Loading...</h2>;
+
+  const firstLetter = userData.username
+    ? userData.username.charAt(0).toUpperCase()
+    : userData.email.charAt(0).toUpperCase();
 
   return (
-    <div className="profile-container">
-      <div className="profile-wrapper">
+    <div className="profile-wrapper">
 
-        {/* HEADER */}
-        <div className="profile-header">
+      {/* Cover */}
+      <div className="profile-cover"></div>
 
-          <div className="profile-name">
-            {isEditing ? (
-              <input
-                type="text"
-                name="name"
-                value={user.name}
-                onChange={handleChange}
-                placeholder="Full Name"
-              />
-            ) : (
-              user.name || "Your Name"
-            )}
-          </div>
+      {/* Header */}
+      <div className="profile-header">
 
-          <div className="profile-username">
-            {isEditing ? (
-              <input
-                type="text"
-                name="username"
-                value={user.username}
-                onChange={handleChange}
-                placeholder="@username"
-              />
-            ) : (
-              user.username || "@username"
-            )}
-          </div>
-
-          <div className="profile-stats">
-            <div className="stat-item">
-              {isEditing ? (
-                <input
-                  type="number"
-                  name="swaps"
-                  value={user.swaps}
-                  onChange={handleChange}
-                  placeholder="Swaps"
-                />
-              ) : (
-                <div className="stat-number">{user.swaps || 0}</div>
-              )}
-              <div className="stat-label">Swaps</div>
-            </div>
-
-            <div className="stat-item">
-              {isEditing ? (
-                <input
-                  type="text"
-                  name="rating"
-                  value={user.rating}
-                  onChange={handleChange}
-                  placeholder="Rating"
-                />
-              ) : (
-                <div className="stat-number">{user.rating || 0}</div>
-              )}
-              <div className="stat-label">Rating</div>
-            </div>
-
-            <div className="stat-item">
-              {isEditing ? (
-                <input
-                  type="number"
-                  name="reviews"
-                  value={user.reviews}
-                  onChange={handleChange}
-                  placeholder="Reviews"
-                />
-              ) : (
-                <div className="stat-number">{user.reviews || 0}</div>
-              )}
-              <div className="stat-label">Reviews</div>
-            </div>
-          </div>
+        {/* Avatar */}
+        <div className="profile-avatar">
+          {userData.photoURL ? (
+            <img src={userData.photoURL} alt="Profile" />
+          ) : (
+            firstLetter
+          )}
         </div>
 
-        {/* PERSONAL INFO */}
-        <div className="profile-section">
-          <h3>Personal Information</h3>
+        <label className="upload-btn">
+          {uploading ? "Uploading..." : "Change Photo"}
+          <input
+            type="file"
+            accept="image/*"
+            hidden
+            onChange={handleImageUpload}
+          />
+        </label>
 
-          <div className="info-grid">
+        <h2>{userData.name || "User"}</h2>
 
-            <div className="info-item">
-              <div className="info-label">Email</div>
-              {isEditing ? (
-                <input
-                  type="email"
-                  name="email"
-                  value={user.email}
-                  onChange={handleChange}
-                />
-              ) : (
-                <div className="info-value">{user.email || "-"}</div>
-              )}
-            </div>
-
-            <div className="info-item">
-              <div className="info-label">Gender</div>
-              {isEditing ? (
-                <input
-                  type="text"
-                  name="gender"
-                  value={user.gender}
-                  onChange={handleChange}
-                />
-              ) : (
-                <div className="info-value">{user.gender || "-"}</div>
-              )}
-            </div>
-
-            <div className="info-item">
-              <div className="info-label">Date of Birth</div>
-              {isEditing ? (
-                <input
-                  type="date"
-                  name="dob"
-                  value={user.dob}
-                  onChange={handleChange}
-                />
-              ) : (
-                <div className="info-value">{user.dob || "-"}</div>
-              )}
-            </div>
-
-          </div>
-        </div>
-
-        {/* SKILLS */}
-        <div className="profile-section">
-          <h3>Skills</h3>
-
-          {isEditing ? (
-            <textarea
-              name="skills"
-              value={user.skills}
-              onChange={handleChange}
-              placeholder="Enter skills separated by commas"
+        {userData.username ? (
+          <p>@{userData.username}</p>
+        ) : (
+          <div className="username-box">
+            <input
+              type="text"
+              placeholder="Set unique username"
+              value={usernameInput}
+              onChange={(e) => setUsernameInput(e.target.value)}
             />
-          ) : (
-            <div className="info-value">
-              {user.skills || "No skills added yet"}
-            </div>
-          )}
+            <button onClick={handleSetUsername}>
+              {saving ? "Saving..." : "Save"}
+            </button>
+          </div>
+        )}
+
+        <div className="profile-stats">
+          <div>
+            <h3>0</h3>
+            <span>Requests</span>
+          </div>
+          <div>
+            <h3>0</h3>
+            <span>Chats</span>
+          </div>
         </div>
 
-        {/* BUTTON */}
-        <div style={{ marginTop: "20px" }}>
-          {isEditing ? (
-            <button className="edit-profile-btn" onClick={handleSave}>
-              Save Changes
-            </button>
-          ) : (
-            <button
-              className="edit-profile-btn"
-              onClick={() => setIsEditing(true)}
-            >
-              Edit Profile
-            </button>
-          )}
-        </div>
+        {/* 🔥 EDIT PROFILE BUTTON — NOW ALWAYS WORKS */}
+        <button
+          className="edit-profile-btn"
+          onClick={() => navigate("../edit-profile")}
+        >
+          Edit Profile Info
+        </button>
 
       </div>
+
+      {/* Details */}
+      <div className="profile-details">
+        <div className="profile-card">
+          <h3>Personal Info</h3>
+          <p><strong>Email:</strong> {userData.email}</p>
+          <p><strong>DOB:</strong> {userData.dob || "Not set"}</p>
+          <p><strong>Gender:</strong> {userData.gender || "Not set"}</p>
+        </div>
+      </div>
+
     </div>
   );
 }
