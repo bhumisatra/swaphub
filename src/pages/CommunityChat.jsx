@@ -1,99 +1,157 @@
 import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { db } from "../firebase";
+import { db, auth } from "../firebase";
 import {
   collection,
   addDoc,
   onSnapshot,
   serverTimestamp,
   query,
-  orderBy
+  orderBy,
+  doc,
+  getDoc,
+  setDoc
 } from "firebase/firestore";
 import "../styles/community.css";
 
 export default function Community() {
+  const { name } = useParams();
 
-  const params = useParams();
-  const name = params?.name || "";
+  const [groups, setGroups] = useState([]);
+  const [selectedGroup, setSelectedGroup] = useState("general");
+  const [search, setSearch] = useState("");
 
   const [text, setText] = useState("");
   const [messages, setMessages] = useState([]);
   const [loaded, setLoaded] = useState(false);
 
-  // REALTIME LISTENER
+  // LOAD GROUPS
   useEffect(() => {
     if (!name) return;
 
+    const groupsRef = collection(db, "communities", name, "groups");
+
+    const unsub = onSnapshot(groupsRef, (snap) => {
+      let list = snap.docs.map(d => d.id);
+
+      // ensure general exists
+      if (!list.includes("general")) list.unshift("general");
+
+      setGroups(list);
+    });
+
+    return () => unsub();
+  }, [name]);
+
+  // LOAD MESSAGES
+  useEffect(() => {
+    if (!name || !selectedGroup) return;
+
     const q = query(
-      collection(db, "communities", name, "messages"),
+      collection(db, "communities", name, "groups", selectedGroup, "messages"),
       orderBy("time", "asc")
     );
 
     const unsub = onSnapshot(q, (snapshot) => {
-
-      // 🔥 VERY IMPORTANT FIX
-      const safeMessages = snapshot.docs
+      const safe = snapshot.docs
         .map(doc => ({ id: doc.id, ...doc.data() }))
-        .filter(msg => msg.text && msg.time); // ignore firebase pending writes
+        .filter(msg => msg.text && msg.user);
 
-      setMessages(safeMessages);
+      setMessages(safe);
       setLoaded(true);
     });
 
     return () => unsub();
+  }, [name, selectedGroup]);
 
-  }, [name]);
-
+  // SEND MESSAGE
   const sendMessage = async () => {
-    if (!text.trim() || !name) return;
+    if (!text.trim()) return;
 
-    await addDoc(collection(db, "communities", name, "messages"), {
-      text: text.trim(),
-      user: "Anonymous",
-      time: serverTimestamp()
-    });
+    await addDoc(
+      collection(db, "communities", name, "groups", selectedGroup, "messages"),
+      {
+        text: text.trim(),
+        user: auth.currentUser?.email || "Anonymous",
+        time: serverTimestamp()
+      }
+    );
 
     setText("");
   };
 
-  // Prevent white screen before router loads
-  if (!name) {
-    return <div style={{ padding: 40 }}>Opening community...</div>;
-  }
+  // CREATE GROUP
+  const createGroup = async () => {
+    const g = prompt("Enter group name");
+    if (!g) return;
+
+    await setDoc(doc(db, "communities", name, "groups", g.toLowerCase()), {
+      createdAt: serverTimestamp()
+    });
+  };
+
+  // SEARCH SORT (typed group goes top)
+  const filteredGroups = [...groups].sort((a, b) => {
+    if (!search) return 0;
+    if (a.includes(search.toLowerCase())) return -1;
+    if (b.includes(search.toLowerCase())) return 1;
+    return 0;
+  });
 
   return (
-    <div className="community-container">
+    <div className="community-wrapper">
 
-      <h1 className="community-title">
-        {name.toUpperCase()} COMMUNITY
-      </h1>
+      {/* LEFT PANEL */}
+      <div className="groups-panel">
 
-      <div className="messages-box">
+        <div className="group-search">
+          <input
+            placeholder="Search or create group..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          <button onClick={createGroup}>+</button>
+        </div>
 
-        {!loaded && <p>Connecting...</p>}
-
-        {loaded && messages.length === 0 && (
-          <p>No messages yet. Be the first 👇</p>
-        )}
-
-        {messages.map(msg => (
-          <div key={msg.id} className="message">
-            <b>{msg.user}</b>
-            <p>{msg.text}</p>
-          </div>
-        ))}
+        <div className="group-list">
+          {filteredGroups.map(g => (
+            <div
+              key={g}
+              className={`group-item ${g === selectedGroup ? "active" : ""}`}
+              onClick={() => setSelectedGroup(g)}
+            >
+              #{g}
+            </div>
+          ))}
+        </div>
 
       </div>
 
-      <div className="send-box">
-        <input
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          placeholder="Write something..."
-        />
-        <button onClick={sendMessage}>Send</button>
-      </div>
+      {/* RIGHT CHAT */}
+      <div className="chat-panel">
 
+        <h1 className="community-title">{name.toUpperCase()} COMMUNITY</h1>
+
+        <div className="messages-box">
+          {!loaded && <p>Connecting...</p>}
+          {messages.map(msg => (
+            <div key={msg.id} className="message">
+              <b>{msg.user}</b>
+              <p>{msg.text}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="send-box">
+          <input
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            placeholder={`Message #${selectedGroup}`}
+          />
+          <button onClick={sendMessage}>Send</button>
+        </div>
+
+      </div>
     </div>
   );
 }

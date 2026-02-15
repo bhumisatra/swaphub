@@ -1,47 +1,112 @@
-.community-container {
-  padding: 20px;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  color: white;
+.community-wrapper{
+  display:flex;
+  height:100%;
+  width:100%;
 }
 
-.community-title {
-  margin-bottom: 20px;
+/* LEFT SIDE */
+.groups-panel{
+  width:260px;
+  background:#0e1621;
+  border-right:1px solid #1f2a38;
+  display:flex;
+  flex-direction:column;
 }
 
-.messages-box {
-  flex: 1;
-  overflow-y: auto;
-  padding: 10px;
-  background: rgba(0,0,0,0.2);
-  border-radius: 10px;
+.group-search{
+  display:flex;
+  padding:12px;
+  gap:8px;
 }
 
-.message {
-  background: rgba(255,255,255,0.1);
-  padding: 10px;
-  margin: 10px 0;
-  border-radius: 8px;
+.group-search input{
+  flex:1;
+  padding:10px;
+  border-radius:8px;
+  border:none;
+  background:#1b2430;
+  color:white;
 }
 
-.send-box {
-  display: flex;
-  gap: 10px;
-  margin-top: 15px;
+.group-search button{
+  background:#2f81f7;
+  border:none;
+  width:40px;
+  border-radius:8px;
+  color:white;
+  font-size:18px;
+  cursor:pointer;
 }
 
-.send-box input {
-  flex: 1;
-  padding: 12px;
-  border-radius: 8px;
-  border: none;
+.group-list{
+  overflow-y:auto;
+  padding:10px;
 }
 
-.send-box button {
-  padding: 12px 18px;
-  border-radius: 8px;
-  border: none;
-  background: #4facfe;
-  color: white;
+.group-item{
+  padding:10px;
+  margin-bottom:6px;
+  border-radius:8px;
+  cursor:pointer;
+  color:#c9d1d9;
+  transition:.2s;
+}
+
+.group-item:hover{
+  background:#1f2a38;
+}
+
+.group-item.active{
+  background:#2f81f7;
+  color:white;
+}
+
+/* RIGHT SIDE */
+.chat-panel{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  background:linear-gradient(135deg,#0a192f,#1c4e80);
+  padding:20px;
+}
+
+.community-title{
+  margin-bottom:10px;
+}
+
+.messages-box{
+  flex:1;
+  background:rgba(0,0,0,0.25);
+  border-radius:12px;
+  padding:15px;
+  overflow-y:auto;
+}
+
+.message{
+  margin-bottom:12px;
+  background:rgba(255,255,255,0.08);
+  padding:10px;
+  border-radius:8px;
+}
+
+.send-box{
+  display:flex;
+  gap:10px;
+  margin-top:10px;
+}
+
+.send-box input{
+  flex:1;
+  padding:12px;
+  border-radius:10px;
+  border:none;
+}
+
+.send-box button{
+  padding:12px 20px;
+  border:none;
+  border-radius:10px;
+  background:#2f81f7;
+  color:white;
+  cursor:pointer;
 }

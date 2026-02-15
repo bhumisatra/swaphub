@@ -1,219 +1,237 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { auth, db } from "../firebase";
-import {
-  collection,
-  query,
-  where,
-  getDocs,
-  addDoc,
-  onSnapshot,
-  orderBy,
-  serverTimestamp,
-  setDoc,
-  doc,
-  updateDoc
-} from "firebase/firestore";
+import { collection, query, where, getDocs, addDoc, onSnapshot, orderBy, serverTimestamp, setDoc, doc, updateDoc, getDoc } from "firebase/firestore";
+import { useNavigate } from "react-router-dom";
 import "../styles/chat.css";
 
 function Chat() {
 
-  /* AUTH SAFE */
-  const [currentUser, setCurrentUser] = useState(null);
-  const [authReady, setAuthReady] = useState(false);
+const navigate = useNavigate();
 
-  useEffect(() => {
-    const unsub = auth.onAuthStateChanged(user => {
-      setCurrentUser(user);
-      setAuthReady(true);
-    });
-    return () => unsub();
-  }, []);
+/* AUTH SAFE */
+const [currentUser, setCurrentUser] = useState(null);
+const [authReady, setAuthReady] = useState(false);
 
-  const [usernameSearch, setUsernameSearch] = useState("");
-  const [chatList, setChatList] = useState([]);
-  const [activeChat, setActiveChat] = useState(null);
-  const [messages, setMessages] = useState([]);
-  const [newMessage, setNewMessage] = useState("");
+useEffect(() => {
+const unsub = auth.onAuthStateChanged(user => {
+setCurrentUser(user);
+setAuthReady(true);
+});
+return () => unsub();
+}, []);
 
-  const generateChatId = (uid1, uid2) => {
-    return uid1 > uid2 ? uid1 + uid2 : uid2 + uid1;
-  };
+const [usernameSearch, setUsernameSearch] = useState("");
+const [chatList, setChatList] = useState([]);
+const [activeChat, setActiveChat] = useState(null);
+const [messages, setMessages] = useState([]);
+const [newMessage, setNewMessage] = useState("");
 
-  /* LOAD CHAT LIST */
-  useEffect(() => {
-    if (!authReady || !currentUser) return;
+const [otherUserData, setOtherUserData] = useState(null);
+const [showMenu, setShowMenu] = useState(false);
 
-    const q = query(
-      collection(db, "chats"),
-      where("participants", "array-contains", currentUser.uid)
-    );
+/* 🔥 NEW — inline edit state */
+const [editingNickname, setEditingNickname] = useState(false);
+const [nicknameInput, setNicknameInput] = useState("");
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const chats = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-      setChatList(chats);
-    });
+const menuRef = useRef();
 
-    return () => unsubscribe();
-  }, [authReady, currentUser]);
+useEffect(() => {
+const handler = e => {
+if(menuRef.current && !menuRef.current.contains(e.target)){
+setShowMenu(false);
+}
+};
+document.addEventListener("mousedown", handler);
+return () => document.removeEventListener("mousedown", handler);
+}, []);
 
-  /* START CHAT */
-  const startChat = async () => {
-    if (!usernameSearch || !currentUser) return;
+const generateChatId = (uid1, uid2) => uid1 > uid2 ? uid1 + uid2 : uid2 + uid1;
 
-    const q = query(
-      collection(db, "users"),
-      where("username", "==", usernameSearch)
-    );
+/* LOAD CHAT LIST */
+useEffect(() => {
+if (!authReady || !currentUser) return;
 
-    const snap = await getDocs(q);
-    if (snap.empty) {
-      alert("User not found");
-      return;
-    }
+const q = query(collection(db, "chats"), where("participants", "array-contains", currentUser.uid));
 
-    const otherUser = snap.docs[0].data();
-    const otherUid = otherUser.uid;
+return onSnapshot(q, snap => {
+setChatList(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+});
+}, [authReady, currentUser]);
 
-    const chatId = generateChatId(currentUser.uid, otherUid);
+/* ACTIVE CHAT REALTIME */
+useEffect(()=>{
+if(!activeChat) return;
+const ref = doc(db,"chats",activeChat.id);
+return onSnapshot(ref,snap=>setActiveChat({ id:snap.id, ...snap.data() }));
+},[activeChat?.id]);
 
-    await setDoc(doc(db, "chats", chatId), {
-      participants: [currentUser.uid, otherUid],
-      usernames: {
-        [currentUser.uid]: currentUser.email,
-        [otherUid]: otherUser.username
-      },
-      unread: {
-        [currentUser.uid]: 0,
-        [otherUid]: 0
-      },
-      lastMessage: "",
-      createdAt: serverTimestamp()
-    }, { merge: true });
+/* START CHAT */
+const startChat = async () => {
+if (!usernameSearch || !currentUser) return;
 
-    setUsernameSearch("");
-  };
+const q = query(collection(db, "users"), where("username", "==", usernameSearch));
+const snap = await getDocs(q);
+if (snap.empty) return alert("User not found");
 
-  /* OPEN CHAT */
-  const openChat = async (chat) => {
-    setActiveChat(chat);
+const otherUser = snap.docs[0].data();
+const otherUid = otherUser.uid;
+const chatId = generateChatId(currentUser.uid, otherUid);
 
-    await updateDoc(doc(db, "chats", chat.id), {
-      [`unread.${currentUser.uid}`]: 0
-    });
-  };
+await setDoc(doc(db, "chats", chatId), {
+participants: [currentUser.uid, otherUid],
+usernames: {[currentUser.uid]: currentUser.email,[otherUid]: otherUser.username},
+nicknames:{},
+unread:{[currentUser.uid]:0,[otherUid]:0},
+lastMessage:"",
+createdAt: serverTimestamp()
+},{merge:true});
 
-  /* LOAD MESSAGES REALTIME */
-  useEffect(() => {
-    if (!activeChat) return;
+setUsernameSearch("");
+};
 
-    const q = query(
-      collection(db, "chats", activeChat.id, "messages"),
-      orderBy("createdAt", "asc")
-    );
+/* OPEN CHAT */
+const openChat = async (chat) => {
+setShowMenu(false);
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      setMessages(snapshot.docs.map(doc => doc.data()));
-    });
+const otherUid = chat.participants.find(uid => uid !== currentUser.uid);
+const userRef = doc(db, "users", otherUid);
+const snap = await getDoc(userRef);
+if(snap.exists()) setOtherUserData(snap.data());
 
-    return () => unsubscribe();
-  }, [activeChat]);
+await updateDoc(doc(db,"chats",chat.id),{[`unread.${currentUser.uid}`]:0});
+setActiveChat(chat);
+};
 
-  /* SEND MESSAGE */
-  const sendMessage = async () => {
-    if (!newMessage.trim() || !activeChat) return;
+/* LOAD MESSAGES */
+useEffect(()=>{
+if(!activeChat) return;
+const q=query(collection(db,"chats",activeChat.id,"messages"),orderBy("createdAt","asc"));
+return onSnapshot(q,snap=>setMessages(snap.docs.map(d=>d.data())));
+},[activeChat]);
 
-    const otherUid = activeChat.participants.find(uid => uid !== currentUser.uid);
+/* SEND MESSAGE */
+const sendMessage = async ()=>{
+if(!newMessage.trim()||!activeChat) return;
+const otherUid=activeChat.participants.find(uid=>uid!==currentUser.uid);
 
-    await addDoc(collection(db, "chats", activeChat.id, "messages"), {
-      text: newMessage,
-      senderId: currentUser.uid,
-      createdAt: serverTimestamp()
-    });
+await addDoc(collection(db,"chats",activeChat.id,"messages"),{
+text:newMessage,
+senderId:currentUser.uid,
+createdAt:serverTimestamp()
+});
 
-    await updateDoc(doc(db, "chats", activeChat.id), {
-      lastMessage: newMessage,
-      [`unread.${otherUid}`]: (activeChat.unread?.[otherUid] || 0) + 1
-    });
+await updateDoc(doc(db,"chats",activeChat.id),{
+lastMessage:newMessage,
+[`unread.${otherUid}`]:(activeChat.unread?.[otherUid]||0)+1
+});
 
-    setNewMessage("");
-  };
+setNewMessage("");
+};
 
-  if (!authReady) return <div className="chat-wrapper">Loading chat...</div>;
-  if (!currentUser) return <div className="chat-wrapper">Please login again</div>;
+/* SAVE NICKNAME INLINE */
+const saveNickname = async ()=>{
+if(!nicknameInput.trim()) return setEditingNickname(false);
 
-  return (
-    <div className="chat-wrapper">
+await updateDoc(doc(db,"chats",activeChat.id),{
+[`nicknames.${currentUser.uid}`]:nicknameInput
+});
 
-      {/* SIDEBAR */}
-      <div className="chat-sidebar">
+setEditingNickname(false);
+};
 
-        <div className="chat-search">
-          <input
-            type="text"
-            placeholder="Search username..."
-            value={usernameSearch}
-            onChange={(e) => setUsernameSearch(e.target.value)}
-          />
-          <button onClick={startChat}>Start</button>
-        </div>
+/* HEADER NAME */
+const displayName = ()=>{
+if(!activeChat) return "";
+return activeChat.nicknames?.[currentUser.uid] || otherUserData?.username || "User";
+};
 
-        {chatList.map(chat => {
-          const otherUid = chat.participants.find(uid => uid !== currentUser.uid);
+/* VIEW PROFILE */
+const openProfile = ()=>{
+const otherUid=activeChat.participants.find(uid=>uid!==currentUser.uid);
+navigate("/dashboard/profile/"+otherUid);
+};
 
-          return (
-            <div
-              key={chat.id}
-              className={`chat-item ${activeChat?.id === chat.id ? "active" : ""}`}
-              onClick={() => openChat(chat)}
-            >
-              <div className="chat-name-row">
-                <span>{chat.usernames?.[otherUid] || "User"}</span>
-                {chat.unread?.[currentUser.uid] > 0 && <span className="unread-dot"></span>}
-              </div>
+if (!authReady) return <div className="chat-wrapper">Loading chat...</div>;
+if (!currentUser) return <div className="chat-wrapper">Please login again</div>;
 
-              <div className="last-message">{chat.lastMessage}</div>
-            </div>
-          );
-        })}
-      </div>
+return (
 
-      {/* CHAT AREA */}
-      <div className="chat-main">
+<div className="chat-wrapper">
 
-        {activeChat ? (
-          <>
-            <div className="chat-messages">
-              {messages.map((msg, i) => (
-                <div
-                  key={i}
-                  className={msg.senderId === currentUser.uid ? "message own" : "message"}
-                >
-                  {msg.text}
-                </div>
-              ))}
-            </div>
+{/* SIDEBAR */}
+<div className="chat-sidebar">
+<div className="chat-search">
+<input value={usernameSearch} onChange={e=>setUsernameSearch(e.target.value)} placeholder="Search username..."/>
+<button onClick={startChat}>Start</button>
+</div>
 
-            <div className="chat-input">
-              <input
-                type="text"
-                placeholder="Type a message"
-                value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-              />
-              <button onClick={sendMessage}>Send</button>
-            </div>
-          </>
-        ) : (
-          <div className="chat-placeholder">Select or start a conversation</div>
-        )}
+{chatList.map(chat=>{
+const otherUid=chat.participants.find(uid=>uid!==currentUser.uid);
+return(
+<div key={chat.id} className={`chat-item ${activeChat?.id===chat.id?"active":""}`} onClick={()=>openChat(chat)}>
+<div className="chat-name-row">
+<span>{chat.usernames?.[otherUid]}</span>
+{chat.unread?.[currentUser.uid]>0 && <span className="unread-dot"/>}
+</div>
+<div className="last-message">{chat.lastMessage}</div>
+</div>
+);
+})}
+</div>
 
-      </div>
-    </div>
-  );
+{/* MAIN */}
+<div className="chat-main">
+{activeChat?(
+<>
+<div className="chat-header">
+
+{/* 🔥 INLINE EDIT HEADER */}
+<div className="chat-user">
+{editingNickname ? (
+<input
+className="nickname-edit-input"
+value={nicknameInput}
+autoFocus
+onChange={e=>setNicknameInput(e.target.value)}
+onBlur={saveNickname}
+onKeyDown={e=>e.key==="Enter" && saveNickname()}
+/>
+) : (
+displayName()
+)}
+</div>
+
+<div className="chat-menu" ref={menuRef}>
+<button className="menu-btn" onClick={()=>setShowMenu(!showMenu)}>⋮</button>
+{showMenu&&(
+<div className="menu-dropdown">
+<div className="menu-item" onClick={()=>{
+setNicknameInput(displayName());
+setEditingNickname(true);
+setShowMenu(false);
+}}>Edit nickname</div>
+<div className="menu-item" onClick={openProfile}>View profile</div>
+</div>
+)}
+</div>
+</div>
+
+<div className="chat-messages">
+{messages.map((msg,i)=>(
+<div key={i} className={msg.senderId===currentUser.uid?"message own":"message"}>{msg.text}</div>
+))}
+</div>
+
+<div className="chat-input">
+<input value={newMessage} onChange={e=>setNewMessage(e.target.value)} onKeyDown={e=>e.key==="Enter"&&sendMessage()} placeholder="Type a message"/>
+<button onClick={sendMessage}>Send</button>
+</div>
+</>
+):<div className="chat-placeholder">Select or start a conversation</div>}
+</div>
+
+</div>
+);
 }
 
 export default Chat;

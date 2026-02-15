@@ -15,6 +15,7 @@ import Settings from "./pages/Settings";
 import ViewProfile from "./pages/ViewProfile";
 import EditProfile from "./pages/EditProfile";
 import Community from "./pages/CommunityChat";
+import CommunityHub from "./components/CommunityHub";   // ⭐ ADDED
 import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
@@ -57,8 +58,11 @@ function App() {
           <Route path="edit-profile" element={<EditProfile />} />
           <Route path="profile/:uid" element={<ViewProfile />} />
 
-          {/* ⭐ COMMUNITY CHAT */}
+          {/* ⭐ OLD COMMUNITY (KEEPED SAME) */}
           <Route path="community/:name" element={<Community />} />
+
+          {/* ⭐ NEW COMMUNITY HUB (GROUP SYSTEM) */}
+          <Route path="communities/:category" element={<CommunityHub />} />
 
           {/* ⭐ FIXED CHAT ROUTES */}
           <Route path="chat" element={<Chat />} />

@@ -1,0 +1,42 @@
+.community-layout{
+  display:flex;
+  height:100%;
+}
+
+.groups-panel{
+  width:260px;
+  background:#0f1b2a;
+  border-right:1px solid #1f2f46;
+  padding:10px;
+}
+
+.groups-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:10px;
+}
+
+.groups-header button{
+  background:#3b82f6;
+  border:none;
+  color:white;
+  padding:4px 10px;
+  border-radius:6px;
+  cursor:pointer;
+}
+
+.group-item{
+  padding:10px;
+  border-radius:8px;
+  cursor:pointer;
+  margin-bottom:5px;
+}
+
+.group-item:hover{
+  background:#1e2f46;
+}
+
+.group-item.active{
+  background:#2563eb;
+}
