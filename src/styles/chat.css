@@ -358,3 +358,15 @@
   }
 
 }
+@media (max-width: 420px) {
+
+  .chat-messages {
+    padding-bottom: 110px;
+  }
+
+  .message {
+    max-width: 88%;
+    font-size: 14px;
+  }
+
+}
