@@ -14,7 +14,7 @@ import Home from "./pages/Home";
 import Settings from "./pages/Settings";
 import ViewProfile from "./pages/ViewProfile";
 import EditProfile from "./pages/EditProfile";
-import CommunityChat from "./pages/CommunityChat"; // ⭐ ADDED
+import Community from "./pages/CommunityChat"; // ⭐ ADDED
 import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
@@ -71,7 +71,7 @@ function App() {
           <Route path="profile/:uid" element={<ViewProfile />} />
 
           {/* ⭐ COMMUNITY CHAT ROUTE */}
-          <Route path="community/:category" element={<CommunityChat />} />
+          <Route path="community/:category" element={<Community />} />
 
           {/* OTHER PAGES */}
           <Route path="chat" element={<Chat />} />

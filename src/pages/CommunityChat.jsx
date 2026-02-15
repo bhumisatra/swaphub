@@ -5,43 +5,50 @@ import {
   collection,
   addDoc,
   onSnapshot,
-  serverTimestamp
+  serverTimestamp,
+  query,
+  orderBy
 } from "firebase/firestore";
 import "../styles/community.css";
 
 export default function Community() {
 
-  const { name } = useParams();
+  const params = useParams();
+  const name = params?.name || "";
 
   const [text, setText] = useState("");
   const [messages, setMessages] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loaded, setLoaded] = useState(false);
 
-  // realtime listener
+  // REALTIME LISTENER
   useEffect(() => {
-    if (!name) return; // 🔥 prevents crash on first render
+    if (!name) return;
 
-    const ref = collection(db, "communities", name, "messages");
+    const q = query(
+      collection(db, "communities", name, "messages"),
+      orderBy("time", "asc")
+    );
 
-    const unsub = onSnapshot(ref, (snapshot) => {
-      setMessages(
-        snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }))
-      );
-      setLoading(false);
+    const unsub = onSnapshot(q, (snapshot) => {
+
+      // 🔥 VERY IMPORTANT FIX
+      const safeMessages = snapshot.docs
+        .map(doc => ({ id: doc.id, ...doc.data() }))
+        .filter(msg => msg.text && msg.time); // ignore firebase pending writes
+
+      setMessages(safeMessages);
+      setLoaded(true);
     });
 
     return () => unsub();
+
   }, [name]);
 
-  // send message
   const sendMessage = async () => {
     if (!text.trim() || !name) return;
 
     await addDoc(collection(db, "communities", name, "messages"), {
-      text,
+      text: text.trim(),
       user: "Anonymous",
       time: serverTimestamp()
     });
@@ -49,8 +56,10 @@ export default function Community() {
     setText("");
   };
 
-  // 🔥 page still preparing route param
-  if (!name) return <div className="community-loading">Loading community...</div>;
+  // Prevent white screen before router loads
+  if (!name) {
+    return <div style={{ padding: 40 }}>Opening community...</div>;
+  }
 
   return (
     <div className="community-container">
@@ -60,16 +69,20 @@ export default function Community() {
       </h1>
 
       <div className="messages-box">
-        {loading ? (
-          <p>Loading messages...</p>
-        ) : (
-          messages.map(msg => (
-            <div key={msg.id} className="message">
-              <b>{msg.user}</b>
-              <p>{msg.text}</p>
-            </div>
-          ))
+
+        {!loaded && <p>Connecting...</p>}
+
+        {loaded && messages.length === 0 && (
+          <p>No messages yet. Be the first 👇</p>
         )}
+
+        {messages.map(msg => (
+          <div key={msg.id} className="message">
+            <b>{msg.user}</b>
+            <p>{msg.text}</p>
+          </div>
+        ))}
+
       </div>
 
       <div className="send-box">
