@@ -1,11 +1,26 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { db } from "../firebase";
+import { db, auth } from "../firebase";
 import { doc, getDoc } from "firebase/firestore";
 import "../styles/viewProfile.css";
 
+/* ================= EMAIL MASK FUNCTION ================= */
+const maskEmail = (email) => {
+  if (!email) return "";
+
+  const [name, domain] = email.split("@");
+
+  if (name.length <= 2) return "****@" + domain;
+
+  const visible = name.slice(0, 2);
+  return `${visible}****@${domain}`;
+};
+
 function ViewProfile() {
   const { uid } = useParams();
+  const currentUser = auth.currentUser;
+  const isOwnProfile = currentUser?.uid === uid;
+
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -61,7 +76,11 @@ function ViewProfile() {
         {/* User Info */}
         <div className="profile-info">
           <h2>{userData.username}</h2>
-          <p className="profile-email">{userData.email}</p>
+
+          {/* EMAIL (MASKED FOR OTHERS) */}
+          <p className="profile-email">
+            {isOwnProfile ? userData.email : maskEmail(userData.email)}
+          </p>
 
           {userData.bio && (
             <p className="profile-bio">{userData.bio}</p>
