@@ -9,6 +9,7 @@ import {
   where,
   getDocs
 } from "firebase/firestore";
+import { useNavigate } from "react-router-dom";
 import "../styles/profile.css";
 
 function Profile() {
@@ -17,25 +18,28 @@ function Profile() {
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
 
-  const currentUser = auth.currentUser;
+  const navigate = useNavigate();
 
+  // 🔥 WAIT FOR AUTH USER SAFELY
   useEffect(() => {
-    const fetchUser = async () => {
-      const docRef = doc(db, "users", currentUser.uid);
+    const unsubscribe = auth.onAuthStateChanged(async (user) => {
+      if (!user) return;
+
+      const docRef = doc(db, "users", user.uid);
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {
         setUserData(docSnap.data());
       }
-    };
+    });
 
-    fetchUser();
+    return () => unsubscribe();
   }, []);
 
   // ✅ CLOUDINARY IMAGE UPLOAD
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
-    if (!file) return;
+    if (!file || !auth.currentUser) return;
 
     setUploading(true);
 
@@ -60,8 +64,7 @@ function Profile() {
         return;
       }
 
-      // Save URL to Firestore
-      await updateDoc(doc(db, "users", currentUser.uid), {
+      await updateDoc(doc(db, "users", auth.currentUser.uid), {
         photoURL: data.secure_url
       });
 
@@ -77,7 +80,7 @@ function Profile() {
 
   // ✅ USERNAME SYSTEM
   const handleSetUsername = async () => {
-    if (!usernameInput) return alert("Enter username");
+    if (!usernameInput || !auth.currentUser) return alert("Enter username");
 
     setSaving(true);
 
@@ -94,7 +97,7 @@ function Profile() {
       return;
     }
 
-    await updateDoc(doc(db, "users", currentUser.uid), {
+    await updateDoc(doc(db, "users", auth.currentUser.uid), {
       username: usernameInput.toLowerCase()
     });
 
@@ -167,6 +170,15 @@ function Profile() {
             <span>Chats</span>
           </div>
         </div>
+
+        {/* 🔥 EDIT PROFILE BUTTON — NOW ALWAYS WORKS */}
+        <button
+          className="edit-profile-btn"
+          onClick={() => navigate("edit-profile")}
+        >
+          Edit Profile Info
+        </button>
+
       </div>
 
       {/* Details */}

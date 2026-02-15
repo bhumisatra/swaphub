@@ -1,37 +1,46 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { db, auth } from "../firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, onSnapshot } from "firebase/firestore";
+import { onAuthStateChanged } from "firebase/auth";
 import "../styles/viewProfile.css";
-
-const maskEmail = (email) => {
-  if (!email) return "";
-  const [name, domain] = email.split("@");
-  if (name.length <= 2) return "****@" + domain;
-  return name.slice(0, 2) + "****@" + domain;
-};
 
 function ViewProfile() {
   const { uid } = useParams();
-  const currentUser = auth.currentUser;
-  const isOwnProfile = currentUser?.uid === uid;
+  const navigate = useNavigate();
 
   const [userData, setUserData] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // 🔥 WAIT FOR AUTH (IMPORTANT FIX)
   useEffect(() => {
-    const fetchUser = async () => {
-      const snap = await getDoc(doc(db, "users", uid));
+    const unsub = onAuthStateChanged(auth, (user) => {
+      setCurrentUser(user);
+    });
+    return () => unsub();
+  }, []);
+
+  // 🔥 REALTIME PROFILE LISTENER
+  useEffect(() => {
+    const unsubscribe = onSnapshot(doc(db, "users", uid), (snap) => {
       if (snap.exists()) setUserData(snap.data());
+      else setUserData(null);
       setLoading(false);
-    };
-    fetchUser();
+    });
+
+    return () => unsubscribe();
   }, [uid]);
 
-  if (loading) return <div className="profile-loading">Loading...</div>;
+  if (loading || currentUser === undefined)
+    return <div className="profile-loading">Loading...</div>;
+
   if (!userData) return <div className="profile-loading">User not found</div>;
 
   const theme = userData.gender === "Female" ? "female-theme" : "male-theme";
+
+  // 🔥 NOW THIS WILL WORK CORRECTLY
+  const isOwner = currentUser && currentUser.uid === uid;
 
   return (
     <div className={`profile-page ${theme}`}>
@@ -51,21 +60,31 @@ function ViewProfile() {
               {userData.username?.charAt(0).toUpperCase()}
             </div>
           )}
+
+          {/* 🔥 EDIT BUTTON */}
+          {isOwner && (
+            <button
+              className="edit-profile-btn"
+              onClick={() => navigate("../edit-profile", { replace: true })}
+            >
+              Edit Profile
+            </button>
+          )}
         </div>
       </section>
 
-      {/* ABOUT */}
+      {/* ABOUT CARD */}
       <section className="profile-section">
         <h2>About Me</h2>
-        <div className="card">
-          <p>{userData.about || "No description added yet."}</p>
+        <div className="glass-card">
+          {userData.about || "No description added yet."}
         </div>
       </section>
 
-      {/* SKILLS */}
+      {/* SKILLS CARD */}
       <section className="profile-section">
         <h2>Skills</h2>
-        <div className="skills">
+        <div className="glass-card skills-card">
           {userData.skills?.length ? (
             userData.skills.map((skill, i) => (
               <span key={i} className="skill">{skill}</span>
@@ -74,32 +93,6 @@ function ViewProfile() {
             <p>No skills added</p>
           )}
         </div>
-      </section>
-
-      {/* PROJECTS */}
-      <section className="profile-section">
-        <h2>Projects</h2>
-        <div className="projects">
-          {userData.projects?.length ? (
-            userData.projects.map((p, i) => (
-              <div className="project-card" key={i}>
-                <h3>{p.title}</h3>
-                <p>{p.desc}</p>
-                <small>{p.tech}</small>
-              </div>
-            ))
-          ) : (
-            <p>No projects yet</p>
-          )}
-        </div>
-      </section>
-
-      {/* CONTACT */}
-      <section className="profile-section contact">
-        <h2>Contact</h2>
-        <p className="email">
-          {isOwnProfile ? userData.email : maskEmail(userData.email)}
-        </p>
       </section>
 
     </div>

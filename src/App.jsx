@@ -13,6 +13,8 @@ import Requests from "./pages/Requests";
 import Home from "./pages/Home";
 import Settings from "./pages/Settings";
 import ViewProfile from "./pages/ViewProfile";
+import EditProfile from "./pages/EditProfile";   // ⭐ ADDED
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -51,23 +53,29 @@ function App() {
           element={user ? <ProfileSetup /> : <Navigate to="/" />}
         />
 
-        {/* Dashboard Layout with Nested Routes */}
+        {/* 🔥 PROTECTED DASHBOARD */}
         <Route
           path="/dashboard"
-          element={user ? <Dashboard /> : <Navigate to="/" />}
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
         >
-          {/* Default Home */}
           <Route index element={<Home />} />
 
-          {/* Nested Pages */}
+          {/* PROFILE FLOW */}
           <Route path="profile" element={<Profile />} />
-          <Route path="profile/:uid" element={<ViewProfile />} />  {/* ✅ Added */}
+          <Route path="edit-profile" element={<EditProfile />} /> {/* ⭐ THIS FIXES YOUR ISSUE */}
+          <Route path="profile/:uid" element={<ViewProfile />} />
+
+          {/* OTHER PAGES */}
           <Route path="chat" element={<Chat />} />
           <Route path="requests" element={<Requests />} />
           <Route path="settings" element={<Settings />} />
         </Route>
 
-        {/* Unknown Route */}
+        {/* Unknown */}
         <Route path="*" element={<Navigate to="/" />} />
 
       </Routes>

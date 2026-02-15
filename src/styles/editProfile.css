@@ -1,0 +1,41 @@
+.edit-container {
+  max-width: 600px;
+  margin: auto;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+}
+
+.edit-container h1 {
+  margin-bottom: 20px;
+}
+
+.edit-container label {
+  margin-top: 20px;
+  font-weight: bold;
+}
+
+.edit-container textarea {
+  height: 120px;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  margin-top: 10px;
+}
+
+.edit-container input {
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  margin-top: 10px;
+}
+
+.edit-container button {
+  margin-top: 30px;
+  padding: 15px;
+  background: #008069;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+}
