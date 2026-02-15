@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { db, auth } from "../firebase";
 import {
@@ -16,215 +16,201 @@ import { onAuthStateChanged } from "firebase/auth";
 import "../styles/community.css";
 
 export default function Community() {
-const { name } = useParams();
+  const { name } = useParams();
+  const navigate = useNavigate();
 
-const [groups, setGroups] = useState([]);
-const [selectedGroup, setSelectedGroup] = useState("general");
-const [search, setSearch] = useState("");
+  const [groups, setGroups] = useState([]);
+  const [selectedGroup, setSelectedGroup] = useState("general");
+  const [search, setSearch] = useState("");
 
-const [text, setText] = useState("");
-const [messages, setMessages] = useState([]);
-const [loaded, setLoaded] = useState(false);
+  const [text, setText] = useState("");
+  const [messages, setMessages] = useState([]);
+  const [loaded, setLoaded] = useState(false);
 
-const [menuOpen, setMenuOpen] = useState(null);
-const [replyTo, setReplyTo] = useState(null);
-const [username, setUsername] = useState("user");
+  const [menuOpen, setMenuOpen] = useState(null);
+  const [replyTo, setReplyTo] = useState(null);
+  const [username, setUsername] = useState("user");
 
-const [currentUID, setCurrentUID] = useState(null);
-const [authReady, setAuthReady] = useState(false);
+  const [currentUID, setCurrentUID] = useState(null);
+  const [authReady, setAuthReady] = useState(false);
 
+  // 🔥 WAIT FOR AUTH FIRST
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, async (user) => {
+      if (!user) return;
 
-// 🔥 WAIT FOR AUTH FIRST
-useEffect(() => {
-  const unsub = onAuthStateChanged(auth, async (user) => {
-    if (!user) return;
+      setCurrentUID(user.uid);
 
-    setCurrentUID(user.uid);
+      const ref = doc(db, "users", user.uid);
+      const snap = await getDoc(ref);
 
-    const ref = doc(db, "users", user.uid);
-    const snap = await getDoc(ref);
+      if (snap.exists()) {
+        setUsername(snap.data().username || "user");
+      }
 
-    if (snap.exists()) {
-      setUsername(snap.data().username || "user");
-    }
+      setAuthReady(true);
+    });
 
-    setAuthReady(true);
-  });
+    return () => unsub();
+  }, []);
 
-  return () => unsub();
-}, []);
+  // LOAD GROUPS
+  useEffect(() => {
+    if (!name) return;
 
+    const groupsRef = collection(db, "communities", name, "groups");
 
-// LOAD GROUPS
-useEffect(() => {
-if (!name) return;
+    const unsub = onSnapshot(groupsRef, (snap) => {
+      let list = snap.docs.map(d => d.id);
+      if (!list.includes("general")) list.unshift("general");
+      setGroups(list);
+    });
 
-const groupsRef = collection(db, "communities", name, "groups");
+    return () => unsub();
+  }, [name]);
 
-const unsub = onSnapshot(groupsRef, (snap) => {
-  let list = snap.docs.map(d => d.id);
-  if (!list.includes("general")) list.unshift("general");
-  setGroups(list);
-});
+  // LOAD MESSAGES ONLY AFTER AUTH READY
+  useEffect(() => {
+    if (!name || !selectedGroup || !authReady) return;
 
-return () => unsub();
-}, [name]);
+    const q = query(
+      collection(db, "communities", name, "groups", selectedGroup, "messages"),
+      orderBy("time", "asc")
+    );
 
+    const unsub = onSnapshot(q, (snapshot) => {
+      const safe = snapshot.docs
+        .map(doc => ({ id: doc.id, ...doc.data() }))
+        .filter(msg => msg.text);
 
-// LOAD MESSAGES ONLY AFTER AUTH READY
-useEffect(() => {
-if (!name || !selectedGroup || !authReady) return;
+      setMessages(safe);
+      setLoaded(true);
+    });
 
-const q = query(
-  collection(db, "communities", name, "groups", selectedGroup, "messages"),
-  orderBy("time", "asc")
-);
+    return () => unsub();
+  }, [name, selectedGroup, authReady]);
 
-const unsub = onSnapshot(q, (snapshot) => {
-  const safe = snapshot.docs
-    .map(doc => ({ id: doc.id, ...doc.data() }))
-    .filter(msg => msg.text);
+  // SEND MESSAGE
+  const sendMessage = async () => {
+    if (!text.trim()) return;
 
-  setMessages(safe);
-  setLoaded(true);
-});
+    await addDoc(
+      collection(db, "communities", name, "groups", selectedGroup, "messages"),
+      {
+        text: text.trim(),
+        user: username,
+        uid: currentUID,
+        reply: replyTo ? replyTo.text : null,
+        time: serverTimestamp()
+      }
+    );
 
-return () => unsub();
-}, [name, selectedGroup, authReady]);
+    setText("");
+    setReplyTo(null);
+  };
 
+  const handleKey = (e) => {
+    if (e.key === "Enter") sendMessage();
+  };
 
-// SEND MESSAGE
-const sendMessage = async () => {
-if (!text.trim()) return;
+  // CREATE GROUP
+  const createGroup = async () => {
+    const g = prompt("Enter group name");
+    if (!g) return;
 
-await addDoc(
-  collection(db, "communities", name, "groups", selectedGroup, "messages"),
-  {
-    text: text.trim(),
-    user: username,
-    uid: currentUID,
-    reply: replyTo ? replyTo.text : null,
-    time: serverTimestamp()
-  }
-);
+    await setDoc(doc(db, "communities", name, "groups", g.toLowerCase()), {
+      createdAt: serverTimestamp()
+    });
+  };
 
-setText("");
-setReplyTo(null);
-};
+  // TIME FORMAT
+  const formatTime = (timestamp) => {
+    if (!timestamp?.toDate) return "";
+    const date = timestamp.toDate();
+    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  };
 
-const handleKey = (e) => {
-if (e.key === "Enter") sendMessage();
-};
-
-
-// CREATE GROUP
-const createGroup = async () => {
-const g = prompt("Enter group name");
-if (!g) return;
-
-await setDoc(doc(db, "communities", name, "groups", g.toLowerCase()), {
-  createdAt: serverTimestamp()
-});
-};
-
-
-// TIME FORMAT
-const formatTime = (timestamp) => {
-if (!timestamp?.toDate) return "";
-const date = timestamp.toDate();
-return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-};
-
-
-return (
-<div className="community-wrapper">
-
-  <div className="groups-panel">
-    <div className="group-search">
-      <input
-        placeholder="Search or create group..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
-      <button onClick={createGroup}>+</button>
-    </div>
-
-    <div className="group-list">
-      {groups.map(g => (
-        <div
-          key={g}
-          className={`group-item ${g === selectedGroup ? "active" : ""}`}
-          onClick={() => setSelectedGroup(g)}
-        >
-          #{g}
+  return (
+    <div className="community-wrapper">
+      <div className="groups-panel">
+        <div className="group-search">
+          <input
+            placeholder="Search or create group..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          <button onClick={createGroup}>+</button>
         </div>
-      ))}
-    </div>
-  </div>
 
-  <div className="chat-panel">
-
-    <h1 className="community-title">{name.toUpperCase()} COMMUNITY</h1>
-
-    <div className="messages-box">
-      {!authReady && <p>Connecting...</p>}
-
-      {authReady && messages.map(msg => {
-
-        const isMe = msg.uid === currentUID;
-
-        return (
-          <div key={msg.id} className={`message-row ${isMe ? "me" : "other"}`}>
-            <div className="bubble">
-
-              {msg.reply && (
-                <div className="reply-preview">{msg.reply}</div>
-              )}
-
-              <div className="msg-text">{msg.text}</div>
-
-              <div className="msg-user">{msg.user}</div>
-
-              <div className="msg-time">{formatTime(msg.time)}</div>
-
-              <div
-                className="msg-menu-btn"
-                onClick={() => setMenuOpen(menuOpen === msg.id ? null : msg.id)}
-              >
-                ▾
-              </div>
-
-              {menuOpen === msg.id && (
-                <div className="msg-menu">
-                  <div onClick={() => alert("Open profile of " + msg.user)}>View Profile</div>
-                  <div onClick={() => { setReplyTo(msg); setMenuOpen(null); }}>Reply</div>
-                </div>
-              )}
-
+        <div className="group-list">
+          {groups.map(g => (
+            <div
+              key={g}
+              className={`group-item ${g === selectedGroup ? "active" : ""}`}
+              onClick={() => setSelectedGroup(g)}
+            >
+              #{g}
             </div>
-          </div>
-        );
-      })}
-    </div>
-
-    {replyTo && (
-      <div className="reply-bar">
-        Replying to: {replyTo.text}
-        <span onClick={() => setReplyTo(null)}>✕</span>
+          ))}
+        </div>
       </div>
-    )}
 
-    <div className="send-box">
-      <input
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-        onKeyDown={handleKey}
-        placeholder={`Message #${selectedGroup}`}
-      />
-      <button onClick={sendMessage}>Send</button>
+      <div className="chat-panel">
+        <h1 className="community-title">{name.toUpperCase()} COMMUNITY</h1>
+
+        <div className="messages-box">
+          {!authReady && <p>Connecting...</p>}
+
+          {authReady && messages.map(msg => {
+            const isMe = msg.uid === currentUID;
+
+            return (
+              <div key={msg.id} className={`message-row ${isMe ? "me" : "other"}`}>
+                <div className="bubble">
+
+                  {msg.reply && <div className="reply-preview">{msg.reply}</div>}
+
+                  <div className="msg-text">{msg.text}</div>
+                  <div className="msg-user">{msg.user}</div>
+                  <div className="msg-time">{formatTime(msg.time)}</div>
+
+                  <div
+                    className="msg-menu-btn"
+                    onClick={() => setMenuOpen(menuOpen === msg.id ? null : msg.id)}
+                  >
+                    ▾
+                  </div>
+
+                  {menuOpen === msg.id && (
+                    <div className="msg-menu">
+                      <div onClick={() => navigate(`/dashboard/profile/${msg.uid}`)}>View Profile</div>
+                      <div onClick={() => { setReplyTo(msg); setMenuOpen(null); }}>Reply</div>
+                    </div>
+                  )}
+
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {replyTo && (
+          <div className="reply-bar">
+            Replying to: {replyTo.text}
+            <span onClick={() => setReplyTo(null)}>✕</span>
+          </div>
+        )}
+
+        <div className="send-box">
+          <input
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            onKeyDown={handleKey}
+            placeholder={`Message #${selectedGroup}`}
+          />
+          <button onClick={sendMessage}>Send</button>
+        </div>
+      </div>
     </div>
-
-  </div>
-</div>
-);
+  );
 }
