@@ -1,74 +1,41 @@
-import { useEffect, useState } from "react";
-import { db, auth } from "../firebase";
-import {
-  collection,
-  addDoc,
-  onSnapshot,
-  doc,
-  updateDoc
-} from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
-import Navbar from "../components/Navbar";
+import "../styles/requests.css";
 
-function Requests() {
-  const [requests, setRequests] = useState([]);
+export default function Requests() {
+
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const unsubscribe = onSnapshot(
-      collection(db, "requests"),
-      (snapshot) => {
-        setRequests(
-          snapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data()
-          }))
-        );
-      }
-    );
-    return () => unsubscribe();
-  }, []);
+  const categories = [
+    "Language",
+    "Coding",
+    "Art",
+    "Tech",
+    "Instruments",
+    "Fitness"
+  ];
 
-  const acceptRequest = async (request) => {
-    const chatId =
-      auth.currentUser.uid > request.userId
-        ? auth.currentUser.uid + request.userId
-        : request.userId + auth.currentUser.uid;
+  const openCommunity = (cat) => {
+    if (!cat) return;
 
-    // Mark request as accepted
-    await updateDoc(doc(db, "requests", request.id), {
-      acceptedBy: auth.currentUser.uid,
-      chatId: chatId
-    });
-
-    navigate(`/chat/${chatId}`);
+    const route = cat.toLowerCase().trim(); // safety
+    navigate(`/dashboard/community/${encodeURIComponent(route)}`);
   };
 
   return (
-    <>
-      <Navbar />
-      <div className="container">
-        <h2>Service Requests</h2>
+    <div className="requests-container">
+      <h1 className="req-title">Choose a Community</h1>
 
-        {requests.map((req) => (
-          <div key={req.id} className="card">
-            <h3>{req.title}</h3>
-            <p>{req.description}</p>
-            <p>Location: {req.location}</p>
-            <p>Posted by: {req.email}</p>
-
-            {req.userId !== auth.currentUser.uid && !req.acceptedBy && (
-              <button onClick={() => acceptRequest(req)}>
-                Accept & Chat
-              </button>
-            )}
-
-            {req.acceptedBy && <p>Already Accepted</p>}
+      <div className="circle-grid">
+        {categories.map((cat, index) => (
+          <div
+            key={index}
+            className="circle-card"
+            onClick={() => openCommunity(cat)}
+          >
+            <span>{cat}</span>
           </div>
         ))}
       </div>
-    </>
+    </div>
   );
 }
-
-export default Requests;

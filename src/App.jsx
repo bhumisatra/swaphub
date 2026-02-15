@@ -13,7 +13,8 @@ import Requests from "./pages/Requests";
 import Home from "./pages/Home";
 import Settings from "./pages/Settings";
 import ViewProfile from "./pages/ViewProfile";
-import EditProfile from "./pages/EditProfile";   // ⭐ ADDED
+import EditProfile from "./pages/EditProfile";
+import CommunityChat from "./pages/CommunityChat"; // ⭐ ADDED
 import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
@@ -66,8 +67,11 @@ function App() {
 
           {/* PROFILE FLOW */}
           <Route path="profile" element={<Profile />} />
-          <Route path="edit-profile" element={<EditProfile />} /> {/* ⭐ THIS FIXES YOUR ISSUE */}
+          <Route path="edit-profile" element={<EditProfile />} />
           <Route path="profile/:uid" element={<ViewProfile />} />
+
+          {/* ⭐ COMMUNITY CHAT ROUTE */}
+          <Route path="community/:category" element={<CommunityChat />} />
 
           {/* OTHER PAGES */}
           <Route path="chat" element={<Chat />} />
