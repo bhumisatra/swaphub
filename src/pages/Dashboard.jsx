@@ -6,7 +6,6 @@ function Dashboard() {
   const [open, setOpen] = useState(window.innerWidth > 768);
   const sidebarRef = useRef(null);
 
-  // Detect mobile
   const isMobile = () => window.innerWidth <= 768;
 
   // Close sidebar when clicking outside (ONLY MOBILE)
@@ -32,7 +31,7 @@ function Dashboard() {
     if (isMobile()) setOpen(false);
   };
 
-  // Handle resize → restore desktop sidebar
+  // Restore desktop sidebar when resizing
   useEffect(() => {
     function handleResize() {
       if (!isMobile()) setOpen(true);
@@ -43,11 +42,30 @@ function Dashboard() {
 
   return (
     <div className="dashboard-container">
-      
+
+      {/* MOBILE BACKDROP */}
+      {isMobile() && open && (
+        <div
+          onClick={() => setOpen(false)}
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,0.35)",
+            backdropFilter: "blur(3px)",
+            zIndex: 9
+          }}
+        />
+      )}
+
       {/* Sidebar */}
       <div
         ref={sidebarRef}
         className={`sidebar ${open ? "open" : "closed"}`}
+        style={{
+          position: isMobile() ? "fixed" : "relative",
+          zIndex: 10,
+          height: "100vh"
+        }}
       >
         <h2 className="logo">SwapHub</h2>
 
