@@ -31,7 +31,7 @@ function ViewProfile() {
   if (loading) return <div className="profile-loading">Loading...</div>;
   if (!userData) return <div className="profile-loading">User not found</div>;
 
-  const theme = userData.gender === "female" ? "female-theme" : "male-theme";
+  const theme = userData.gender === "Female" ? "female-theme" : "male-theme";
 
   return (
     <div className={`profile-page ${theme}`}>
