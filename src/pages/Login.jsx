@@ -36,7 +36,7 @@ function Login() {
           <form onSubmit={handleLogin}>
             <input
               type="email"
-              placeholder="USERNAME"
+              placeholder="EMAIL"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
