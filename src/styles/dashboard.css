@@ -121,3 +121,81 @@ body {
   padding: 20px;
   background: transparent;
 }
+/* ============================= */
+/* 📱 MOBILE OPTIMIZATION ONLY  */
+/* ============================= */
+@media (max-width: 768px) {
+
+  /* App should behave like mobile app */
+  body {
+    overflow: hidden;
+  }
+
+  .dashboard-container {
+    flex-direction: column;
+    height: 100dvh;
+  }
+
+  /* Sidebar becomes slide drawer */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100dvh;
+    width: 260px;
+    z-index: 999;
+    transform: translateX(-100%);
+    border-radius: 0;
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  /* Dark overlay when sidebar open */
+  .sidebar::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.35);
+    backdrop-filter: blur(2px);
+    opacity: 0;
+    pointer-events: none;
+    transition: 0.3s;
+  }
+
+  .sidebar.open::after {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* Topbar full width */
+  .topbar {
+    width: 100%;
+    border-radius: 0;
+  }
+
+  /* Content padding reduced */
+  .content {
+    padding: 12px;
+  }
+
+  /* Make pages centered like apps */
+  .content > * {
+    max-width: 650px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  /* Profile banner fix */
+  .profile-header {
+    border-radius: 20px;
+    overflow: hidden;
+  }
+
+  /* Prevent horizontal scroll */
+  * {
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+}
