@@ -9,167 +9,215 @@ import {
   query,
   orderBy,
   doc,
-  setDoc
+  setDoc,
+  getDoc
 } from "firebase/firestore";
 import "../styles/community.css";
 
 export default function Community() {
-  const { name } = useParams();
+const { name } = useParams();
 
-  const [groups, setGroups] = useState([]);
-  const [selectedGroup, setSelectedGroup] = useState("general");
-  const [search, setSearch] = useState("");
+const [groups, setGroups] = useState([]);
+const [selectedGroup, setSelectedGroup] = useState("general");
+const [search, setSearch] = useState("");
 
-  const [text, setText] = useState("");
-  const [messages, setMessages] = useState([]);
-  const [loaded, setLoaded] = useState(false);
+const [text, setText] = useState("");
+const [messages, setMessages] = useState([]);
+const [loaded, setLoaded] = useState(false);
 
-  // LOAD GROUPS
-  useEffect(() => {
-    if (!name) return;
+const [menuOpen, setMenuOpen] = useState(null);
+const [replyTo, setReplyTo] = useState(null);
+const [username, setUsername] = useState("user");
 
-    const groupsRef = collection(db, "communities", name, "groups");
+// LOAD USERNAME FROM USERS COLLECTION
+useEffect(() => {
+  const loadUser = async () => {
+    if (!auth.currentUser) return;
 
-    const unsub = onSnapshot(groupsRef, (snap) => {
-      let list = snap.docs.map(d => d.id);
+    const ref = doc(db, "users", auth.currentUser.uid);
+    const snap = await getDoc(ref);
 
-      if (!list.includes("general")) list.unshift("general");
-
-      setGroups(list);
-    });
-
-    return () => unsub();
-  }, [name]);
-
-  // LOAD MESSAGES
-  useEffect(() => {
-    if (!name || !selectedGroup) return;
-
-    const q = query(
-      collection(db, "communities", name, "groups", selectedGroup, "messages"),
-      orderBy("time", "asc")
-    );
-
-    const unsub = onSnapshot(q, (snapshot) => {
-      const safe = snapshot.docs
-        .map(doc => ({ id: doc.id, ...doc.data() }))
-        .filter(msg => msg.text && msg.user);
-
-      setMessages(safe);
-      setLoaded(true);
-    });
-
-    return () => unsub();
-  }, [name, selectedGroup]);
-
-  // SEND MESSAGE
-  const sendMessage = async () => {
-    if (!text.trim()) return;
-
-    await addDoc(
-      collection(db, "communities", name, "groups", selectedGroup, "messages"),
-      {
-        text: text.trim(),
-        user: auth.currentUser?.email || "Anonymous",
-        time: serverTimestamp()
-      }
-    );
-
-    setText("");
+    if (snap.exists()) {
+      setUsername(snap.data().name || "user");
+    }
   };
 
-  // ENTER TO SEND
-  const handleKey = (e) => {
-    if (e.key === "Enter") sendMessage();
-  };
+  loadUser();
+}, []);
 
-  // CREATE GROUP
-  const createGroup = async () => {
-    const g = prompt("Enter group name");
-    if (!g) return;
 
-    await setDoc(doc(db, "communities", name, "groups", g.toLowerCase()), {
-      createdAt: serverTimestamp()
-    });
-  };
+// LOAD GROUPS
+useEffect(() => {
+if (!name) return;
 
-  // SEARCH SORT
-  const filteredGroups = [...groups].sort((a, b) => {
-    if (!search) return 0;
-    if (a.includes(search.toLowerCase())) return -1;
-    if (b.includes(search.toLowerCase())) return 1;
-    return 0;
-  });
+const groupsRef = collection(db, "communities", name, "groups");
 
-  // TIME FORMAT
-  const formatTime = (timestamp) => {
-    if (!timestamp?.toDate) return "";
-    const date = timestamp.toDate();
-    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-  };
+const unsub = onSnapshot(groupsRef, (snap) => {
+  let list = snap.docs.map(d => d.id);
+  if (!list.includes("general")) list.unshift("general");
+  setGroups(list);
+});
 
-  return (
-    <div className="community-wrapper">
+return () => unsub();
+}, [name]);
 
-      {/* LEFT PANEL */}
-      <div className="groups-panel">
+// LOAD MESSAGES
+useEffect(() => {
+if (!name || !selectedGroup) return;
 
-        <div className="group-search">
-          <input
-            placeholder="Search or create group..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-          <button onClick={createGroup}>+</button>
-        </div>
+const q = query(
+  collection(db, "communities", name, "groups", selectedGroup, "messages"),
+  orderBy("time", "asc")
+);
 
-        <div className="group-list">
-          {filteredGroups.map(g => (
-            <div
-              key={g}
-              className={`group-item ${g === selectedGroup ? "active" : ""}`}
-              onClick={() => setSelectedGroup(g)}
-            >
-              #{g}
-            </div>
-          ))}
-        </div>
+const unsub = onSnapshot(q, (snapshot) => {
+  const safe = snapshot.docs
+    .map(doc => ({ id: doc.id, ...doc.data() }))
+    .filter(msg => msg.text && msg.user);
 
-      </div>
+  setMessages(safe);
+  setLoaded(true);
+});
 
-      {/* RIGHT CHAT */}
-      <div className="chat-panel">
+return () => unsub();
+}, [name, selectedGroup]);
 
-        <h1 className="community-title">{name.toUpperCase()} COMMUNITY</h1>
+// SEND MESSAGE
+const sendMessage = async () => {
+if (!text.trim()) return;
 
-        <div className="messages-box">
-          {!loaded && <p>Connecting...</p>}
+await addDoc(
+  collection(db, "communities", name, "groups", selectedGroup, "messages"),
+  {
+    text: text.trim(),
+    user: username,
+    reply: replyTo ? replyTo.text : null,
+    time: serverTimestamp()
+  }
+);
 
-          {messages.map(msg => {
-            const isMe = msg.user === auth.currentUser?.email;
+setText("");
+setReplyTo(null);
+};
 
-            return (
-              <div key={msg.id} className={`message-row ${isMe ? "me" : "other"}`}>
-                <div className="bubble">
-                  <div className="msg-text">{msg.text}</div>
-                  <div className="msg-time">{formatTime(msg.time)}</div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+const handleKey = (e) => {
+if (e.key === "Enter") sendMessage();
+};
 
-        <div className="send-box">
-          <input
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            onKeyDown={handleKey}
-            placeholder={`Message #${selectedGroup}`}
-          />
-          <button onClick={sendMessage}>Send</button>
-        </div>
+// CREATE GROUP
+const createGroup = async () => {
+const g = prompt("Enter group name");
+if (!g) return;
 
-      </div>
+await setDoc(doc(db, "communities", name, "groups", g.toLowerCase()), {
+  createdAt: serverTimestamp()
+});
+};
+
+// SEARCH SORT
+const filteredGroups = [...groups].sort((a, b) => {
+if (!search) return 0;
+if (a.includes(search.toLowerCase())) return -1;
+if (b.includes(search.toLowerCase())) return 1;
+return 0;
+});
+
+// TIME FORMAT
+const formatTime = (timestamp) => {
+if (!timestamp?.toDate) return "";
+const date = timestamp.toDate();
+return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+};
+
+return (
+<div className="community-wrapper">
+
+  <div className="groups-panel">
+    <div className="group-search">
+      <input
+        placeholder="Search or create group..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
+      <button onClick={createGroup}>+</button>
     </div>
-  );
+
+    <div className="group-list">
+      {filteredGroups.map(g => (
+        <div
+          key={g}
+          className={`group-item ${g === selectedGroup ? "active" : ""}`}
+          onClick={() => setSelectedGroup(g)}
+        >
+          #{g}
+        </div>
+      ))}
+    </div>
+  </div>
+
+  <div className="chat-panel">
+
+    <h1 className="community-title">{name.toUpperCase()} COMMUNITY</h1>
+
+    <div className="messages-box">
+      {!loaded && <p>Connecting...</p>}
+
+      {messages.map(msg => {
+        const isMe = msg.user === username;
+
+        return (
+          <div key={msg.id} className={`message-row ${isMe ? "me" : "other"}`}>
+            <div className="bubble">
+
+              {msg.reply && (
+                <div className="reply-preview">{msg.reply}</div>
+              )}
+
+              <div className="msg-text">{msg.text}</div>
+
+              <div className="msg-user">{msg.user}</div>
+
+              <div className="msg-time">{formatTime(msg.time)}</div>
+
+              {/* HOVER MENU BUTTON */}
+              <div
+                className="msg-menu-btn"
+                onClick={() => setMenuOpen(menuOpen === msg.id ? null : msg.id)}
+              >
+                ▾
+              </div>
+
+              {menuOpen === msg.id && (
+                <div className="msg-menu">
+                  <div onClick={() => alert("Open profile of " + msg.user)}>View Profile</div>
+                  <div onClick={() => { setReplyTo(msg); setMenuOpen(null); }}>Reply</div>
+                </div>
+              )}
+
+            </div>
+          </div>
+        );
+      })}
+    </div>
+
+    {replyTo && (
+      <div className="reply-bar">
+        Replying to: {replyTo.text}
+        <span onClick={() => setReplyTo(null)}>✕</span>
+      </div>
+    )}
+
+    <div className="send-box">
+      <input
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        onKeyDown={handleKey}
+        placeholder={`Message #${selectedGroup}`}
+      />
+      <button onClick={sendMessage}>Send</button>
+    </div>
+
+  </div>
+</div>
+);
 }

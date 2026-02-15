@@ -176,3 +176,104 @@
 .send-box button:hover{
   transform:scale(1.05);
 }
+/* USERNAME */
+.msg-user{
+  font-size:11px;
+  opacity:0.65;
+  margin-top:4px;
+}
+
+/* 3 DOT BUTTON */
+.msg-menu-btn{
+  position:absolute;
+  top:6px;
+  right:6px;
+  cursor:pointer;
+  font-size:14px;
+  opacity:0.6;
+}
+
+.msg-menu-btn:hover{
+  opacity:1;
+}
+
+/* DROPDOWN MENU */
+.msg-menu{
+  position:absolute;
+  top:24px;
+  right:6px;
+  background:#0f2a36;
+  border-radius:8px;
+  overflow:hidden;
+  box-shadow:0 5px 18px rgba(0,0,0,0.4);
+  z-index:5;
+}
+
+.msg-menu div{
+  padding:8px 14px;
+  cursor:pointer;
+  font-size:13px;
+}
+
+.msg-menu div:hover{
+  background:#1ecbe133;
+}
+
+/* REPLY PREVIEW */
+.reply-preview{
+  background:rgba(0,0,0,0.15);
+  padding:5px 8px;
+  border-radius:8px;
+  font-size:12px;
+  margin-bottom:6px;
+}
+
+/* REPLY BAR */
+.reply-bar{
+  background:#112d3a;
+  padding:8px 12px;
+  font-size:13px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.reply-bar span{
+  cursor:pointer;
+}
+/* hidden menu button */
+.message-row .msg-menu-btn{
+opacity:0;
+position:absolute;
+top:6px;
+right:6px;
+cursor:pointer;
+transition:0.2s;
+font-size:18px;
+}
+
+.message-row:hover .msg-menu-btn{
+opacity:1;
+}
+
+.msg-menu{
+position:absolute;
+top:28px;
+right:6px;
+background:#1e293b;
+border-radius:8px;
+padding:6px 0;
+box-shadow:0 8px 20px rgba(0,0,0,0.4);
+z-index:20;
+min-width:140px;
+}
+
+.msg-menu div{
+padding:8px 14px;
+cursor:pointer;
+font-size:14px;
+}
+
+.msg-menu div:hover{
+background:#334155;
+}
