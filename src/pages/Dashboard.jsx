@@ -6,9 +6,33 @@ function Dashboard() {
   const [open, setOpen] = useState(window.innerWidth > 768);
   const sidebarRef = useRef(null);
 
+  // Detect mobile
   const isMobile = () => window.innerWidth <= 768;
 
-  // Close sidebar on resize to desktop
+  // Close sidebar when clicking outside (ONLY MOBILE)
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (!isMobile()) return;
+
+      if (
+        open &&
+        sidebarRef.current &&
+        !sidebarRef.current.contains(event.target)
+      ) {
+        setOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [open]);
+
+  // Auto close when route clicked (ONLY MOBILE)
+  const handleMenuClick = () => {
+    if (isMobile()) setOpen(false);
+  };
+
+  // Handle resize → restore desktop sidebar
   useEffect(() => {
     function handleResize() {
       if (!isMobile()) setOpen(true);
@@ -17,35 +41,13 @@ function Dashboard() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Close sidebar when menu clicked (mobile only)
-  const handleMenuClick = () => {
-    if (isMobile()) setOpen(false);
-  };
-
   return (
     <div className="dashboard-container">
-
-      {/* OVERLAY — blocks touch + allows closing */}
-      {open && isMobile() && (
-        <div
-          onClick={() => setOpen(false)}
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100vw",
-            height: "100vh",
-            background: "rgba(0,0,0,0.25)",
-            zIndex: 9
-          }}
-        />
-      )}
-
+      
       {/* Sidebar */}
       <div
         ref={sidebarRef}
         className={`sidebar ${open ? "open" : "closed"}`}
-        style={{ zIndex: 10 }}
       >
         <h2 className="logo">SwapHub</h2>
 
