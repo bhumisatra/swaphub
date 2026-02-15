@@ -2,7 +2,7 @@
 .chat-wrapper {
   display: flex;
   height: calc(100vh - 60px);
-  background: #9BA8AB;
+  background: #E5EAF5;
 }
 
 /* ================= LEFT PANEL ================= */
@@ -266,4 +266,71 @@
   height: 10px;
   background: #A0D2EB;
   border-radius: 50%;
+}
+/* ================= MOBILE OPTIMIZATION ================= */
+@media (max-width: 768px) {
+
+  .chat-wrapper {
+    flex-direction: column;
+    height: 100vh;
+  }
+
+  /* Sidebar full width on top */
+  .chat-sidebar {
+    width: 100%;
+    height: 40%;
+    border-right: none;
+    border-bottom: 1px solid rgba(229,234,245,0.2);
+  }
+
+  /* Chat area below sidebar */
+  .chat-main {
+    width: 100%;
+    height: 60%;
+  }
+
+  /* Header slightly smaller */
+  .chat-header {
+    height: 60px;
+    padding: 0 15px;
+  }
+
+  .chat-username {
+    font-size: 16px;
+  }
+
+  /* Messages area proper spacing */
+  .chat-messages {
+    padding: 15px;
+    gap: 10px;
+  }
+
+  /* Message width more readable */
+  .message {
+    max-width: 80%;
+    font-size: 13px;
+  }
+
+  /* Input fixed bottom clean */
+  .chat-input {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 12px;
+    background: #E5EAF5;
+  }
+
+  .chat-input input {
+    font-size: 14px;
+  }
+
+  .chat-input button {
+    font-size: 14px;
+  }
+
+  /* Prevent overlap */
+  .chat-messages {
+    padding-bottom: 90px;
+  }
 }
