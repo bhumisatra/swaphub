@@ -174,7 +174,7 @@ function Profile() {
         {/* 🔥 EDIT PROFILE BUTTON — NOW ALWAYS WORKS */}
         <button
           className="edit-profile-btn"
-          onClick={() => navigate("edit-profile")}
+          onClick={() => navigate("../edit-profile")}
         >
           Edit Profile Info
         </button>
