@@ -12,6 +12,7 @@ import {
   setDoc,
   getDoc
 } from "firebase/firestore";
+import { onAuthStateChanged } from "firebase/auth";
 import "../styles/community.css";
 
 export default function Community() {
@@ -29,20 +30,28 @@ const [menuOpen, setMenuOpen] = useState(null);
 const [replyTo, setReplyTo] = useState(null);
 const [username, setUsername] = useState("user");
 
-// LOAD USERNAME FROM USERS COLLECTION
-useEffect(() => {
-  const loadUser = async () => {
-    if (!auth.currentUser) return;
+const [currentUID, setCurrentUID] = useState(null);
+const [authReady, setAuthReady] = useState(false);
 
-    const ref = doc(db, "users", auth.currentUser.uid);
+
+// 🔥 WAIT FOR AUTH FIRST
+useEffect(() => {
+  const unsub = onAuthStateChanged(auth, async (user) => {
+    if (!user) return;
+
+    setCurrentUID(user.uid);
+
+    const ref = doc(db, "users", user.uid);
     const snap = await getDoc(ref);
 
     if (snap.exists()) {
-      setUsername(snap.data().name || "user");
+      setUsername(snap.data().username || "user");
     }
-  };
 
-  loadUser();
+    setAuthReady(true);
+  });
+
+  return () => unsub();
 }, []);
 
 
@@ -61,9 +70,10 @@ const unsub = onSnapshot(groupsRef, (snap) => {
 return () => unsub();
 }, [name]);
 
-// LOAD MESSAGES
+
+// LOAD MESSAGES ONLY AFTER AUTH READY
 useEffect(() => {
-if (!name || !selectedGroup) return;
+if (!name || !selectedGroup || !authReady) return;
 
 const q = query(
   collection(db, "communities", name, "groups", selectedGroup, "messages"),
@@ -73,14 +83,15 @@ const q = query(
 const unsub = onSnapshot(q, (snapshot) => {
   const safe = snapshot.docs
     .map(doc => ({ id: doc.id, ...doc.data() }))
-    .filter(msg => msg.text && msg.user);
+    .filter(msg => msg.text);
 
   setMessages(safe);
   setLoaded(true);
 });
 
 return () => unsub();
-}, [name, selectedGroup]);
+}, [name, selectedGroup, authReady]);
+
 
 // SEND MESSAGE
 const sendMessage = async () => {
@@ -91,6 +102,7 @@ await addDoc(
   {
     text: text.trim(),
     user: username,
+    uid: currentUID,
     reply: replyTo ? replyTo.text : null,
     time: serverTimestamp()
   }
@@ -104,6 +116,7 @@ const handleKey = (e) => {
 if (e.key === "Enter") sendMessage();
 };
 
+
 // CREATE GROUP
 const createGroup = async () => {
 const g = prompt("Enter group name");
@@ -114,13 +127,6 @@ await setDoc(doc(db, "communities", name, "groups", g.toLowerCase()), {
 });
 };
 
-// SEARCH SORT
-const filteredGroups = [...groups].sort((a, b) => {
-if (!search) return 0;
-if (a.includes(search.toLowerCase())) return -1;
-if (b.includes(search.toLowerCase())) return 1;
-return 0;
-});
 
 // TIME FORMAT
 const formatTime = (timestamp) => {
@@ -128,6 +134,7 @@ if (!timestamp?.toDate) return "";
 const date = timestamp.toDate();
 return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 };
+
 
 return (
 <div className="community-wrapper">
@@ -143,7 +150,7 @@ return (
     </div>
 
     <div className="group-list">
-      {filteredGroups.map(g => (
+      {groups.map(g => (
         <div
           key={g}
           className={`group-item ${g === selectedGroup ? "active" : ""}`}
@@ -160,10 +167,11 @@ return (
     <h1 className="community-title">{name.toUpperCase()} COMMUNITY</h1>
 
     <div className="messages-box">
-      {!loaded && <p>Connecting...</p>}
+      {!authReady && <p>Connecting...</p>}
 
-      {messages.map(msg => {
-        const isMe = msg.user === username;
+      {authReady && messages.map(msg => {
+
+        const isMe = msg.uid === currentUID;
 
         return (
           <div key={msg.id} className={`message-row ${isMe ? "me" : "other"}`}>
@@ -179,7 +187,6 @@ return (
 
               <div className="msg-time">{formatTime(msg.time)}</div>
 
-              {/* HOVER MENU BUTTON */}
               <div
                 className="msg-menu-btn"
                 onClick={() => setMenuOpen(menuOpen === msg.id ? null : msg.id)}
