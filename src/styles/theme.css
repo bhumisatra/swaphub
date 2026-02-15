@@ -1,0 +1,224 @@
+/* ================================
+   GLOBAL COLOR VARIABLES
+================================ */
+
+:root {
+  --bg-main: #A0D2EB;
+  --bg-soft: #E5EAF5;
+  --card-bg: rgba(229,234,245,0.85);
+
+  --accent: #8458B3;
+  --accent-soft: #D0BDF4;
+  --accent-dark: #6a4494;
+
+  --text-main: #2c2f3a;
+  --text-muted: #6b7085;
+  --border-soft: rgba(73,77,95,0.18);
+}
+
+/* ================================
+   PAGE BACKGROUND
+================================ */
+
+body {
+  margin: 0;
+  background: linear-gradient(180deg, #A0D2EB 0%, #E5EAF5 100%);
+  color: var(--text-main);
+  font-family: 'Inter', sans-serif;
+}
+
+/* ================================
+   HEADER / TOPBAR
+================================ */
+
+.topbar {
+  background: #494D5F;
+  color: white;
+  border-bottom: 3px solid var(--accent);
+}
+
+.topbar * {
+  color: white;
+}
+
+/* ================================
+   SIDEBAR
+================================ */
+
+/* ================================
+   ANIMATED SIDEBAR GRADIENT
+================================ */
+
+.sidebar {
+  background: linear-gradient(
+    270deg,
+    #A0D2EB,
+    #D0BDF4,
+    #8458B3,
+    #494D5F,
+    #8458B3,
+    #D0BDF4,
+    #A0D2EB
+  );
+
+  background-size: 600% 600%;
+  animation: sidebarFlow 18s ease infinite;
+
+  border-right: 2px solid rgba(255,255,255,0.25);
+  backdrop-filter: blur(12px);
+}
+
+/* smooth moving effect */
+@keyframes sidebarFlow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* ================================
+   HEADINGS
+================================ */
+
+h1, h2, h3 {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* ================================
+   UNIVERSAL CARD DESIGN
+================================ */
+
+.card, .glass-card {
+  background: var(--card-bg);
+  backdrop-filter: blur(16px);
+  border-radius: 18px;
+  border: 1px solid var(--border-soft);
+  box-shadow: 0 10px 30px rgba(73,77,95,0.15);
+  transition: all 0.25s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+/* accent glow */
+.card::before,
+.glass-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, transparent, rgba(132,88,179,0.15), transparent);
+  opacity: 0;
+  transition: 0.3s;
+}
+
+.card:hover::before,
+.glass-card:hover::before {
+  opacity: 1;
+}
+
+.card:hover,
+.glass-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 14px 40px rgba(73,77,95,0.25);
+}
+
+/* ================================
+   BUTTONS
+================================ */
+
+button, .primary-btn {
+  background: linear-gradient(135deg, #8458B3, #6a4494);
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+button:hover, .primary-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(132,88,179,0.4);
+}
+
+/* outline button */
+.secondary-btn {
+  background: transparent;
+  border: 2px solid var(--accent);
+  color: var(--accent);
+}
+
+.secondary-btn:hover {
+  background: var(--accent);
+  color: white;
+}
+
+/* ================================
+   INPUTS
+================================ */
+
+input, textarea, select {
+  background: rgba(255,255,255,0.7);
+  border: 1px solid var(--border-soft);
+  border-radius: 12px;
+  padding: 10px;
+  outline: none;
+}
+
+input:focus, textarea:focus, select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(132,88,179,0.25);
+}
+
+/* ================================
+   CHAT BUBBLES
+================================ */
+
+.message.me {
+  background: linear-gradient(135deg, #8458B3, #6a4494);
+  color: white;
+}
+
+.message.other {
+  background: #E5EAF5;
+  border: 1px solid var(--border-soft);
+}
+
+/* ================================
+   LINKS
+================================ */
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* ================================
+   SCROLLBAR
+================================ */
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #E5EAF5;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #8458B3;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #6a4494;
+}

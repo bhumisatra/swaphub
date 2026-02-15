@@ -2,7 +2,7 @@
 .community-wrapper{
   display:flex;
   height:100vh;
-  background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+  background:linear-gradient(135deg,#494D5F,#8458B3,#A0D2EB);
   color:white;
   font-family:Segoe UI, sans-serif;
 }
@@ -10,12 +10,12 @@
 /* LEFT PANEL */
 .groups-panel{
   width:260px;
-  background:#0b1c25;
+  background:#494D5F;
   padding:15px;
   display:flex;
   flex-direction:column;
   gap:12px;
-  border-right:1px solid rgba(255,255,255,0.08);
+  border-right:1px solid rgba(229,234,245,0.15);
 }
 
 .group-search{
@@ -28,7 +28,7 @@
   padding:10px;
   border-radius:10px;
   border:none;
-  background:#112d3a;
+  background:#8458B3;
   color:white;
 }
 
@@ -36,8 +36,8 @@
   width:40px;
   border:none;
   border-radius:10px;
-  background:#1ecbe1;
-  color:black;
+  background:#A0D2EB;
+  color:#494D5F;
   font-weight:bold;
   cursor:pointer;
 }
@@ -52,18 +52,19 @@
 .group-item{
   padding:10px 14px;
   border-radius:12px;
-  background:#132f3d;
+  background:#5a5f75;
   cursor:pointer;
   transition:0.2s;
 }
 
 .group-item:hover{
-  background:#1ecbe133;
+  background:#D0BDF4;
+  color:#494D5F;
 }
 
 .group-item.active{
-  background:#1ecbe1;
-  color:black;
+  background:#A0D2EB;
+  color:#494D5F;
   font-weight:bold;
 }
 
@@ -119,15 +120,15 @@
 
 /* MY MESSAGE */
 .message-row.me .bubble{
-  background:#dcf8c6;
-  color:black;
+  background:#8458B3;
+  color:white;
   border-bottom-right-radius:5px;
 }
 
 /* OTHER MESSAGE */
 .message-row.other .bubble{
-  background:#ffffff;
-  color:black;
+  background:#E5EAF5;
+  color:#494D5F;
   border-bottom-left-radius:5px;
 }
 
@@ -158,16 +159,16 @@
   border-radius:14px;
   border:none;
   outline:none;
-  background:#112d3a;
-  color:white;
+  background:#D0BDF4;
+  color:#494D5F;
 }
 
 .send-box button{
   padding:12px 20px;
   border:none;
   border-radius:14px;
-  background:#1ecbe1;
-  color:black;
+  background:#A0D2EB;
+  color:#494D5F;
   font-weight:bold;
   cursor:pointer;
   transition:0.2s;
@@ -176,10 +177,11 @@
 .send-box button:hover{
   transform:scale(1.05);
 }
+
 /* USERNAME */
 .msg-user{
   font-size:11px;
-  opacity:0.65;
+  opacity:0.75;
   margin-top:4px;
 }
 
@@ -202,7 +204,7 @@
   position:absolute;
   top:24px;
   right:6px;
-  background:#0f2a36;
+  background:#494D5F;
   border-radius:8px;
   overflow:hidden;
   box-shadow:0 5px 18px rgba(0,0,0,0.4);
@@ -216,12 +218,12 @@
 }
 
 .msg-menu div:hover{
-  background:#1ecbe133;
+  background:#8458B3;
 }
 
 /* REPLY PREVIEW */
 .reply-preview{
-  background:rgba(0,0,0,0.15);
+  background:rgba(208,189,244,0.4);
   padding:5px 8px;
   border-radius:8px;
   font-size:12px;
@@ -230,7 +232,7 @@
 
 /* REPLY BAR */
 .reply-bar{
-  background:#112d3a;
+  background:#8458B3;
   padding:8px 12px;
   font-size:13px;
   display:flex;
@@ -241,6 +243,7 @@
 .reply-bar span{
   cursor:pointer;
 }
+
 /* hidden menu button */
 .message-row .msg-menu-btn{
 opacity:0;
@@ -260,7 +263,7 @@ opacity:1;
 position:absolute;
 top:28px;
 right:6px;
-background:#1e293b;
+background:#494D5F;
 border-radius:8px;
 padding:6px 0;
 box-shadow:0 8px 20px rgba(0,0,0,0.4);
@@ -275,5 +278,5 @@ font-size:14px;
 }
 
 .msg-menu div:hover{
-background:#334155;
+background:#8458B3;
 }

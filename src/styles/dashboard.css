@@ -57,6 +57,7 @@ body {
   margin-bottom: 30px;
   font-size: 22px;
   font-weight: bold;
+  color:black;
 }
 
 /* Glass Buttons */
@@ -65,7 +66,7 @@ body {
   margin-bottom: 10px;
   border-radius: 14px;
   text-decoration: none;
-  color: white;
+  color: black;
   transition: all 0.3s ease;
   cursor: pointer;
 

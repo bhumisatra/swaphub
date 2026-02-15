@@ -2,14 +2,14 @@
 .chat-wrapper {
   display: flex;
   height: calc(100vh - 60px);
-  background: #0b141a;
+  background: #E5EAF5;
 }
 
 /* ================= LEFT PANEL ================= */
 .chat-sidebar {
   width: 300px;
-  background: #111b21;
-  border-right: 1px solid #222;
+  background: #494D5F;
+  border-right: 1px solid rgba(229,234,245,0.2);
   display: flex;
   flex-direction: column;
 }
@@ -26,13 +26,15 @@
   border-radius: 6px;
   border: none;
   outline: none;
+  background: #D0BDF4;
+  color: #494D5F;
 }
 
 .chat-search button {
   padding: 8px 12px;
   border: none;
-  background: #008069;
-  color: white;
+  background: #A0D2EB;
+  color: #494D5F;
   border-radius: 6px;
   cursor: pointer;
 }
@@ -40,16 +42,17 @@
 .chat-item {
   padding: 15px;
   cursor: pointer;
-  border-bottom: 1px solid #1f2c34;
-  color: #d1d7db;
+  border-bottom: 1px solid rgba(229,234,245,0.15);
+  color: #E5EAF5;
 }
 
 .chat-item:hover {
-  background: #1f2c34;
+  background: #8458B3;
 }
 
 .chat-item.active {
-  background: #2a3942;
+  background: #A0D2EB;
+  color: #494D5F;
 }
 
 /* ================= RIGHT PANEL ================= */
@@ -57,13 +60,13 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: #0b141a;
+  background: #E5EAF5;
 }
 
 /* ================= HEADER ================= */
 .chat-header {
   height: 70px;
-  background: #202c33;
+  background: #8458B3;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -81,8 +84,8 @@
   width: 45px;
   height: 45px;
   border-radius: 50%;
-  background: #2a3942;
-  color: white;
+  background: #A0D2EB;
+  color: #494D5F;
   font-weight: bold;
   display: flex;
   align-items: center;
@@ -110,8 +113,8 @@
   position: absolute;
   right: 0;
   top: 40px;
-  background: white;
-  color: black;
+  background: #E5EAF5;
+  color: #494D5F;
   border-radius: 8px;
   padding: 10px;
   box-shadow: 0 5px 15px rgba(0,0,0,0.3);
@@ -124,7 +127,7 @@
 }
 
 .dropdown-menu div:hover {
-  background: #f1f1f1;
+  background: #D0BDF4;
 }
 
 /* ================= MESSAGES AREA ================= */
@@ -134,7 +137,7 @@
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  align-items: flex-start; /* IMPORTANT FIX */
+  align-items: flex-start;
   gap: 8px;
 }
 
@@ -144,8 +147,8 @@
   font-size: 12px;
   margin: 15px auto;
   padding: 5px 12px;
-  background: #202c33;
-  color: #d1d7db;
+  background: #D0BDF4;
+  color: #494D5F;
   border-radius: 10px;
   width: fit-content;
 }
@@ -157,26 +160,26 @@
   max-width: 60%;
   padding: 8px 14px;
   border-radius: 18px;
-  background: #202c33;
-  color: white;
+  background: #D0BDF4;
+  color: #494D5F;
   font-size: 14px;
-
-  display: inline-block;  /* FIXED */
-  align-self: flex-start; /* LEFT */
+  display: inline-block;
+  align-self: flex-start;
   word-wrap: break-word;
 }
 
 /* Your message */
 .message.own {
-  background: #005c4b;
-  align-self: flex-end;  /* RIGHT */
+  background: #8458B3;
+  color: white;
+  align-self: flex-end;
 }
 
 /* Time */
 .message-time {
   font-size: 11px;
   margin-left: 6px;
-  color: #aebac1;
+  color: #494D5F;
 }
 
 /* ================= INPUT ================= */
@@ -184,8 +187,8 @@
   padding: 15px;
   display: flex;
   gap: 10px;
-  border-top: 1px solid #1f2c34;
-  background: #202c33;
+  border-top: 1px solid rgba(73,77,95,0.2);
+  background: #E5EAF5;
 }
 
 .chat-input input {
@@ -194,14 +197,16 @@
   border-radius: 20px;
   border: none;
   outline: none;
+  background: #D0BDF4;
+  color: #494D5F;
 }
 
 .chat-input button {
   padding: 10px 15px;
   border-radius: 20px;
   border: none;
-  background: #008069;
-  color: white;
+  background: #A0D2EB;
+  color: #494D5F;
   cursor: pointer;
 }
 
@@ -232,6 +237,7 @@
     padding-bottom: 80px;
   }
 }
+
 .message-wrapper {
   width: 100%;
 }
@@ -248,6 +254,7 @@
 .message-row.right {
   justify-content: flex-end;
 }
+
 .chat-name-row {
   display: flex;
   justify-content: space-between;
@@ -257,6 +264,6 @@
 .unread-dot {
   width: 10px;
   height: 10px;
-  background: #00ff6a;
+  background: #A0D2EB;
   border-radius: 50%;
 }

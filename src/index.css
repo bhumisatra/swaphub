@@ -41,3 +41,14 @@ button:hover {
   margin: 5px;
   border-radius: 12px;
 }
+/* GLOBAL PAGE STYLE */
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg-main);
+  color: var(--text-main);
+  font-family: 'Inter', sans-serif;
+}
