@@ -1,12 +1,17 @@
 import { useEffect, useState, useRef } from "react";
 import { auth, db } from "../firebase";
-import { collection, query, where, getDocs, addDoc, onSnapshot, orderBy, serverTimestamp, setDoc, doc, updateDoc, getDoc } from "firebase/firestore";
-import { useNavigate } from "react-router-dom";
+import {
+collection, query, where, getDocs, addDoc, onSnapshot, orderBy,
+serverTimestamp, setDoc, doc, updateDoc, getDoc
+} from "firebase/firestore";
+import { useNavigate, useParams } from "react-router-dom";
 import "../styles/chat.css";
 
 function Chat() {
 
 const navigate = useNavigate();
+const { chatId: uid } = useParams();
+const autoOpenedRef = useRef(false);
 
 /* AUTH SAFE */
 const [currentUser, setCurrentUser] = useState(null);
@@ -58,6 +63,57 @@ setChatList(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
 });
 }, [authReady, currentUser]);
 
+/* AUTO OPEN CHAT FROM PROFILE */
+useEffect(() => {
+if (!uid || !currentUser || !authReady) return;
+if (chatList.length === 0) return;
+if (autoOpenedRef.current) return;
+
+autoOpenedRef.current = true;
+
+const run = async () => {
+const chatId = generateChatId(currentUser.uid, uid);
+
+// exists
+const existing = chatList.find(c => c.id === chatId);
+if (existing) {
+openChat(existing);
+return;
+}
+
+// create
+const userRef = doc(db, "users", uid);
+const snap = await getDoc(userRef);
+if (!snap.exists()) return;
+
+const otherUser = snap.data();
+
+const newChat = {
+participants: [currentUser.uid, uid],
+usernames: {
+[currentUser.uid]: currentUser.email,
+[uid]: otherUser.username
+},
+nicknames: {},
+unread: {
+[currentUser.uid]: 0,
+[uid]: 0
+},
+lastMessage: "",
+createdAt: serverTimestamp()
+};
+
+await setDoc(doc(db, "chats", chatId), newChat, { merge:true });
+
+setTimeout(() => {
+setActiveChat({ id: chatId, ...newChat });
+setChatOpen(true);
+}, 300);
+};
+
+run();
+}, [uid, currentUser, authReady, chatList]);
+
 /* ACTIVE CHAT REALTIME */
 useEffect(()=>{
 if(!activeChat) return;
@@ -79,7 +135,7 @@ const chatId = generateChatId(currentUser.uid, otherUid);
 
 await setDoc(doc(db, "chats", chatId), {
 participants: [currentUser.uid, otherUid],
-usernames: {[currentUser.uid]: currentUser.email,[otherUid]: otherUser.username},
+usernames:{[currentUser.uid]:currentUser.email,[otherUid]:otherUser.username},
 nicknames:{},
 unread:{[currentUser.uid]:0,[otherUid]:0},
 lastMessage:"",
@@ -98,7 +154,10 @@ const userRef = doc(db, "users", otherUid);
 const snap = await getDoc(userRef);
 if(snap.exists()) setOtherUserData(snap.data());
 
-await updateDoc(doc(db,"chats",chat.id),{[`unread.${currentUser.uid}`]:0});
+await updateDoc(doc(db,"chats",chat.id),{
+[`unread.${currentUser.uid}`]:0
+});
+
 setActiveChat(chat);
 setChatOpen(true);
 };

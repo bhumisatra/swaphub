@@ -16,99 +16,90 @@
   background: linear-gradient(135deg,#E5EAF5,#D0BDF4,#8458B3);
 }
 
-/* HERO */
+/* =====================================================
+   NEW TOP PROFILE BAR (YOUR DRAWING LAYOUT)
+   ===================================================== */
 
-.profile-hero {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 80px 10%;
-  flex-wrap: wrap;
+.vp-top-bar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:30px;
+  padding:60px 10% 20px 10%;
+  flex-wrap:wrap;
 }
 
-.hero-text h1 {
-  font-size: 38px;
-  margin-bottom: 10px;
-}
-
-.hero-text p {
-  opacity: 0.9;
-}
-
-.hero-avatar img,
-.avatar-letter {
-  width: 160px;
-  height: 160px;
-  border-radius: 20px;
-  object-fit: cover;
-  background: rgba(229,234,245,0.2);
+/* CIRCLE PROFILE PIC */
+.vp-avatar img,
+.vp-avatar .avatar-letter{
+  width:150px;
+  height:150px;
+  border-radius:50%;
+  object-fit:cover;
+  background:rgba(229,234,245,0.2);
   display:flex;
   align-items:center;
   justify-content:center;
-  font-size:60px;
+  font-size:58px;
   font-weight:bold;
 }
 
-/* SECTIONS */
-
-.profile-section {
-  padding: 60px 10%;
+/* NAME + BIO */
+.vp-user-main{
+  flex:1;
+  min-width:240px;
 }
 
-.profile-section h2 {
-  margin-bottom: 20px;
-  font-size: 28px;
+.vp-user-main h1{
+  font-size:34px;
+  margin-bottom:6px;
 }
 
-/* CARD */
-
-.card {
-  background: rgba(229,234,245,0.15);
-  backdrop-filter: blur(15px);
-  padding: 20px;
-  border-radius: 15px;
-}
-
-/* SKILLS */
-
-.skills {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.skill {
-  padding: 8px 14px;
-  background: rgba(160,210,235,0.35);
-  border-radius: 20px;
-}
-
-/* PROJECTS */
-
-.projects {
-  display: grid;
-  grid-template-columns: repeat(auto-fit,minmax(250px,1fr));
-  gap: 20px;
-}
-
-.project-card {
-  background: rgba(229,234,245,0.15);
-  padding: 20px;
-  border-radius: 15px;
-}
-
-/* CONTACT */
-
-.contact {
-  text-align:center;
-}
-
-.email {
-  font-size:18px;
+.vp-user-main p{
   opacity:0.9;
 }
 
-/* GLASS CARD */
+/* FOLLOW BUTTON RIGHT SIDE */
+.vp-actions{
+  display:flex;
+  align-items:center;
+}
+
+/* FOLLOW COUNTERS */
+.vp-stats{
+  display:flex;
+  gap:60px;
+  padding:10px 10% 30px 10%;
+  font-size:16px;
+}
+
+.vp-stats div{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+
+.vp-stats strong{
+  font-size:22px;
+}
+
+/* =====================================================
+   SECTIONS (ABOUT & SKILLS)
+   ===================================================== */
+
+.profile-section {
+  padding: 40px 10%;
+}
+
+.profile-section h2 {
+  margin-bottom: 18px;
+  font-size: 26px;
+}
+
+/* =====================================================
+   GLASS CARD (kept same)
+   ===================================================== */
+
 .glass-card {
   background: rgba(229,234,245,0.15);
   backdrop-filter: blur(18px);
@@ -121,23 +112,26 @@
     inset 0 0 0 1px rgba(229,234,245,0.25);
 }
 
-/* SKILLS INSIDE CARD */
+/* SKILLS BOX BIG */
 .skills-card {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 14px;
+  min-height: 140px;
 }
 
 .skill {
-  padding: 8px 14px;
+  padding: 9px 16px;
   border-radius: 20px;
   background: rgba(208,189,244,0.6);
   font-size: 14px;
 }
 
-/* EDIT PROFILE BUTTON */
+/* =====================================================
+   BUTTONS (unchanged)
+   ===================================================== */
+
 .edit-profile-btn{
-  margin-top:12px;
   padding:10px 18px;
   border:none;
   border-radius:14px;
@@ -157,26 +151,8 @@
   opacity:0.9;
 }
 
-/* NEW LAYOUT */
-.profile-bottom-layout {
-  display: grid;
-  grid-template-columns: 280px 1fr;
-  gap: 40px;
-  margin-top: 40px;
-  align-items: start;
-}
-
-.profile-left-panel {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  position: sticky;
-  top: 120px;
-}
-
-/* FOLLOW BUTTON */
 .follow-btn {
-  padding: 14px;
+  padding: 14px 24px;
   border-radius: 12px;
   font-size: 16px;
   font-weight: 600;
@@ -191,45 +167,46 @@
   transform: scale(1.05);
 }
 
-.contact-card {
-  text-align: center;
+/* =====================================================
+   MOBILE RESPONSIVE
+   ===================================================== */
+
+@media(max-width:768px){
+
+  .vp-top-bar{
+    flex-direction:column;
+    align-items:center;
+    text-align:center;
+  }
+
+  .vp-stats{
+    justify-content:center;
+    gap:40px;
+  }
+
+  .vp-actions{
+    margin-top:10px;
+  }
+
+}
+.profile-action-buttons{
+  display:flex;
+  gap:12px;
+  align-items:center;
 }
 
-/* CHAT BUTTON */
-.chat-btn {
-  margin-top: 10px;
-  padding: 10px 16px;
-  border-radius: 10px;
-  border: none;
-  background: #494D5F;
-  color: white;
-  cursor: pointer;
+.message-btn{
+  padding:14px 24px;
+  border-radius:12px;
+  font-size:16px;
+  font-weight:600;
+  background:linear-gradient(135deg,#A0D2EB,#8458B3);
+  border:none;
+  color:white;
+  cursor:pointer;
+  transition:0.2s;
 }
 
-.profile-right-panel {
-  display: flex;
-  flex-direction: column;
-  gap: 30px;
-}
-
-.follow-stats {
-  display: flex;
-  gap: 30px;
-  margin-top: 12px;
-  font-size: 15px;
-  opacity: 0.9;
-}
-
-.follow-stats div {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.follow-stats strong {
-  font-size: 18px;
-}
-
-.profile-left-panel {
-  margin-left: 25px;
+.message-btn:hover{
+  transform:scale(1.05);
 }

@@ -13,12 +13,10 @@ function ViewProfile() {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // ⭐ NEW STATES
   const [followers, setFollowers] = useState(0);
   const [following, setFollowing] = useState(0);
   const [isFollowing, setIsFollowing] = useState(false);
 
-  // 🔥 WAIT FOR AUTH
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (user) => {
       setCurrentUser(user);
@@ -26,7 +24,6 @@ function ViewProfile() {
     return () => unsub();
   }, []);
 
-  // 🔥 REALTIME PROFILE LISTENER
   useEffect(() => {
     const unsubscribe = onSnapshot(doc(db, "users", uid), (snap) => {
       if (snap.exists()) setUserData(snap.data());
@@ -37,7 +34,6 @@ function ViewProfile() {
     return () => unsubscribe();
   }, [uid]);
 
-  // ⭐ FOLLOWERS COUNT LISTENER
   useEffect(() => {
     const unsub1 = onSnapshot(collection(db, "users", uid, "followers"), snap => {
       setFollowers(snap.size);
@@ -53,7 +49,6 @@ function ViewProfile() {
     };
   }, [uid]);
 
-  // ⭐ CHECK IF I FOLLOW THIS USER
   useEffect(() => {
     if (!currentUser) return;
 
@@ -65,7 +60,6 @@ function ViewProfile() {
     return () => unsub();
   }, [currentUser, uid]);
 
-  // ⭐ FOLLOW / UNFOLLOW FUNCTION
   const toggleFollow = async () => {
     if (!currentUser) return;
 
@@ -75,14 +69,17 @@ function ViewProfile() {
     const followingRef = doc(db, "users", myUid, "following", uid);
 
     if (isFollowing) {
-      // UNFOLLOW
       await deleteDoc(followerRef);
       await deleteDoc(followingRef);
     } else {
-      // FOLLOW
       await setDoc(followerRef, { uid: myUid });
       await setDoc(followingRef, { uid: uid });
     }
+  };
+
+  /* 🔥 MESSAGE BUTTON FIX */
+  const openChat = () => {
+    navigate(`/dashboard/chat/${uid}`);
   };
 
   if (loading || currentUser === undefined)
@@ -96,31 +93,38 @@ function ViewProfile() {
   return (
     <div className={`profile-page ${theme}`}>
 
-      {/* HERO */}
-      <section className="profile-hero">
-        <div className="hero-text">
-          <h1>Hi there, I'm {userData.username}</h1>
-          <p>{userData.bio || "Welcome to my profile ✨"}</p>
+      {/* ===== TOP PROFILE BAR ===== */}
+      <div className="vp-top-bar">
 
-          {/* ⭐ FOLLOW STATS */}
-          <div className="follow-stats">
-            <div>
-              <strong>{followers}</strong>
-              <span>Followers</span>
-            </div>
-            <div>
-              <strong>{following}</strong>
-              <span>Following</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="hero-avatar">
+        <div className="vp-avatar">
           {userData.photoURL ? (
             <img src={userData.photoURL} alt="profile"/>
           ) : (
             <div className="avatar-letter">
               {userData.username?.charAt(0).toUpperCase()}
+            </div>
+          )}
+        </div>
+
+        <div className="vp-user-main">
+          <h1>{userData.username}</h1>
+          <p>{userData.bio || "Welcome to my profile ✨"}</p>
+        </div>
+
+        <div className="vp-actions">
+
+          {!isOwner && (
+            <div className="profile-action-buttons">
+              <button className="follow-btn" onClick={toggleFollow}>
+                {isFollowing ? "Following" : "Follow"}
+              </button>
+
+              <button
+                className="message-btn"
+                onClick={openChat}
+              >
+                Message
+              </button>
             </div>
           )}
 
@@ -132,59 +136,41 @@ function ViewProfile() {
               Edit Profile
             </button>
           )}
-        </div>
-      </section>
-
-
-      {/* ===== NEW LAYOUT START ===== */}
-      <div className="profile-bottom-layout">
-
-        {/* LEFT SIDE */}
-        <div className="profile-left-panel">
-
-          {!isOwner && (
-            <button className="follow-btn" onClick={toggleFollow}>
-              {isFollowing ? "Following" : "Follow"}
-            </button>
-          )}
-
-          <div className="glass-card contact-card">
-            <p>Start a conversation</p>
-            <button className="chat-btn">Chat</button>
-          </div>
-
-        </div>
-
-
-        {/* RIGHT SIDE */}
-        <div className="profile-right-panel">
-
-          {/* ABOUT */}
-          <section className="profile-section">
-            <h2>About Me</h2>
-            <div className="glass-card">
-              {userData.about || "No description added yet."}
-            </div>
-          </section>
-
-          {/* SKILLS */}
-          <section className="profile-section">
-            <h2>Skills</h2>
-            <div className="glass-card skills-card">
-              {userData.skills?.length ? (
-                userData.skills.map((skill, i) => (
-                  <span key={i} className="skill">{skill}</span>
-                ))
-              ) : (
-                <p>No skills added</p>
-              )}
-            </div>
-          </section>
 
         </div>
 
       </div>
-      {/* ===== NEW LAYOUT END ===== */}
+
+      <div className="vp-stats">
+        <div>
+          <strong>{followers}</strong>
+          <span>Followers</span>
+        </div>
+        <div>
+          <strong>{following}</strong>
+          <span>Following</span>
+        </div>
+      </div>
+
+      <section className="profile-section">
+        <h2>About Me</h2>
+        <div className="glass-card">
+          {userData.about || "No description added yet."}
+        </div>
+      </section>
+
+      <section className="profile-section">
+        <h2>Skills</h2>
+        <div className="glass-card skills-card">
+          {userData.skills?.length ? (
+            userData.skills.map((skill, i) => (
+              <span key={i} className="skill">{skill}</span>
+            ))
+          ) : (
+            <p>No skills added</p>
+          )}
+        </div>
+      </section>
 
     </div>
   );
