@@ -2,14 +2,14 @@
 .chat-wrapper {
   display: flex;
   height: calc(100vh - 60px);
-  background: #E5EAF5;
+  background: #f4f8ff;
 }
 
 /* ================= LEFT PANEL ================= */
 .chat-sidebar {
   width: 300px;
-  background: #494D5F;
-  border-right: 1px solid rgba(229,234,245,0.2);
+  background: #0f172a;
+  border-right: 1px solid #e5e7eb;
   display: flex;
   flex-direction: column;
 }
@@ -26,15 +26,15 @@
   border-radius: 6px;
   border: none;
   outline: none;
-  background: #D0BDF4;
-  color: #494D5F;
+  background: #1e293b;
+  color: white;
 }
 
 .chat-search button {
   padding: 8px 12px;
   border: none;
-  background: #A0D2EB;
-  color: #494D5F;
+  background: #3b82f6;
+  color: white;
   border-radius: 6px;
   cursor: pointer;
 }
@@ -42,17 +42,17 @@
 .chat-item {
   padding: 15px;
   cursor: pointer;
-  border-bottom: 1px solid rgba(229,234,245,0.15);
-  color: #E5EAF5;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  color: white;
 }
 
 .chat-item:hover {
-  background: #8458B3;
+  background: #3b82f6;
 }
 
 .chat-item.active {
-  background: #A0D2EB;
-  color: #494D5F;
+  background: #93c5fd;
+  color: #0f172a;
 }
 
 /* ================= RIGHT PANEL ================= */
@@ -60,13 +60,13 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: #E5EAF5;
+  background: #f4f8ff;
 }
 
 /* ================= HEADER ================= */
 .chat-header {
   height: 70px;
-  background: #8458B3;
+  background: #3b82f6;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -84,8 +84,8 @@
   width: 45px;
   height: 45px;
   border-radius: 50%;
-  background: #A0D2EB;
-  color: #494D5F;
+  background: #dbeafe;
+  color: #0f172a;
   font-weight: bold;
   display: flex;
   align-items: center;
@@ -113,11 +113,11 @@
   position: absolute;
   right: 0;
   top: 40px;
-  background: #E5EAF5;
-  color: #494D5F;
+  background: white;
+  color: #0f172a;
   border-radius: 8px;
   padding: 10px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
   z-index: 10;
 }
 
@@ -127,7 +127,7 @@
 }
 
 .dropdown-menu div:hover {
-  background: #D0BDF4;
+  background: #dbeafe;
 }
 
 /* ================= MESSAGES AREA ================= */
@@ -146,8 +146,8 @@
   font-size: 12px;
   margin: 15px auto;
   padding: 5px 12px;
-  background: #D0BDF4;
-  color: #494D5F;
+  background: #dbeafe;
+  color: #0f172a;
   border-radius: 10px;
   width: fit-content;
 }
@@ -156,16 +156,17 @@
   max-width: 60%;
   padding: 8px 14px;
   border-radius: 18px;
-  background: #D0BDF4;
-  color: #494D5F;
+  background: #ffffff;
+  color: #0f172a;
   font-size: 14px;
   display: inline-block;
   align-self: flex-start;
   word-wrap: break-word;
+  border: 1px solid #e5e7eb;
 }
 
 .message.own {
-  background: #8458B3;
+  background: #3b82f6;
   color: white;
   align-self: flex-end;
 }
@@ -173,7 +174,7 @@
 .message-time {
   font-size: 11px;
   margin-left: 6px;
-  color: #494D5F;
+  color: #0f172a;
 }
 
 /* ================= INPUT ================= */
@@ -181,26 +182,26 @@
   padding: 15px;
   display: flex;
   gap: 10px;
-  border-top: 1px solid rgba(73,77,95,0.2);
-  background: #E5EAF5;
+  border-top: 1px solid #e5e7eb;
+  background: #f4f8ff;
 }
 
 .chat-input input {
   flex: 1;
   padding: 10px;
   border-radius: 20px;
-  border: none;
+  border: 1px solid #e5e7eb;
   outline: none;
-  background: #D0BDF4;
-  color: #494D5F;
+  background: white;
+  color: #0f172a;
 }
 
 .chat-input button {
   padding: 10px 15px;
   border-radius: 20px;
   border: none;
-  background: #A0D2EB;
-  color: #494D5F;
+  background: #3b82f6;
+  color: white;
   cursor: pointer;
 }
 
@@ -213,7 +214,6 @@
     overflow: hidden;
   }
 
-  /* SIDEBAR (chat list screen) */
   .chat-sidebar{
     position: absolute;
     inset: 0;
@@ -224,19 +224,17 @@
     transition: transform .28s ease;
   }
 
-  /* CHAT SCREEN hidden initially */
   .chat-main{
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
     z-index: 6;
-    background:#E5EAF5;
+    background:#f4f8ff;
     transform: translateX(100%);
     transition: transform .28s ease;
   }
 
-  /* WHEN CHAT OPENS */
   .chat-wrapper.chat-open .chat-sidebar{
     transform: translateX(-100%);
   }
