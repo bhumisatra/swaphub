@@ -47,17 +47,17 @@ useEffect(() => {
 const unsub = onAuthStateChanged(auth, async (user) => {
 if (!user) return;
 
-setCurrentUID(user.uid);  
+setCurrentUID(user.uid);
 
-  const ref = doc(db, "users", user.uid);  
-  const snap = await getDoc(ref);  
+const ref = doc(db, "users", user.uid);
+const snap = await getDoc(ref);
 
-  if (snap.exists()) {  
-    setUsername(snap.data().username || "user");  
-  }  
+if (snap.exists()) {
+setUsername(snap.data().username || "user");
+}
 
-  setAuthReady(true);  
-});  
+setAuthReady(true);
+});
 
 return () => unsub();
 
@@ -70,14 +70,12 @@ if (!authReady || !currentUID || !name) return;
 
 const presenceRef = doc(db, "communities", name, "presence", currentUID);
 
-// set online
 setDoc(presenceRef, {
 online: true,
 group: selectedGroup,
 lastActive: serverTimestamp()
 }, { merge: true });
 
-// heartbeat
 const interval = setInterval(() => {
 setDoc(presenceRef, {
 online: true,
@@ -86,7 +84,6 @@ lastActive: serverTimestamp()
 }, { merge: true });
 }, 15000);
 
-// leave
 const leave = () => {
 setDoc(presenceRef, {
 online: false,
@@ -105,23 +102,19 @@ window.removeEventListener("beforeunload", leave);
 }, [authReady, currentUID, name, selectedGroup]);
 
 
-// 👥 LISTEN ONLINE USERS
+// 👥 LISTEN ONLINE USERS (FIXED)
 useEffect(() => {
 if (!name || !selectedGroup) return;
 
 const q = query(collection(db, "communities", name, "presence"));
 
 return onSnapshot(q, (snap) => {
-const now = Date.now();
 let count = 0;
 
 snap.forEach(doc => {
 const data = doc.data();
-if (!data.lastActive) return;
 
-const last = data.lastActive.toDate().getTime();
-
-if (data.online && (now - last < 30000) && data.group === selectedGroup) {
+if (data.online === true && data.group === selectedGroup) {
 count++;
 }
 });
@@ -136,13 +129,13 @@ setOnlineCount(count);
 useEffect(() => {
 if (!name) return;
 
-const groupsRef = collection(db, "communities", name, "groups");  
+const groupsRef = collection(db, "communities", name, "groups");
 
-const unsub = onSnapshot(groupsRef, (snap) => {  
-  let list = snap.docs.map(d => d.id);  
-  if (!list.includes("general")) list.unshift("general");  
-  setGroups(list);  
-});  
+const unsub = onSnapshot(groupsRef, (snap) => {
+let list = snap.docs.map(d => d.id);
+if (!list.includes("general")) list.unshift("general");
+setGroups(list);
+});
 
 return () => unsub();
 
@@ -153,22 +146,22 @@ return () => unsub();
 useEffect(() => {
 if (!name || !selectedGroup || !authReady) return;
 
-const q = query(  
-  collection(db, "communities", name, "groups", selectedGroup, "messages"),  
-  orderBy("time", "asc")  
-);  
+const q = query(
+collection(db, "communities", name, "groups", selectedGroup, "messages"),
+orderBy("time", "asc")
+);
 
-const unsub = onSnapshot(q, (snapshot) => {  
-  const safe = snapshot.docs  
-    .map(doc => ({ id: doc.id, ...doc.data() }))  
-    .filter(msg => msg.text);  
+const unsub = onSnapshot(q, (snapshot) => {
+const safe = snapshot.docs
+.map(doc => ({ id: doc.id, ...doc.data() }))
+.filter(msg => msg.text);
 
-  setMessages(safe);  
-  setLoaded(true);  
+setMessages(safe);
+setLoaded(true);
 
-  const reqs = safe.filter(m => m.text.toLowerCase().startsWith("@request"));  
-  setRequests(reqs);  
-});  
+const reqs = safe.filter(m => m.text.toLowerCase().startsWith("@request"));
+setRequests(reqs);
+});
 
 return () => unsub();
 
@@ -179,18 +172,18 @@ return () => unsub();
 const sendMessage = async () => {
 if (!text.trim()) return;
 
-await addDoc(  
-  collection(db, "communities", name, "groups", selectedGroup, "messages"),  
-  {  
-    text: text.trim(),  
-    user: username,  
-    uid: currentUID,  
-    reply: replyTo ? replyTo.text : null,  
-    time: serverTimestamp()  
-  }  
-);  
+await addDoc(
+collection(db, "communities", name, "groups", selectedGroup, "messages"),
+{
+text: text.trim(),
+user: username,
+uid: currentUID,
+reply: replyTo ? replyTo.text : null,
+time: serverTimestamp()
+}
+);
 
-setText("");  
+setText("");
 setReplyTo(null);
 
 };
@@ -205,10 +198,9 @@ const createGroup = async () => {
 const g = prompt("Enter group name");
 if (!g) return;
 
-await setDoc(doc(db, "communities", name, "groups", g.toLowerCase()), {  
-  createdAt: serverTimestamp()  
+await setDoc(doc(db, "communities", name, "groups", g.toLowerCase()), {
+createdAt: serverTimestamp()
 });
-
 };
 
 
