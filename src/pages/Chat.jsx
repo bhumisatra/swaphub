@@ -40,17 +40,70 @@ const [nicknameInput, setNicknameInput] = useState("");
 
 const menuRef = useRef();
 
+/* FIX: DO NOT BREAK INPUT FOCUS */
 useEffect(() => {
-const handler = e => {
-if(menuRef.current && !menuRef.current.contains(e.target)){
+const handler = (e) => {
+if (!menuRef.current) return;
+if (e.target.closest(".menu-btn") || e.target.closest(".chat-menu")) return;
 setShowMenu(false);
-}
 };
 document.addEventListener("mousedown", handler);
 return () => document.removeEventListener("mousedown", handler);
 }, []);
 
 const generateChatId = (uid1, uid2) => uid1 > uid2 ? uid1 + uid2 : uid2 + uid1;
+
+/* FIX: CASE INSENSITIVE SEARCH */
+const startChat = async () => {
+if (!usernameSearch.trim() || !currentUser) return;
+
+const search = usernameSearch.trim().toLowerCase();
+const snap = await getDocs(collection(db, "users"));
+
+const userDoc = snap.docs.find(
+doc => doc.data().username?.toLowerCase() === search
+);
+
+if (!userDoc) {
+alert("User not found");
+return;
+}
+
+const otherUser = userDoc.data();
+const otherUid = otherUser.uid;
+
+if (otherUid === currentUser.uid) {
+alert("You can't chat with yourself");
+return;
+}
+
+const chatId = generateChatId(currentUser.uid, otherUid);
+
+await setDoc(doc(db, "chats", chatId), {
+participants: [currentUser.uid, otherUid],
+usernames:{
+[currentUser.uid]:currentUser.email,
+[otherUid]:otherUser.username
+},
+nicknames:{},
+unread:{[currentUser.uid]:0,[otherUid]:0},
+lastMessage:"",
+createdAt: serverTimestamp()
+},{merge:true});
+
+openChat({
+id: chatId,
+participants:[currentUser.uid, otherUid],
+usernames:{
+[currentUser.uid]:currentUser.email,
+[otherUid]:otherUser.username
+},
+nicknames:{},
+unread:{[currentUser.uid]:0,[otherUid]:0}
+});
+
+setUsernameSearch("");
+};
 
 /* TIME FORMATTER */
 const formatTime = (timestamp) => {
@@ -140,13 +193,6 @@ openDirectChat();
 
 }, [uid, currentUser, authReady, chatList]);
 
-/* ACTIVE CHAT REALTIME */
-useEffect(()=>{
-if(!activeChat) return;
-const ref = doc(db,"chats",activeChat.id);
-return onSnapshot(ref,snap=>setActiveChat({ id:snap.id, ...snap.data() }));
-},[activeChat?.id]);
-
 /* OPEN CHAT */
 const openChat = async (chat) => {
 setShowMenu(false);
@@ -154,7 +200,7 @@ setShowMenu(false);
 const otherUid = chat.participants.find(uid => uid !== currentUser.uid);
 const userRef = doc(db, "users", otherUid);
 const snap = await getDoc(userRef);
-if(snap.exists()) setOtherUserData(snap.data());
+if(snap.exists()) setOtherUserData({uid:otherUid,...snap.data()});
 
 await updateDoc(doc(db,"chats",chat.id),{
 [`unread.${currentUser.uid}`]:0
@@ -190,12 +236,6 @@ lastMessage:newMessage,
 setNewMessage("");
 };
 
-/* VIEW PROFILE */
-const openProfile = ()=>{
-const otherUid=activeChat.participants.find(uid=>uid!==currentUser.uid);
-navigate("/dashboard/profile/"+otherUid);
-};
-
 if (!authReady) return <div className="chat-wrapper">Loading chat...</div>;
 if (!currentUser) return <div className="chat-wrapper">Please login again</div>;
 
@@ -203,11 +243,10 @@ let lastDate = "";
 
 return (
 <div className={`chat-wrapper ${chatOpen ? "chat-open" : ""}`}>
-
 <div className="chat-sidebar">
 <div className="chat-search">
 <input value={usernameSearch} onChange={e=>setUsernameSearch(e.target.value)} placeholder="Search username..."/>
-<button>Start</button>
+<button onClick={startChat}>Start</button>
 </div>
 
 {chatList.map(chat=>{
@@ -229,6 +268,17 @@ return(
 <div className="chat-header">
 <button className="mobile-back" onClick={()=>setChatOpen(false)}>←</button>
 <div className="chat-user">{otherUserData?.username}</div>
+
+<div className="chat-menu-container" ref={menuRef}>
+<button className="menu-btn" onClick={(e)=>{e.stopPropagation();setShowMenu(!showMenu);}}>⋮</button>
+{showMenu && (
+<div className="chat-menu">
+<div onClick={()=>navigate(`/dashboard/profile/${otherUserData?.uid}`)}>View Profile</div>
+<div onClick={()=>setEditingNickname(true)}>Edit Nickname</div>
+</div>
+)}
+</div>
+
 </div>
 
 <div className="chat-messages">
@@ -253,11 +303,9 @@ return(
 <input value={newMessage} onChange={e=>setNewMessage(e.target.value)} onKeyDown={e=>e.key==="Enter"&&sendMessage()} placeholder="Type a message"/>
 <button onClick={sendMessage}>Send</button>
 </div>
-
 </>
 ):<div className="chat-placeholder">Select or start a conversation</div>}
 </div>
-
 </div>
 );
 }
