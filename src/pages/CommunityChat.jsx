@@ -34,6 +34,10 @@ export default function Community() {
   const [currentUID, setCurrentUID] = useState(null);
   const [authReady, setAuthReady] = useState(false);
 
+  // ⭐ NEW STATES
+  const [requests, setRequests] = useState([]);
+  const [openRequests, setOpenRequests] = useState(false);
+
   // 🔥 WAIT FOR AUTH FIRST
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (user) => {
@@ -85,6 +89,10 @@ export default function Community() {
 
       setMessages(safe);
       setLoaded(true);
+
+      // ⭐ DETECT REQUESTS
+      const reqs = safe.filter(m => m.text.toLowerCase().startsWith("@request"));
+      setRequests(reqs);
     });
 
     return () => unsub();
@@ -132,6 +140,33 @@ export default function Community() {
 
   return (
     <div className="community-wrapper">
+
+      {/* ⭐ FLOATING REQUEST BUTTON */}
+      {requests.length > 0 && (
+        <div className="request-float" onClick={() => setOpenRequests(true)}>
+          {requests.length}
+        </div>
+      )}
+
+      {/* ⭐ REQUEST PANEL */}
+      {openRequests && (
+        <div className="request-panel">
+          <div className="request-header">
+            Requests
+            <span onClick={() => setOpenRequests(false)}>✕</span>
+          </div>
+
+          <div className="request-list">
+            {requests.map(r => (
+              <div key={r.id} className="request-item">
+                <div className="req-user">{r.user}</div>
+                <div className="req-text">{r.text.replace("@request", "")}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="groups-panel">
         <div className="group-search">
           <input

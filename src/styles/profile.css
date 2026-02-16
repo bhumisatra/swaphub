@@ -1,5 +1,5 @@
 .profile-wrapper {
-  background: #f4f6fb;
+  background: #f5f9ff;
   min-height: 100vh;
   padding-bottom: 40px;
 }
@@ -7,7 +7,7 @@
 /* Cover */
 .profile-cover {
   height: 200px;
-  background: linear-gradient(135deg, #6a5acd, #483d8b);
+  background: #1e88e5;
   border-bottom-left-radius: 20px;
   border-bottom-right-radius: 20px;
 }
@@ -26,7 +26,7 @@
   margin: auto;
   font-size: 50px;
   font-weight: bold;
-  color: #6a5acd;
+  color: #1e88e5;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -36,10 +36,11 @@
 .profile-header h2 {
   margin-top: 15px;
   margin-bottom: 5px;
+  color: black;
 }
 
 .profile-header p {
-  color: gray;
+  color: #444;
 }
 
 /* Stats */
@@ -52,12 +53,12 @@
 
 .profile-stats h3 {
   margin: 0;
-  color: #6a5acd;
+  color: #1e88e5;
 }
 
 .profile-stats span {
   font-size: 14px;
-  color: gray;
+  color: #444;
 }
 
 /* Details */
@@ -75,12 +76,14 @@
   width: 300px;
   border-radius: 15px;
   box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  color: black;
 }
+
 .profile-avatar {
   width: 130px;
   height: 130px;
   border-radius: 50%;
-  background: #e0e0e0;
+  background: #f0f6ff;
   font-size: 50px;
   font-weight: bold;
   display: flex;
@@ -90,6 +93,7 @@
   margin: auto;
   margin-top: -65px;
   border: 5px solid white;
+  color: #1e88e5;
 }
 
 .profile-avatar img {
@@ -102,7 +106,7 @@
   display: inline-block;
   margin-top: 10px;
   padding: 6px 12px;
-  background: #2c5364;
+  background: #000000;
   color: white;
   border-radius: 6px;
   cursor: pointer;

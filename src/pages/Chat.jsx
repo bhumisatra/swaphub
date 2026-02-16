@@ -258,7 +258,13 @@ return(
 <button onClick={sendMessage}>Send</button>
 </div>
 </>
-):<div className="chat-placeholder">Select or start a conversation</div>}
+):(
+<div className="chat-placeholder">
+<img src="/no-chat.jpg" alt="start chat" className="nochat-img"/>
+<h2>Start a Conversation</h2>
+<p>Select a user from the left or search a username</p>
+</div>
+)}
 </div>
 </div>
 );

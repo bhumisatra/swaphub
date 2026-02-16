@@ -285,3 +285,111 @@ font-size:14px;
 background:#3b82f6;
 color:white;
 }
+/* ================= REQUEST FLOAT BUTTON ================= */
+
+.request-float {
+  position: fixed;
+  top: 90px;
+  right: 25px;
+  width: 60px;
+  height: 60px;
+  background: #1da1f2;
+  color: white;
+  font-weight: bold;
+  font-size: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+  cursor: pointer;
+  z-index: 9999;
+  transition: 0.2s;
+}
+
+.request-float:hover {
+  transform: scale(1.1);
+  background: #0c85d0;
+}
+
+
+/* ================= REQUEST PANEL ================= */
+
+.request-panel {
+  position: fixed;
+  top: 90px;
+  right: 100px;
+  width: 320px;
+  max-height: 450px;
+  background: white;
+  border-radius: 14px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.25);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 9998;
+  animation: slideOpen 0.25s ease;
+}
+
+@keyframes slideOpen {
+  from {
+    transform: translateX(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+
+/* HEADER */
+.request-header {
+  background: #1da1f2;
+  color: white;
+  padding: 12px 15px;
+  font-weight: bold;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.request-header span {
+  cursor: pointer;
+  font-size: 18px;
+}
+
+
+/* LIST */
+.request-list {
+  padding: 10px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+
+/* EACH REQUEST */
+.request-item {
+  background: #f2f6fb;
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  transition: 0.15s;
+}
+
+.request-item:hover {
+  background: #e6f2ff;
+}
+
+.req-user {
+  font-weight: bold;
+  font-size: 13px;
+  color: #1da1f2;
+  margin-bottom: 3px;
+}
+
+.req-text {
+  font-size: 14px;
+  color: #333;
+  word-wrap: break-word;
+}
