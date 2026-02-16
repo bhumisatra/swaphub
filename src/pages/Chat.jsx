@@ -157,6 +157,69 @@ if (!currentUser) return <div className="chat-wrapper">Please login again</div>;
 
 return (
 <div className={`chat-wrapper ${chatOpen ? "chat-open" : ""}`}>
+
+<div className="chat-sidebar">
+<div className="chat-search">
+<input value={usernameSearch} onChange={e=>setUsernameSearch(e.target.value)} placeholder="Search username..."/>
+<button onClick={startChat}>Start</button>
+</div>
+
+{chatList.map(chat=>{
+const otherUid=chat.participants.find(uid=>uid!==currentUser.uid);
+return(
+<div key={chat.id} className={`chat-item ${activeChat?.id===chat.id?"active":""}`} onClick={()=>openChat(chat)}>
+<div className="chat-name-row">
+<span>{chat.usernames?.[otherUid]}</span>
+{chat.unread?.[currentUser.uid]>0 && <span className="unread-dot"/>}
+</div>
+<div className="last-message">{chat.lastMessage}</div>
+</div>
+);
+})}
+</div>
+
+<div className="chat-main">
+{activeChat?(
+<>
+<div className="chat-header">
+
+<button className="mobile-back" onClick={()=>setChatOpen(false)}>←</button>
+
+<div className="chat-user">
+{editingNickname ? (
+<input className="nickname-edit-input" value={nicknameInput} autoFocus onChange={e=>setNicknameInput(e.target.value)} onBlur={saveNickname} onKeyDown={e=>e.key==="Enter" && saveNickname()}/>
+) : (
+displayName()
+)}
+</div>
+
+<div className="chat-menu" ref={menuRef}>
+<button className="menu-btn" onClick={()=>setShowMenu(!showMenu)}>⋮</button>
+{showMenu&&(
+<div className="menu-dropdown">
+<div className="menu-item" onClick={()=>{setNicknameInput(displayName());setEditingNickname(true);setShowMenu(false);}}>Edit nickname</div>
+<div className="menu-item" onClick={openProfile}>View profile</div>
+</div>
+)}
+</div>
+
+</div>
+
+<div className="chat-messages">
+{messages.map((msg,i)=>(
+<div key={i} className={msg.senderId===currentUser.uid?"message own":"message"}>{msg.text}</div>
+))}
+</div>
+
+<div className="chat-input">
+<input value={newMessage} onChange={e=>setNewMessage(e.target.value)} onKeyDown={e=>e.key==="Enter"&&sendMessage()} placeholder="Type a message"/>
+<button onClick={sendMessage}>Send</button>
+</div>
+
+</>
+):<div className="chat-placeholder">Select or start a conversation</div>}
+</div>
+
 </div>
 );
 }
