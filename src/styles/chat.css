@@ -210,60 +210,91 @@
   cursor: pointer;
 }
 
-/* ================= MOBILE ================= */
+/* ================= MOBILE WHATSAPP MODE ================= */
 @media (max-width: 768px) {
-  .chat-wrapper {
-    flex-direction: column;
+
+  /* App container */
+  .chat-wrapper{
+    position: relative;
     height: 100vh;
+    overflow: hidden;
   }
 
-  .chat-sidebar {
+  /* Chat list screen */
+  .chat-sidebar{
+    position: absolute;
+    inset: 0;
     width: 100%;
-    border-right: none;
+    height: 100%;
+    z-index: 5;
+    transform: translateX(0);
+    transition: transform .28s ease;
   }
 
-  .chat-main {
+  /* When chat opens hide list */
+  .chat-wrapper.chat-open .chat-sidebar{
+    transform: translateX(-100%);
+  }
+
+  /* Chat screen */
+  .chat-main{
+    position: absolute;
+    inset: 0;
     width: 100%;
+    height: 100%;
+    z-index: 6;
+    background:#E5EAF5;
   }
 
-  .chat-input {
+  /* Header fixed */
+  .chat-header{
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  /* Messages scrolling area */
+  .chat-messages{
+    height: calc(100vh - 140px);
+    overflow-y: auto;
+    padding: 14px;
+    padding-bottom: 95px;
+  }
+
+  /* Bottom input */
+  .chat-input{
     position: fixed;
     bottom: 0;
     left: 0;
     width: 100%;
+    padding: 10px;
+    z-index: 20;
   }
 
-  .chat-messages {
-    padding-bottom: 80px;
+  /* Bigger bubbles */
+  .message{
+    max-width: 82%;
+    font-size: 15px;
+    padding: 10px 14px;
   }
-}
 
-.message-wrapper {
-  width: 100%;
-}
+  .message.own{
+    max-width: 82%;
+  }
 
-.message-row {
-  display: flex;
-  width: 100%;
-}
+  /* Chat list spacing */
+  .chat-item{
+    padding: 18px 16px;
+    font-size: 16px;
+  }
 
-.message-row.left {
-  justify-content: flex-start;
 }
+@media (max-width:420px){
+  .chat-messages{
+    padding-bottom:110px;
+  }
 
-.message-row.right {
-  justify-content: flex-end;
-}
-
-.chat-name-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.unread-dot {
-  width: 10px;
-  height: 10px;
-  background: #A0D2EB;
-  border-radius: 50%;
+  .message{
+    max-width:88%;
+  }
 }
