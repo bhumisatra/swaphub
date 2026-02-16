@@ -53,7 +53,7 @@ return () => document.removeEventListener("mousedown", handler);
 
 const generateChatId = (uid1, uid2) => uid1 > uid2 ? uid1 + uid2 : uid2 + uid1;
 
-/* FIX: CASE INSENSITIVE SEARCH */
+/* CASE INSENSITIVE SEARCH */
 const startChat = async () => {
 if (!usernameSearch.trim() || !currentUser) return;
 
@@ -242,6 +242,7 @@ if (!currentUser) return <div className="chat-wrapper">Please login again</div>;
 let lastDate = "";
 
 return (
+
 <div className={`chat-wrapper ${chatOpen ? "chat-open" : ""}`}>
 <div className="chat-sidebar">
 <div className="chat-search">
@@ -278,7 +279,6 @@ return(
 </div>
 )}
 </div>
-
 </div>
 
 <div className="chat-messages">
