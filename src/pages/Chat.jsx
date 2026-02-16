@@ -7,6 +7,32 @@ serverTimestamp, setDoc, doc, updateDoc, getDoc
 import { useNavigate, useParams } from "react-router-dom";
 import "../styles/chat.css";
 
+/* USERNAME FIX COMPONENT */
+function ChatItem({ chat, currentUser, activeChat, openChat }) {
+const [username, setUsername] = useState("...");
+
+useEffect(() => {
+const otherUid = chat.participants.find(uid => uid !== currentUser.uid);
+const load = async () => {
+const snap = await getDoc(doc(db,"users",otherUid));
+if(snap.exists()) setUsername(snap.data().username);
+};
+load();
+}, [chat, currentUser]);
+
+return (
+<div
+className={`chat-item ${activeChat?.id===chat.id?"active":""}`}
+onClick={()=>openChat(chat)}
+>
+<div className="chat-name-row">
+<span>{username}</span>
+{chat.unread?.[currentUser.uid]>0 && <span className="unread-dot"/>}
+</div>
+</div>
+);
+}
+
 function Chat() {
 
 const navigate = useNavigate();
@@ -40,7 +66,6 @@ const [nicknameInput, setNicknameInput] = useState("");
 
 const menuRef = useRef();
 
-/* FIX: DO NOT BREAK INPUT FOCUS */
 useEffect(() => {
 const handler = (e) => {
 if (!menuRef.current) return;
@@ -91,21 +116,9 @@ lastMessage:"",
 createdAt: serverTimestamp()
 },{merge:true});
 
-openChat({
-id: chatId,
-participants:[currentUser.uid, otherUid],
-usernames:{
-[currentUser.uid]:currentUser.email,
-[otherUid]:otherUser.username
-},
-nicknames:{},
-unread:{[currentUser.uid]:0,[otherUid]:0}
-});
-
 setUsernameSearch("");
 };
 
-/* TIME FORMATTER */
 const formatTime = (timestamp) => {
 if (!timestamp?.seconds) return "";
 const date = new Date(timestamp.seconds * 1000);
@@ -135,63 +148,6 @@ return onSnapshot(q, snap => {
 setChatList(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
 });
 }, [authReady, currentUser]);
-
-/* AUTO OPEN CHAT FROM PROFILE */
-useEffect(() => {
-
-if (!uid || !currentUser || !authReady) return;
-if (autoOpenedRef.current) return;
-
-const openDirectChat = async () => {
-
-const chatId = generateChatId(currentUser.uid, uid);
-let existing = chatList.find(c => c.id === chatId);
-
-if (existing) {
-openChat(existing);
-autoOpenedRef.current = true;
-return;
-}
-
-const userRef = doc(db, "users", uid);
-const snap = await getDoc(userRef);
-if (!snap.exists()) return;
-
-const otherUser = snap.data();
-
-await setDoc(doc(db, "chats", chatId), {
-participants: [currentUser.uid, uid],
-usernames: {
-[currentUser.uid]: currentUser.email,
-[uid]: otherUser.username
-},
-nicknames: {},
-unread: {
-[currentUser.uid]: 0,
-[uid]: 0
-},
-lastMessage: "",
-createdAt: serverTimestamp()
-},{merge:true});
-
-setTimeout(() => {
-openChat({
-id: chatId,
-participants:[currentUser.uid, uid],
-usernames:{
-[currentUser.uid]:currentUser.email,
-[uid]:otherUser.username
-},
-nicknames:{},
-unread:{[currentUser.uid]:0,[uid]:0}
-});
-autoOpenedRef.current = true;
-},400);
-};
-
-openDirectChat();
-
-}, [uid, currentUser, authReady, chatList]);
 
 /* OPEN CHAT */
 const openChat = async (chat) => {
@@ -250,17 +206,15 @@ return (
 <button onClick={startChat}>Start</button>
 </div>
 
-{chatList.map(chat=>{
-const otherUid=chat.participants.find(uid=>uid!==currentUser.uid);
-return(
-<div key={chat.id} className={`chat-item ${activeChat?.id===chat.id?"active":""}`} onClick={()=>openChat(chat)}>
-<div className="chat-name-row">
-<span>{chat.usernames?.[otherUid]}</span>
-{chat.unread?.[currentUser.uid]>0 && <span className="unread-dot"/>}
-</div>
-</div>
-);
-})}
+{chatList.map(chat=>(
+<ChatItem
+key={chat.id}
+chat={chat}
+currentUser={currentUser}
+activeChat={activeChat}
+openChat={openChat}
+/>
+))}
 </div>
 
 <div className="chat-main">
