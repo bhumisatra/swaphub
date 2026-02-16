@@ -387,6 +387,68 @@ color:white;
   color: #1da1f2;
   margin-bottom: 3px;
 }
+/* ===== FIXED HEADER ===== */
+.community-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: white;
+  padding: 18px 0 12px 0;
+  border-bottom: 2px solid #e6eef7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* TITLE */
+.community-title {
+  margin: 0;
+  font-size: 28px;
+  letter-spacing: 2px;
+  color: #3a8dde;
+  text-align: center;
+}
+
+/* ONLINE INDICATOR */
+.online-indicator {
+  position: absolute;
+  left: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f1f7ff;
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1px solid #cfe3ff;
+}
+
+/* NUMBER */
+.online-count {
+  font-weight: bold;
+  color: #3a8dde;
+  font-size: 14px;
+}
+
+/* DOT */
+.online-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #bbb;
+  transition: 0.2s;
+}
+
+.online-dot.active {
+  background: #22c55e;
+  box-shadow: 0 0 6px #22c55e;
+}
+
+/* MAKE CHAT SCROLL UNDER HEADER */
+.messages-box {
+  height: calc(100vh - 140px);
+  overflow-y: auto;
+  padding-top: 10px;
+}
 
 .req-text {
   font-size: 14px;
