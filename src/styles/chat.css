@@ -141,7 +141,6 @@
   gap: 8px;
 }
 
-/* DATE SEPARATOR */
 .date-separator {
   text-align: center;
   font-size: 12px;
@@ -153,9 +152,6 @@
   width: fit-content;
 }
 
-/* ================= MESSAGE BUBBLES ================= */
-
-/* Other person */
 .message {
   max-width: 60%;
   padding: 8px 14px;
@@ -168,14 +164,12 @@
   word-wrap: break-word;
 }
 
-/* Your message */
 .message.own {
   background: #8458B3;
   color: white;
   align-self: flex-end;
 }
 
-/* Time */
 .message-time {
   font-size: 11px;
   margin-left: 6px;
@@ -213,14 +207,13 @@
 /* ================= MOBILE WHATSAPP MODE ================= */
 @media (max-width: 768px) {
 
-  /* App container */
   .chat-wrapper{
     position: relative;
-    height: 100vh;
+    height: 100dvh;
     overflow: hidden;
   }
 
-  /* Chat list screen */
+  /* SIDEBAR (chat list screen) */
   .chat-sidebar{
     position: absolute;
     inset: 0;
@@ -231,12 +224,7 @@
     transition: transform .28s ease;
   }
 
-  /* When chat opens hide list */
-  .chat-wrapper.chat-open .chat-sidebar{
-    transform: translateX(-100%);
-  }
-
-  /* Chat screen */
+  /* CHAT SCREEN hidden initially */
   .chat-main{
     position: absolute;
     inset: 0;
@@ -244,24 +232,32 @@
     height: 100%;
     z-index: 6;
     background:#E5EAF5;
+    transform: translateX(100%);
+    transition: transform .28s ease;
   }
 
-  /* Header fixed */
+  /* WHEN CHAT OPENS */
+  .chat-wrapper.chat-open .chat-sidebar{
+    transform: translateX(-100%);
+  }
+
+  .chat-wrapper.chat-open .chat-main{
+    transform: translateX(0);
+  }
+
   .chat-header{
     position: sticky;
     top: 0;
     z-index: 10;
   }
 
-  /* Messages scrolling area */
   .chat-messages{
-    height: calc(100vh - 140px);
+    height: calc(100dvh - 140px);
     overflow-y: auto;
     padding: 14px;
     padding-bottom: 95px;
   }
 
-  /* Bottom input */
   .chat-input{
     position: fixed;
     bottom: 0;
@@ -271,7 +267,6 @@
     z-index: 20;
   }
 
-  /* Bigger bubbles */
   .message{
     max-width: 82%;
     font-size: 15px;
@@ -282,13 +277,12 @@
     max-width: 82%;
   }
 
-  /* Chat list spacing */
   .chat-item{
     padding: 18px 16px;
     font-size: 16px;
   }
-
 }
+
 @media (max-width:420px){
   .chat-messages{
     padding-bottom:110px;
