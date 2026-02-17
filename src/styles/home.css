@@ -6,7 +6,7 @@
 .home-wrapper h1 {
   font-size: 32px;
   margin-bottom: 10px;
-  color: #2c3e50;
+  color: white;
 }
 
 .subtitle {
@@ -30,4 +30,87 @@
 
 .feature-card:hover {
   transform: translateY(-5px);
+}
+
+/* ===== Background Theme ===== */
+body {
+  background: linear-gradient(135deg, #000000, #0a1f44);
+  font-family: 'Poppins', sans-serif;
+}
+
+/* ===== Improve Subtitle Color ===== */
+.subtitle {
+  color: #b0c4ff;
+  font-size: 16px;
+}
+
+/* ===== Heading Styling ===== */
+.home-wrapper h1 {
+  color: #ffffff;
+  letter-spacing: 1px;
+}
+
+/* ===== Feature Card Upgrade ===== */
+.feature-card {
+  border: 1px solid rgba(0, 123, 255, 0.2);
+  background: #ffffff;
+  color: #000000;
+}
+
+/* ===== Hover Effect Upgrade ===== */
+.feature-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 8px 25px rgba(0, 123, 255, 0.3);
+}
+
+/* ===== Feature Title Inside Card (FIXED BLUE + FONT) ===== */
+.feature-card h5 , h4 {
+  color: DodgerBlue;
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  line-height: 1.5;
+  
+}
+
+/* ===== Add Blue Accent Line On Top ===== */
+.feature-card::before {
+  content: "";
+  display: block;
+  height: 4px;
+  width: 100%;
+  background: linear-gradient(to right, #007bff, #00c6ff);
+  border-radius: 12px 12px 0 0;
+  margin: -20px -20px 15px -20px;
+}
+
+/* ===== Add Smooth Animation ===== */
+.feature-card {
+  animation: fadeInUp 0.6s ease forwards;
+  position: relative;
+  overflow: hidden;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===== Ensure All Feature Cards Look Same ===== */
+.features .feature-card {
+  border: 1px solid rgba(0, 123, 255, 0.25);
+  background: #ffffff;
+  color: #000000; /* body text black */
+}
+
+/* ===== Smooth Blue Glow on Hover ===== */
+.features .feature-card:hover {
+  transform: translateY(-8px) scale(1.03);
+  box-shadow: 0 10px 30px rgba(0, 123, 255, 0.35);
 }

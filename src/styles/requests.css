@@ -1,8 +1,8 @@
 .requests-container {
   min-height: 100vh;
   padding: 40px;
-  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-  color: white;
+  background: #000000; /* pure black */
+  color: #ffffff;
   text-align: center;
 }
 
@@ -10,6 +10,7 @@
   font-size: 32px;
   margin-bottom: 40px;
   font-weight: 600;
+  color: white; /* neon cyan blue */
 }
 
 /* GRID */
@@ -27,30 +28,34 @@
   height: 150px;
   margin: auto;
   border-radius: 50%;
-  background: rgba(255,255,255,0.08);
+  background: #0a0a0a; /* dark black */
+  color: white
+; /* logo blue */
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 18px;
   cursor: pointer;
   transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
-  border: 2px solid transparent;
+  border: 2px solid #00cfff;
+  box-shadow: 0 0 15px rgba(0, 207, 255, 0.4);
+  font-weight:700 ;
 }
 
 /* HOVER */
 .circle-card:hover {
   transform: scale(1.08);
-  background: rgba(255,255,255,0.18);
+  background: #001f2a;
+  box-shadow: 0 0 25px rgba(0, 207, 255, 0.8);
 }
 
 /* SELECTED */
 .circle-card.active {
-  background: linear-gradient(135deg, #4facfe, #00f2fe);
-  color: black;
-  border: 2px solid white;
+  background: #00cfff;
+  color: #000000;
+  border: 2px solid #ffffff;
   transform: scale(1.12);
-  box-shadow: 0 0 20px rgba(0,255,255,0.6);
+  box-shadow: 0 0 30px rgba(0, 207, 255, 1);
 }
 
 /* SAVE BUTTON */
@@ -59,20 +64,22 @@
   padding: 14px 30px;
   border: none;
   border-radius: 12px;
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  color: white;
+  background: #00cfff;
+  color: #000000;
   font-size: 18px;
   cursor: pointer;
   transition: 0.3s;
+  box-shadow: 0 0 20px rgba(0, 207, 255, 0.6);
 }
 
 .save-btn:hover {
   transform: scale(1.05);
+  box-shadow: 0 0 30px rgba(0, 207, 255, 1);
 }
 
 
 /* ================= MOBILE OPTIMIZATION ================= */
-/* ONLY affects phones — desktop remains IDENTICAL */
+/* unchanged structure */
 
 @media (max-width: 768px) {
 
@@ -109,7 +116,6 @@
     max-width: 320px;
   }
 }
-
 
 /* EXTRA SMALL PHONES */
 @media (max-width: 420px) {
