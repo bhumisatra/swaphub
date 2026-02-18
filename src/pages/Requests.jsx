@@ -11,7 +11,9 @@ export default function Requests() {
     "Art",
     "Tech",
     "Instruments",
-    "Fitness"
+    "Fitness",
+    "Freelancing",
+    "Dailly  Skills"
   ];
 
   const openCommunity = (cat) => {

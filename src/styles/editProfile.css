@@ -1,133 +1,133 @@
 /* PAGE */
 .edit-profile-page {
-  min-height: 100vh;
-  padding: 40px 20px;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  background: linear-gradient(135deg, #0f2027, #20);
-  color: white;
+min-height: 100vh;
+padding: 40px 20px;
+display: flex;
+justify-content: center;
+align-items: flex-start;
+background: linear-gradient(135deg, #000000, #0a1f44);
+color: white;
 }
 
 /* TITLE */
 .edit-profile-page h1 {
-  text-align: center;
-  margin-bottom: 25px;
-  font-size: 32px;
-  font-weight: 700;
-  letter-spacing: 1px;
+text-align: center;
+margin-bottom: 25px;
+font-size: 32px;
+font-weight: 700;
+letter-spacing: 1px;
 }
 
 /* CARD */
 .edit-card {
-  width: 100%;
-  max-width: 650px;
-  padding: 30px;
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.08);
-  
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.35);
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
+width: 100%;
+max-width: 650px;
+padding: 30px;
+border-radius: 18px;
+background: rgba(255, 255, 255, 0.08);
+backdrop-filter: blur(12px);
+-webkit-backdrop-filter: blur(12px);
+border: 1px solid rgba(255, 255, 255, 0.15);
+box-shadow: 0 10px 35px rgba(0, 0, 0, 0.35);
+display: flex;
+flex-direction: column;
+gap: 18px;
 }
 
 /* LABEL */
 .edit-card label {
-  font-size: 15px;
-  opacity: 0.85;
-  margin-bottom: 4px;
+font-size: 15px;
+opacity: 0.85;
+margin-bottom: 4px;
 }
 
 /* TEXTAREA */
 .edit-card textarea {
-  width: 100%;
-  min-height: 120px;
-  resize: vertical;
-  border-radius: 12px;
-  border: none;
-  padding: 14px;
-  font-size: 15px;
-  outline: none;
-  background: rgba(255, 255, 255, 0.12);
-  color: white;
-  transition: 0.25s;
+width: 100%;
+min-height: 120px;
+resize: vertical;
+border-radius: 12px;
+border: none;
+padding: 14px;
+font-size: 15px;
+outline: none;
+background: rgba(255, 255, 255, 0.12);
+color: white;
+transition: 0.25s;
 }
 
 .edit-card textarea::placeholder {
-  color: rgba(255,255,255,0.6);
+color: rgba(255,255,255,0.6);
 }
 
 .edit-card textarea:focus {
-  background: rgba(255, 255, 255, 0.18);
-  box-shadow: 0 0 0 2px #4da6ff;
+background: rgba(255, 255, 255, 0.18);
+box-shadow: 0 0 0 2px #4da6ff;
 }
 
 /* INPUT */
 .edit-card input {
-  width: 100%;
-  border-radius: 12px;
-  border: none;
-  padding: 14px;
-  font-size: 15px;
-  outline: none;
-  background: rgba(255, 255, 255, 0.12);
-  color: white;
-  transition: 0.25s;
+width: 100%;
+border-radius: 12px;
+border: none;
+padding: 14px;
+font-size: 15px;
+outline: none;
+background: rgba(255, 255, 255, 0.12);
+color: white;
+transition: 0.25s;
 }
 
 .edit-card input::placeholder {
-  color: rgba(255,255,255,0.6);
+color: rgba(255,255,255,0.6);
 }
 
 .edit-card input:focus {
-  background: rgba(255, 255, 255, 0.18);
-  box-shadow: 0 0 0 2px #4da6ff;
+background: rgba(255, 255, 255, 0.18);
+box-shadow: 0 0 0 2px #4da6ff;
 }
 
 /* BUTTON */
 .edit-card button {
-  margin-top: 10px;
-  padding: 14px;
-  border-radius: 14px;
-  border: none;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  background: linear-gradient(135deg, #4da6ff, #6a5cff);
-  color: white;
-  transition: 0.25s;
+margin-top: 10px;
+padding: 14px;
+border-radius: 14px;
+border: none;
+font-size: 16px;
+font-weight: 600;
+cursor: pointer;
+background:;
+color: white;
+transition: 0.25s;
 }
 
 .edit-card button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+transform: translateY(-2px);
+box-shadow: 0 6px 18px rgba(0,0,0,0.35);
 }
 
 .edit-card button:active {
-  transform: scale(0.97);
+transform: scale(0.97);
 }
 
 /* LOADING */
 .edit-loading {
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 20px;
-  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-  color: white;
+min-height: 100vh;
+display: flex;
+justify-content: center;
+align-items: center;
+font-size: 20px;
+background;
+color: white;
 }
 
 /* MOBILE */
 @media (max-width: 600px) {
-  .edit-card {
-    padding: 20px;
-  }
+.edit-card {
+padding: 20px;
+}
 
-  .edit-profile-page h1 {
-    font-size: 24px;
-  }
+.edit-profile-page h1 {
+font-size: 24px;
+}
 }

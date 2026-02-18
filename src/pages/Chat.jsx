@@ -226,12 +226,25 @@ openChat={openChat}
 
 <div className="chat-menu-container" ref={menuRef}>
 <button className="menu-btn" onClick={(e)=>{e.stopPropagation();setShowMenu(!showMenu);}}>⋮</button>
+
 {showMenu && (
 <div className="chat-menu">
-<div onClick={()=>navigate(`/dashboard/profile/${otherUserData?.uid}`)}>View Profile</div>
-<div onClick={()=>setEditingNickname(true)}>Edit Nickname</div>
+<button
+className="chat-menu-btn"
+onClick={()=>navigate(`/dashboard/profile/${otherUserData?.uid}`)}
+>
+View Profile
+</button>
+
+<button
+className="chat-menu-btn secondary"
+onClick={()=>setEditingNickname(true)}
+>
+Edit Nickname
+</button>
 </div>
 )}
+
 </div>
 </div>
 

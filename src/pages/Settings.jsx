@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { auth } from "../firebase";
 import { updatePassword } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
 import "../styles/settings.css";
 
 function Settings() {
   const [newPassword, setNewPassword] = useState("");
   const [message, setMessage] = useState("");
+  const navigate = useNavigate();
 
   const handlePasswordChange = async () => {
     if (newPassword.length < 6) {
@@ -57,6 +59,18 @@ function Settings() {
         </div>
 
         {message && <p className="settings-message">{message}</p>}
+      </div>
+
+      {/* ⭐ NEW THEME SECTION */}
+      <div className="settings-card">
+        <h3>Appearance</h3>
+
+        <div className="settings-item">
+          <label>Customize Website Theme</label>
+          <button onClick={() => navigate("/dashboard/settings/theme")}>
+            Open Theme Editor
+          </button>
+        </div>
       </div>
 
       <div className="settings-card danger">
