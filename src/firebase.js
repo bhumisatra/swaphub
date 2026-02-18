@@ -10,7 +10,10 @@ const firebaseConfig = {
   projectId: "swaphub-5d705",
   storageBucket: "swaphub-5d705.firebasestorage.app",
   messagingSenderId: "225323114636",
-  appId: "1:225323114636:web:e80b80456ffa48fda55ba9"
+  appId: "1:225323114636:web:e80b80456ffa48fda55ba9",
+
+  // 🔥 FIX (DO NOT REMOVE)
+  databaseURL: "https://swaphub-5d705-default-rtdb.asia-southeast1.firebasedatabase.app"
 };
 
 const app = initializeApp(firebaseConfig);
