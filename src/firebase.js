@@ -13,8 +13,8 @@ const firebaseConfig = {
   appId: "1:225323114636:web:e80b80456ffa48fda55ba9",
 
   // 🔥 FIX (DO NOT REMOVE)
-  databaseURL: "https://swaphub-5d705-default-rtdb.asia-southeast1.firebasedatabase.app"
-};
+  databaseURL: ""
+};https://swaphub-5d705-default-rtdb.asia-southeast1.firebasedatabase.app
 
 const app = initializeApp(firebaseConfig);
 
