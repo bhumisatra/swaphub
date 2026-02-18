@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { setupPresence } from "./utils/presence";
 import { auth } from "./firebase";
 import { onAuthStateChanged } from "firebase/auth";
 
@@ -25,8 +26,15 @@ function App() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
+
+      // ⭐ START PRESENCE SYSTEM WHEN USER LOGS IN
+      if (currentUser) {
+        setupPresence();
+      }
+
       setLoading(false);
     });
+
     return () => unsubscribe();
   }, []);
 

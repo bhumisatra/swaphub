@@ -13,6 +13,7 @@ setDoc,
 getDoc
 } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
+import { getDatabase, ref, onValue } from "firebase/database";
 import "../styles/community.css";
 
 export default function Community() {
@@ -49,8 +50,8 @@ if (!user) return;
 
 setCurrentUID(user.uid);
 
-const ref = doc(db, "users", user.uid);
-const snap = await getDoc(ref);
+const refUser = doc(db, "users", user.uid);
+const snap = await getDoc(refUser);
 
 if (snap.exists()) {
 setUsername(snap.data().username || "user");
@@ -64,59 +65,19 @@ return () => unsub();
 }, []);
 
 
-// 🔴 ONLINE PRESENCE SYSTEM
-useEffect(() => {
-if (!authReady || !currentUID || !name) return;
-
-const presenceRef = doc(db, "communities", name, "presence", currentUID);
-
-setDoc(presenceRef, {
-online: true,
-group: selectedGroup,
-lastActive: serverTimestamp()
-}, { merge: true });
-
-const interval = setInterval(() => {
-setDoc(presenceRef, {
-online: true,
-group: selectedGroup,
-lastActive: serverTimestamp()
-}, { merge: true });
-}, 15000);
-
-const leave = () => {
-setDoc(presenceRef, {
-online: false,
-lastActive: serverTimestamp()
-}, { merge: true });
-};
-
-window.addEventListener("beforeunload", leave);
-
-return () => {
-clearInterval(interval);
-leave();
-window.removeEventListener("beforeunload", leave);
-};
-
-}, [authReady, currentUID, name, selectedGroup]);
-
-
-// 👥 LISTEN ONLINE USERS (FIXED)
+// 👥 REAL ONLINE USERS (Realtime DB presence)
 useEffect(() => {
 if (!name || !selectedGroup) return;
 
-const q = query(collection(db, "communities", name, "presence"));
+const rtdb = getDatabase();
+const statusRef = ref(rtdb, "status");
 
-return onSnapshot(q, (snap) => {
+return onValue(statusRef, (snapshot) => {
+const data = snapshot.val() || {};
 let count = 0;
 
-snap.forEach(doc => {
-const data = doc.data();
-
-if (data.online === true && data.group === selectedGroup) {
-count++;
-}
+Object.values(data).forEach(user => {
+if (user?.online === true) count++;
 });
 
 setOnlineCount(count);
