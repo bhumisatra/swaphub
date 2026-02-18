@@ -24,18 +24,27 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let stopPresence = null;
+
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
+      setLoading(false);
 
-      // ⭐ START PRESENCE SYSTEM WHEN USER LOGS IN
+      // ⭐ START PRESENCE ONLY WHEN USER EXISTS
       if (currentUser) {
-        setupPresence();
+        stopPresence = setupPresence(currentUser.uid);
       }
 
-      setLoading(false);
+      // ⭐ STOP PRESENCE WHEN LOGOUT
+      if (!currentUser && stopPresence) {
+        stopPresence();
+      }
     });
 
-    return () => unsubscribe();
+    return () => {
+      unsubscribe();
+      if (stopPresence) stopPresence();
+    };
   }, []);
 
   if (loading) return <h2>Loading...</h2>;
@@ -70,7 +79,7 @@ function App() {
           <Route path="community/:name" element={<Community />} />
           <Route path="communities/:category" element={<CommunityHub />} />
 
-          {/* ⭐ FIXED CHAT ROUTES */}
+          {/* CHAT */}
           <Route path="chat" element={<Chat />} />
           <Route path="chat/:uid" element={<Chat />} />
 
