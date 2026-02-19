@@ -1,31 +1,53 @@
 import { useState } from "react";
 import { auth } from "../firebase";
-import { updatePassword } from "firebase/auth";
-import { useNavigate } from "react-router-dom";
+import {
+  updatePassword,
+  EmailAuthProvider,
+  reauthenticateWithCredential,
+  signOut
+} from "firebase/auth";
 import "../styles/settings.css";
 
 function Settings() {
+  const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [message, setMessage] = useState("");
-  const navigate = useNavigate();
 
   const handlePasswordChange = async () => {
+    if (!auth.currentUser) return;
+
     if (newPassword.length < 6) {
       setMessage("Password must be at least 6 characters.");
       return;
     }
 
+    if (!currentPassword) {
+      setMessage("Enter your current password.");
+      return;
+    }
+
     try {
+      // 🔐 Re-authenticate user first (REQUIRED BY FIREBASE)
+      const credential = EmailAuthProvider.credential(
+        auth.currentUser.email,
+        currentPassword
+      );
+
+      await reauthenticateWithCredential(auth.currentUser, credential);
+
+      // 🔑 Now update password
       await updatePassword(auth.currentUser, newPassword);
+
       setMessage("Password updated successfully!");
+      setCurrentPassword("");
       setNewPassword("");
     } catch (error) {
-      setMessage("Please re-login to change password.");
+      setMessage("Current password incorrect.");
     }
   };
 
   const handleLogout = async () => {
-    await auth.signOut();
+    await signOut(auth);
     window.location.href = "/";
   };
 
@@ -40,13 +62,23 @@ function Settings() {
           <label>Email</label>
           <input
             type="text"
-            value={auth.currentUser?.email}
+            value={auth.currentUser?.email || ""}
             disabled
           />
         </div>
 
         <div className="settings-item">
-          <label>Change Password</label>
+          <label>Current Password</label>
+          <input
+            type="password"
+            placeholder="Enter current password"
+            value={currentPassword}
+            onChange={(e) => setCurrentPassword(e.target.value)}
+          />
+        </div>
+
+        <div className="settings-item">
+          <label>New Password</label>
           <input
             type="password"
             placeholder="New password"
@@ -59,18 +91,6 @@ function Settings() {
         </div>
 
         {message && <p className="settings-message">{message}</p>}
-      </div>
-
-      {/* ⭐ NEW THEME SECTION */}
-      <div className="settings-card">
-        <h3>Appearance</h3>
-
-        <div className="settings-item">
-          <label>Customize Website Theme</label>
-          <button onClick={() => navigate("/dashboard/settings/theme")}>
-            Open Theme Editor
-          </button>
-        </div>
       </div>
 
       <div className="settings-card danger">

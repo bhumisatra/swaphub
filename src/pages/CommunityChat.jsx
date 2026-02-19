@@ -272,8 +272,18 @@ Requests
 <div className="request-list">
 {requests.map(r => (
 <div key={r.id} className="request-item">
-<div className="req-user">{r.user}</div>
-<div className="req-text">{r.text.replace("@request", "")}</div>
+
+  <div className="req-info">
+    <div className="req-user">{r.user}</div>
+    <div className="req-text">{r.text.replace("@request", "")}</div>
+  </div>
+
+  {/* 🟢 PROFILE BUTTON */}
+  <div
+    className="req-open-profile"
+    onClick={() => navigate(`/dashboard/profile/${r.uid}`)}
+  />
+
 </div>
 ))}
 </div>

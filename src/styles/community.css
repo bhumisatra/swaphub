@@ -455,3 +455,29 @@ color:white;
   color: #333;
   word-wrap: break-word;
 }
+.request-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+}
+
+.req-info {
+  display: flex;
+  flex-direction: column;
+}
+
+/* 🟢 GREEN BUTTON */
+.req-open-profile {
+  width: 14px;
+  height: 14px;
+  background: #36ff7a;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.req-open-profile:hover {
+  transform: scale(1.3);
+  box-shadow: 0 0 8px #36ff7a;
+}
