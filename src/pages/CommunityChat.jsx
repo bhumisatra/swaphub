@@ -70,25 +70,6 @@ useEffect(() => {
 }, [authReady, name]);
 
 
-// 🔴 WRITE ONLINE STATUS (Realtime presence)
-useEffect(() => {
-if (!authReady || !currentUID || !name) return;
-
-const rtdb = getDatabase();
-const userStatusRef = ref(rtdb, `status/${name}/${currentUID}`);
-
-set(userStatusRef, {
-online: true,
-group: selectedGroup,
-lastActive: Date.now()
-});
-
-onDisconnect(userStatusRef).set({
-online: false,
-lastActive: Date.now()
-});
-
-}, [authReady, currentUID, name, selectedGroup]);
 
 
 // 👥 REAL ONLINE USERS (Realtime DB presence)
