@@ -15,6 +15,7 @@ getDoc
 import { onAuthStateChanged } from "firebase/auth";
 import { getDatabase, ref, onValue, set, onDisconnect } from "firebase/database";
 import "../styles/community.css";
+import { setupPresence } from "../utils/presence";
 
 export default function Community() {
 const { name } = useParams();

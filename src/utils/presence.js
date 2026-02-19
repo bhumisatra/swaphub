@@ -1,22 +1,22 @@
-import { ref, set, onDisconnect, serverTimestamp } from "firebase/database";
 import { rtdb } from "../firebase";
+import { ref, set, onDisconnect, serverTimestamp } from "firebase/database";
 import { auth } from "../firebase";
 
-export const setupPresence = () => {
-  if (!auth.currentUser) return;
+export const setupPresence = (communityId) => {
+  const user = auth.currentUser;
+  if (!user || !communityId) return;
 
-  const uid = auth.currentUser.uid;
-  const userStatusRef = ref(rtdb, "status/" + uid);
+  const statusRef = ref(rtdb, `status/${communityId}/${user.uid}`);
 
-  // When connected -> online
-  set(userStatusRef, {
+  // Set online
+  set(statusRef, {
     online: true,
-    lastSeen: serverTimestamp()
+    lastChanged: serverTimestamp(),
   });
 
-  // When disconnected -> offline automatically
-  onDisconnect(userStatusRef).set({
+  // When user disconnects
+  onDisconnect(statusRef).set({
     online: false,
-    lastSeen: serverTimestamp()
+    lastChanged: serverTimestamp(),
   });
 };
