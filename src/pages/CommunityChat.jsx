@@ -12,6 +12,7 @@ doc,
 setDoc,
 getDoc
 } from "firebase/firestore";
+import { deleteDoc } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 
 import "../styles/community.css";
@@ -39,6 +40,7 @@ const [requests, setRequests] = useState([]);
 const [openRequests, setOpenRequests] = useState(false);
 
 const [onlineCount, setOnlineCount] = useState(0);
+const [lastGroup, setLastGroup] = useState(null);
 
 
 
@@ -144,7 +146,7 @@ return () => unsub();
 useEffect(() => {
 if (!authReady || !name || !currentUID || !selectedGroup) return;
 
-const userRef = doc(
+const newRef = doc(
 db,
 "communities",
 name,
@@ -154,8 +156,24 @@ selectedGroup,
 currentUID
 );
 
+// remove from previous group instantly
+if (lastGroup && lastGroup !== selectedGroup) {
+const oldRef = doc(
+db,
+"communities",
+name,
+"groups",
+lastGroup,
+"presence",
+currentUID
+);
+deleteDoc(oldRef);
+}
+
+setLastGroup(selectedGroup);
+
 const update = () => {
-setDoc(userRef, {
+setDoc(newRef, {
 uid: currentUID,
 lastSeen: serverTimestamp()
 }, { merge: true });
@@ -166,11 +184,7 @@ update();
 const interval = setInterval(update, 20000);
 
 const goOffline = () => {
-setDoc(userRef, {
-uid: currentUID,
-lastSeen: serverTimestamp(),
-offline: true
-}, { merge: true });
+deleteDoc(newRef);
 };
 
 window.addEventListener("beforeunload", goOffline);
@@ -189,7 +203,6 @@ document.removeEventListener("visibilitychange", visibilityHandler);
 };
 
 }, [authReady, name, currentUID, selectedGroup]);
-
 
 
 // ================= SEND MESSAGE =================
