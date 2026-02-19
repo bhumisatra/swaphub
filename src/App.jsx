@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { setupPresence } from "./utils/presence";
+
 import { auth } from "./firebase";
 import { onAuthStateChanged } from "firebase/auth";
 
@@ -30,10 +30,7 @@ function App() {
       setUser(currentUser);
       setLoading(false);
 
-      // ⭐ START PRESENCE ONLY WHEN USER EXISTS
-      if (currentUser) {
-        stopPresence = setupPresence(currentUser.uid);
-      }
+      
 
       // ⭐ STOP PRESENCE WHEN LOGOUT
       if (!currentUser && stopPresence) {

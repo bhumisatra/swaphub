@@ -13,9 +13,9 @@ setDoc,
 getDoc
 } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
-import { getDatabase, ref, onValue, set, onDisconnect } from "firebase/database";
+
 import "../styles/community.css";
-import { setupPresence } from "../utils/presence";
+
 
 export default function Community() {
 const { name } = useParams();
@@ -63,33 +63,10 @@ setAuthReady(true);
 return () => unsub();
 
 }, []);
-useEffect(() => {
-  if (authReady && name) {
-    setupPresence(name);
-  }
-}, [authReady, name]);
 
 
 
 
-// 👥 REAL ONLINE USERS (Realtime DB presence)
-useEffect(() => {
-if (!name || !selectedGroup) return;
-
-const rtdb = getDatabase();
-const statusRef = ref(rtdb, `status/${name}`);
-
-return onValue(statusRef, (snapshot) => {
-const data = snapshot.val() || {};
-let count = 0;
-
-Object.values(data).forEach(user => {
-if (user?.online === true) count++;
-});
-setOnlineCount(count);
-});
-
-}, [name, selectedGroup]);
 
 
 // LOAD GROUPS
