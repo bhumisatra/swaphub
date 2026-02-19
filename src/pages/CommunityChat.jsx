@@ -13,7 +13,7 @@ setDoc,
 getDoc
 } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
-import { getDatabase, ref, onValue } from "firebase/database";
+import { getDatabase, ref, onValue, set, onDisconnect } from "firebase/database";
 import "../styles/community.css";
 
 export default function Community() {
@@ -42,7 +42,6 @@ const [openRequests, setOpenRequests] = useState(false);
 // 👥 ONLINE USERS STATE
 const [onlineCount, setOnlineCount] = useState(0);
 
-
 // 🔥 WAIT FOR AUTH FIRST
 useEffect(() => {
 const unsub = onAuthStateChanged(auth, async (user) => {
@@ -65,19 +64,40 @@ return () => unsub();
 }, []);
 
 
+// 🔴 WRITE ONLINE STATUS (Realtime presence)
+useEffect(() => {
+if (!authReady || !currentUID || !name) return;
+
+const rtdb = getDatabase();
+const userStatusRef = ref(rtdb, `status/${name}/${currentUID}`);
+
+set(userStatusRef, {
+online: true,
+group: selectedGroup,
+lastActive: Date.now()
+});
+
+onDisconnect(userStatusRef).set({
+online: false,
+lastActive: Date.now()
+});
+
+}, [authReady, currentUID, name, selectedGroup]);
+
+
 // 👥 REAL ONLINE USERS (Realtime DB presence)
 useEffect(() => {
 if (!name || !selectedGroup) return;
 
 const rtdb = getDatabase();
-const statusRef = ref(rtdb, "status");
+const statusRef = ref(rtdb, `status/${name}`);
 
 return onValue(statusRef, (snapshot) => {
 const data = snapshot.val() || {};
 let count = 0;
 
 Object.values(data).forEach(user => {
-if (user?.online === true) count++;
+if (user?.online === true && user?.group === selectedGroup) count++;
 });
 
 setOnlineCount(count);
