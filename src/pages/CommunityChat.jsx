@@ -42,7 +42,32 @@ const [openRequests, setOpenRequests] = useState(false);
 
 // 👥 ONLINE USERS STATE
 const [onlineCount, setOnlineCount] = useState(0);
+// 👥 ONLINE USERS (Firestore heartbeat system)
+useEffect(() => {
+  if (!name) return;
 
+  const presenceRef = collection(db, "communities", name, "presence");
+
+  const unsub = onSnapshot(presenceRef, (snapshot) => {
+    let count = 0;
+    const now = Date.now();
+
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      if (!data?.lastSeen?.toDate) return;
+
+      const diff = now - data.lastSeen.toDate().getTime();
+
+      // 40 seconds = online
+      if (diff < 40000) count++;
+    });
+
+    setOnlineCount(count);
+  });
+
+  return () => unsub();
+
+}, [name]);
 // 🔥 WAIT FOR AUTH FIRST
 useEffect(() => {
 const unsub = onAuthStateChanged(auth, async (user) => {
@@ -111,6 +136,29 @@ return () => unsub();
 
 }, [name, selectedGroup, authReady]);
 
+// 🔥 FIRESTORE ONLINE PRESENCE (NO REALTIME DB)
+useEffect(() => {
+  if (!authReady || !name || !currentUID) return;
+
+  const userRef = doc(db, "communities", name, "presence", currentUID);
+
+  // update immediately
+  setDoc(userRef, {
+    uid: currentUID,
+    lastSeen: serverTimestamp()
+  }, { merge: true });
+
+  // update every 20 seconds
+  const interval = setInterval(() => {
+    setDoc(userRef, {
+      uid: currentUID,
+      lastSeen: serverTimestamp()
+    }, { merge: true });
+  }, 20000);
+
+  return () => clearInterval(interval);
+
+}, [authReady, name, currentUID]);
 
 // SEND MESSAGE
 const sendMessage = async () => {
