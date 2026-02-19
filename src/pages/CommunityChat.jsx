@@ -84,9 +84,8 @@ const data = snapshot.val() || {};
 let count = 0;
 
 Object.values(data).forEach(user => {
-if (user?.online === true && user?.group === selectedGroup) count++;
+if (user?.online === true) count++;
 });
-
 setOnlineCount(count);
 });
 
