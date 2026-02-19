@@ -41,6 +41,7 @@ const [openRequests, setOpenRequests] = useState(false);
 
 const [onlineCount, setOnlineCount] = useState(0);
 const [lastGroup, setLastGroup] = useState(null);
+const [joinedOnce, setJoinedOnce] = useState(false);
 
 
 
@@ -156,8 +157,8 @@ selectedGroup,
 currentUID
 );
 
-// remove from previous group instantly
-if (lastGroup && lastGroup !== selectedGroup) {
+// remove from previous group (INCLUDING GENERAL FIRST LOAD)
+if (joinedOnce && lastGroup && lastGroup !== selectedGroup) {
 const oldRef = doc(
 db,
 "communities",
@@ -171,6 +172,7 @@ deleteDoc(oldRef);
 }
 
 setLastGroup(selectedGroup);
+setJoinedOnce(true);
 
 const update = () => {
 setDoc(newRef, {
@@ -203,7 +205,6 @@ document.removeEventListener("visibilitychange", visibilityHandler);
 };
 
 }, [authReady, name, currentUID, selectedGroup]);
-
 
 // ================= SEND MESSAGE =================
 const sendMessage = async () => {
