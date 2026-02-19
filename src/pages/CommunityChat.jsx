@@ -63,6 +63,11 @@ setAuthReady(true);
 return () => unsub();
 
 }, []);
+useEffect(() => {
+  if (authReady && name) {
+    setupPresence(name);
+  }
+}, [authReady, name]);
 
 
 // 🔴 WRITE ONLINE STATUS (Realtime presence)

@@ -1,28 +1,24 @@
 import { getDatabase, ref, set, onDisconnect, onValue } from "firebase/database";
 import { auth } from "../firebase";
 
-export function setupPresence(communityName) {
-
-  const user = auth.currentUser;
-  if (!user || !communityName) return;
-
+export function setupPresence(community) {
   const rtdb = getDatabase();
+  const uid = auth.currentUser?.uid;
+  if (!uid) return;
 
   const connectedRef = ref(rtdb, ".info/connected");
-  const userStatusRef = ref(rtdb, `status/${communityName}/${user.uid}`);
+  const userStatusRef = ref(rtdb, `status/${community}/${uid}`);
 
   onValue(connectedRef, (snap) => {
     if (snap.val() === true) {
 
-      // when connected → mark online
-      set(userStatusRef, {
-        online: true,
+      onDisconnect(userStatusRef).set({
+        online: false,
         lastActive: Date.now()
       });
 
-      // when disconnect → mark offline automatically
-      onDisconnect(userStatusRef).set({
-        online: false,
+      set(userStatusRef, {
+        online: true,
         lastActive: Date.now()
       });
     }
