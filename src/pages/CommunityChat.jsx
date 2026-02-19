@@ -16,7 +16,6 @@ import { onAuthStateChanged } from "firebase/auth";
 
 import "../styles/community.css";
 
-
 export default function Community() {
 const { name } = useParams();
 const navigate = useNavigate();
@@ -36,39 +35,47 @@ const [username, setUsername] = useState("user");
 const [currentUID, setCurrentUID] = useState(null);
 const [authReady, setAuthReady] = useState(false);
 
-// ⭐ NEW STATES
 const [requests, setRequests] = useState([]);
 const [openRequests, setOpenRequests] = useState(false);
 
-// 👥 ONLINE USERS STATE
 const [onlineCount, setOnlineCount] = useState(0);
-// 👥 ONLINE USERS (Firestore heartbeat system)
+
+
+
+// ================= ONLINE COUNT LISTENER =================
 useEffect(() => {
-  if (!name) return;
+if (!name || !selectedGroup) return;
 
-  const presenceRef = collection(db, "communities", name, "presence");
+const presenceRef = collection(
+db,
+"communities",
+name,
+"groups",
+selectedGroup,
+"presence"
+);
 
-  const unsub = onSnapshot(presenceRef, (snapshot) => {
-    let count = 0;
-    const now = Date.now();
+const unsub = onSnapshot(presenceRef, (snapshot) => {
+let count = 0;
+const now = Date.now();
 
-    snapshot.forEach(doc => {
-      const data = doc.data();
-      if (!data?.lastSeen?.toDate) return;
+snapshot.forEach(doc => {
+const data = doc.data();
+if (!data?.lastSeen?.toDate) return;
 
-      const diff = now - data.lastSeen.toDate().getTime();
+const diff = now - data.lastSeen.toDate().getTime();
+if (diff < 40000) count++;
+});
 
-      // 40 seconds = online
-      if (diff < 40000) count++;
-    });
+setOnlineCount(count);
+});
 
-    setOnlineCount(count);
-  });
+return () => unsub();
+}, [name, selectedGroup]);
 
-  return () => unsub();
 
-}, [name]);
-// 🔥 WAIT FOR AUTH FIRST
+
+// ================= AUTH =================
 useEffect(() => {
 const unsub = onAuthStateChanged(auth, async (user) => {
 if (!user) return;
@@ -86,15 +93,11 @@ setAuthReady(true);
 });
 
 return () => unsub();
-
 }, []);
 
 
 
-
-
-
-// LOAD GROUPS
+// ================= GROUPS =================
 useEffect(() => {
 if (!name) return;
 
@@ -107,11 +110,11 @@ setGroups(list);
 });
 
 return () => unsub();
-
 }, [name]);
 
 
-// LOAD MESSAGES ONLY AFTER AUTH READY
+
+// ================= MESSAGES =================
 useEffect(() => {
 if (!name || !selectedGroup || !authReady) return;
 
@@ -133,34 +136,63 @@ setRequests(reqs);
 });
 
 return () => unsub();
-
 }, [name, selectedGroup, authReady]);
 
-// 🔥 FIRESTORE ONLINE PRESENCE (NO REALTIME DB)
+
+
+// ================= ONLINE PRESENCE =================
 useEffect(() => {
-  if (!authReady || !name || !currentUID) return;
+if (!authReady || !name || !currentUID || !selectedGroup) return;
 
-  const userRef = doc(db, "communities", name, "presence", currentUID);
+const userRef = doc(
+db,
+"communities",
+name,
+"groups",
+selectedGroup,
+"presence",
+currentUID
+);
 
-  // update immediately
-  setDoc(userRef, {
-    uid: currentUID,
-    lastSeen: serverTimestamp()
-  }, { merge: true });
+const update = () => {
+setDoc(userRef, {
+uid: currentUID,
+lastSeen: serverTimestamp()
+}, { merge: true });
+};
 
-  // update every 20 seconds
-  const interval = setInterval(() => {
-    setDoc(userRef, {
-      uid: currentUID,
-      lastSeen: serverTimestamp()
-    }, { merge: true });
-  }, 20000);
+update();
 
-  return () => clearInterval(interval);
+const interval = setInterval(update, 20000);
 
-}, [authReady, name, currentUID]);
+const goOffline = () => {
+setDoc(userRef, {
+uid: currentUID,
+lastSeen: serverTimestamp(),
+offline: true
+}, { merge: true });
+};
 
-// SEND MESSAGE
+window.addEventListener("beforeunload", goOffline);
+
+const visibilityHandler = () => {
+if (document.visibilityState === "hidden") goOffline();
+};
+
+document.addEventListener("visibilitychange", visibilityHandler);
+
+return () => {
+goOffline();
+clearInterval(interval);
+window.removeEventListener("beforeunload", goOffline);
+document.removeEventListener("visibilitychange", visibilityHandler);
+};
+
+}, [authReady, name, currentUID, selectedGroup]);
+
+
+
+// ================= SEND MESSAGE =================
 const sendMessage = async () => {
 if (!text.trim()) return;
 
@@ -177,7 +209,6 @@ time: serverTimestamp()
 
 setText("");
 setReplyTo(null);
-
 };
 
 const handleKey = (e) => {
@@ -185,7 +216,8 @@ if (e.key === "Enter") sendMessage();
 };
 
 
-// CREATE GROUP
+
+// ================= CREATE GROUP =================
 const createGroup = async () => {
 const g = prompt("Enter group name");
 if (!g) return;
@@ -196,7 +228,8 @@ createdAt: serverTimestamp()
 };
 
 
-// TIME FORMAT
+
+// ================= TIME FORMAT =================
 const formatTime = (timestamp) => {
 if (!timestamp?.toDate) return "";
 const date = timestamp.toDate();
@@ -204,6 +237,8 @@ return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 };
 
 
+
+// ================= UI =================
 return (
 <div className="community-wrapper">
 
@@ -317,6 +352,7 @@ placeholder={`Message #${selectedGroup}`}
 />
 <button onClick={sendMessage}>Send</button>
 </div>
+
 </div>
 </div>
 );
