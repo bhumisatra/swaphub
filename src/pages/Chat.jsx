@@ -57,6 +57,7 @@ const [activeChat, setActiveChat] = useState(null);
 const [messages, setMessages] = useState([]);
 const [newMessage, setNewMessage] = useState("");
 const [chatOpen, setChatOpen] = useState(false);
+const [tempOffer,setTempOffer] = useState({});
 
 const [otherUserData, setOtherUserData] = useState(null);
 const [showMenu, setShowMenu] = useState(false);
@@ -351,17 +352,34 @@ if (item.type === "swap") {
         <b>You offer:</b>
 
         {canEditMyOffer ? (
-          <input
-            className="swap-input"
-            placeholder="Type your service and press Enter"
-            onKeyDown={async (e)=>{
-              if(e.key==="Enter" && e.target.value.trim()){
-                await updateDoc(doc(db,"swaps",item.id),{
-                  [myOfferField]: e.target.value,
-                });
-              }
-            }}
-          />
+          <div className="swap-input-row">
+
+  <input
+    className="swap-input"
+    placeholder="Type your service..."
+    value={tempOffer[item.id] || ""}
+    onChange={(e)=>{
+      setTempOffer(prev=>({...prev,[item.id]:e.target.value}));
+    }}
+  />
+
+  <button
+    className="swap-send"
+    onClick={async()=>{
+      const text = tempOffer[item.id];
+      if(!text?.trim()) return;
+
+      await updateDoc(doc(db,"swaps",item.id),{
+        [myOfferField]: text,
+      });
+
+      setTempOffer(prev=>({...prev,[item.id]:""}));
+    }}
+  >
+    ✔
+  </button>
+
+</div>
         ) : (
           <span>{isMeProposer ? item.offerA : item.offerB}</span>
         )}
