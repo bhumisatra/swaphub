@@ -10,7 +10,7 @@
 /* LEFT PANEL */
 .groups-panel{
   width:260px;
-  background:#0f172a;
+  background:#000000;
   padding:15px;
   display:flex;
   flex-direction:column;

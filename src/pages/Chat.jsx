@@ -419,15 +419,29 @@ if (item.type === "swap") {
   <button
     className="swap-send"
     onClick={async()=>{
-      const text = tempOffer[item.id];
-      if(!text?.trim()) return;
+  const text = tempOffer[item.id];
+  if(!text?.trim()) return;
 
-      await updateDoc(doc(db,"swaps",item.id),{
-        [myOfferField]: text,
-      });
+  const ref = doc(db,"swaps",item.id);
 
-      setTempOffer(prev=>({...prev,[item.id]:""}));
-    }}
+  // update my offer
+  await updateDoc(ref,{
+    [myOfferField]: text,
+  });
+
+  // re-read swap
+  const snap = await getDoc(ref);
+  const data = snap.data();
+
+  // if both offers written → make pending
+  if(data.offerA && data.offerB){
+    await updateDoc(ref,{
+      status:"pending"
+    });
+  }
+
+  setTempOffer(prev=>({...prev,[item.id]:""}));
+}}
   >
     ✔
   </button>
@@ -443,7 +457,7 @@ if (item.type === "swap") {
         <span>{isMeProposer ? item.offerB : item.offerA}</span>
       </div>
 
-      {item.offerA && item.offerB && item.status!=="accepted" && item.status!=="rejected" && (
+      {item.offerA && item.offerB && item.status === "pending" && (
         <div className="swap-actions">
 
           <button

@@ -1,7 +1,7 @@
 /* ===== MAIN WRAPPER ===== */
 .profile-wrapper {
   min-height: 100vh;
-  background: linear-gradient(135deg, #000000, #0a1f44);
+  background: linear-gradient(135deg, #000000, #1a1a1a);
   font-family: 'Poppins', sans-serif;
   color: white;
 }
@@ -9,7 +9,7 @@
 /* ===== COVER ===== */
 .profile-cover {
   height: 180px;
-  background: linear-gradient(to right, #007bff, #00c6ff);
+  background: linear-gradient(to right, #f4f1f1, #333333);
 }
 
 /* ===== HEADER ===== */
@@ -25,7 +25,7 @@
   height: 130px;
   border-radius: 50%;
   background: white;
-  color: #0a3d91;
+  color: black;
   font-size: 48px;
   font-weight: bold;
   display: flex;
@@ -34,7 +34,7 @@
   margin: auto;
   border: 5px solid #000;
   overflow: hidden;
-  box-shadow: 0 8px 25px rgba(0, 123, 255, 0.4);
+  box-shadow: 0 8px 25px rgba(255, 255, 255, 0.2);
 }
 
 .profile-avatar img {
@@ -48,8 +48,8 @@
   display: inline-block;
   margin-top: 15px;
   padding: 8px 18px;
-  background: #007bff;
-  color: white;
+  background: white;
+  color: black;
   border-radius: 20px;
   cursor: pointer;
   font-size: 14px;
@@ -57,7 +57,7 @@
 }
 
 .upload-btn:hover {
-  background: #0056d2;
+  background: #e6e6e6;
 }
 
 /* ===== NAME ===== */
@@ -65,11 +65,12 @@
   margin-top: 15px;
   font-size: 24px;
   font-weight: 600;
+  color: white;
 }
 
 /* ===== USERNAME ===== */
 .profile-header p {
-  color: #00c6ff;
+  color: #cccccc;
   font-weight: 500;
   margin-bottom: 15px;
 }
@@ -87,20 +88,22 @@
   border-radius: 6px;
   border: none;
   outline: none;
+  background: #fffefe;
+  color: rgb(9, 8, 8);
 }
 
 .username-box button {
   padding: 8px 14px;
   border: none;
-  background: #007bff;
-  color: white;
+  background: white;
+  color: black;
   border-radius: 6px;
   cursor: pointer;
   transition: 0.3s;
 }
 
 .username-box button:hover {
-  background: #0056d2;
+  background: #e6e6e6;
 }
 
 /* ===== STATS SECTION ===== */
@@ -117,12 +120,12 @@
   padding: 15px 25px;
   border-radius: 12px;
   min-width: 100px;
-  box-shadow: 0 6px 20px rgba(0, 123, 255, 0.2);
+  box-shadow: 0 6px 20px rgba(255, 255, 255, 0.1);
 }
 
 .profile-stats h3 {
   margin: 0;
-  color: #0a3d91;
+  color: black;
 }
 
 .profile-stats span {
@@ -134,10 +137,10 @@
 .edit-profile-btn {
   margin-top: 25px;
   padding: 10px 20px;
-  background: navy cyan blue;
+  background: rgb(23, 157, 253);
   border: none;
   border-radius: 25px;
-  color: white;
+  color: black;
   font-weight: 500;
   cursor: pointer;
   transition: 0.3s ease;
@@ -145,7 +148,7 @@
 
 .edit-profile-btn:hover {
   transform: scale(1.05);
-  box-shadow: 0 8px 20px rgba(0, 123, 255, 0.4);
+  box-shadow: 0 8px 20px rgba(255, 255, 255, 0.2);
 }
 
 /* ===== DETAILS SECTION ===== */
@@ -161,12 +164,12 @@
   color: black;
   padding: 25px;
   border-radius: 15px;
-  box-shadow: 0 10px 30px rgba(0, 123, 255, 0.2);
+  box-shadow: 0 10px 30px rgba(255, 255, 255, 0.1);
 }
 
 .profile-card h3 {
   margin-bottom: 15px;
-  color: #0a3d91;
+  color: black;
 }
 
 .profile-card p {

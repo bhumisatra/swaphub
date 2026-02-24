@@ -1,17 +1,11 @@
 /* Background behind everything */
 body {
   margin: 0;
-  background: linear-gradient(
-    135deg,
-    #0f2027,
-    #203a43,
-    #2c5364,
-    #1c92d2
-  );
-  background-size: 400% 400%;
-  animation: gradientMove 15s ease infinite;
+  background: #000000;   /* pure black */
+  color: #ffffff;        /* default white text */
 }
 
+/* (Keeping animation keyframes untouched but unused) */
 @keyframes gradientMove {
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
@@ -25,24 +19,24 @@ body {
   overflow: hidden;
 }
 
-/* SIDEBAR - REAL GLASS */
+/* SIDEBAR */
 .sidebar {
   width: 240px;
   padding: 20px;
   transition: 0.4s ease;
   display: flex;
   flex-direction: column;
-  color: white;
+  color: #ffffff;
 
-  background: green ;
+  background: #000000;   /* black sidebar */
   backdrop-filter: blur(30px);
   -webkit-backdrop-filter: blur(30px);
 
-  border-right: 1px solid rgba(255, 255, 255, 0.2);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
 
   box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.35),
-    inset 0 0 0 1px rgba(255,255,255,0.1);
+    0 8px 32px rgba(0, 0, 0, 0.8),
+    inset 0 0 0 1px rgba(255,255,255,0.05);
 
   border-radius: 0 25px 25px 0;
 }
@@ -57,35 +51,36 @@ body {
   margin-bottom: 30px;
   font-size: 22px;
   font-weight: bold;
-  color:white;
+  color: #ffffff;
 }
 
-/* Glass Buttons */
+/* Menu Buttons */
 .menu-item {
   padding: 12px;
   margin-bottom: 10px;
   border-radius: 14px;
   text-decoration: none;
-  color: black;
+  color: #ffffff;   /* white text */
   transition: all 0.3s ease;
   cursor: pointer;
 
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .menu-item:hover {
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.15);
   transform: translateX(6px);
 }
 
 .menu-item.active {
-  background: rgba(255, 255, 255, 0.35);
+  background: #ffffff;
+  color: #000000;
   font-weight: 500;
 }
 
 .logout {
   margin-top: auto;
-  color: #ffdada;
+  color: #ffffff;
 }
 
 /* MAIN CONTENT */
@@ -93,18 +88,19 @@ body {
   flex: 1;
   display: flex;
   flex-direction: column;
+  background: #000000;  /* make sure no pink shows */
 }
 
-/* TOPBAR GLASS */
+/* TOPBAR */
 .topbar {
   height: 60px;
-  background: rgba(255, 255, 255, 0.15);
+  background: #000000;  /* black topbar */
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   display: flex;
   align-items: center;
   padding: 0 20px;
-  border-bottom: 1px solid rgba(255,255,255,0.2);
+  border-bottom: 1px solid rgba(255,255,255,0.1);
 }
 
 .hamburger {
@@ -112,7 +108,7 @@ body {
   background: none;
   border: none;
   cursor: pointer;
-  color: white;
+  color: #ffffff;
 }
 
 /* PAGE CONTENT */
@@ -120,5 +116,6 @@ body {
   flex: 1;
   overflow: auto;
   padding: 20px;
-  background: transparent;
+  background: #000000;  /* force black */
+  color: #ffffff;
 }
