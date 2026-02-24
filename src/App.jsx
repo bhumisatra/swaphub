@@ -78,7 +78,8 @@ function App() {
 
           {/* CHAT */}
           <Route path="chat" element={<Chat />} />
-          <Route path="chat/:uid" element={<Chat />} />
+          <Route path="chat/:chatid" element={<Chat />} />
+
 
           {/* OTHER FEATURES */}
           <Route path="requests" element={<Requests />} />

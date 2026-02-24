@@ -1,7 +1,15 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { db, auth } from "../firebase";
-import { doc, onSnapshot, collection, setDoc, deleteDoc } from "firebase/firestore";
+import {
+  doc,
+  onSnapshot,
+  collection,
+  setDoc,
+  deleteDoc,
+  getDoc,
+  serverTimestamp,
+} from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import "../styles/viewProfile.css";
 
@@ -35,13 +43,19 @@ function ViewProfile() {
   }, [uid]);
 
   useEffect(() => {
-    const unsub1 = onSnapshot(collection(db, "users", uid, "followers"), snap => {
-      setFollowers(snap.size);
-    });
+    const unsub1 = onSnapshot(
+      collection(db, "users", uid, "followers"),
+      (snap) => {
+        setFollowers(snap.size);
+      }
+    );
 
-    const unsub2 = onSnapshot(collection(db, "users", uid, "following"), snap => {
-      setFollowing(snap.size);
-    });
+    const unsub2 = onSnapshot(
+      collection(db, "users", uid, "following"),
+      (snap) => {
+        setFollowing(snap.size);
+      }
+    );
 
     return () => {
       unsub1();
@@ -53,7 +67,7 @@ function ViewProfile() {
     if (!currentUser) return;
 
     const ref = doc(db, "users", uid, "followers", currentUser.uid);
-    const unsub = onSnapshot(ref, snap => {
+    const unsub = onSnapshot(ref, (snap) => {
       setIsFollowing(snap.exists());
     });
 
@@ -77,28 +91,58 @@ function ViewProfile() {
     }
   };
 
-  /* 🔥 MESSAGE BUTTON FIX */
-  const openChat = () => {
-    navigate(`/dashboard/chat/${uid}`);
-  };
+  /* 🔥 FIXED MESSAGE BUTTON */
+const openChat = async () => {
+  if (!currentUser) return;
+
+  const myUID = currentUser.uid;
+  const targetUID = uid;
+
+  // SAME ID LOGIC AS CHAT.JSX
+  const chatId =
+    myUID > targetUID
+      ? myUID + targetUID
+      : targetUID + myUID;
+
+  const chatRef = doc(db, "chats", chatId);
+  const snap = await getDoc(chatRef);
+
+  // CREATE CHAT IN CORRECT FORMAT
+  if (!snap.exists()) {
+    await setDoc(chatRef, {
+      participants: [myUID, targetUID],
+      usernames: {
+        [myUID]: currentUser.email,
+        [targetUID]: userData.username
+      },
+      nicknames: {},
+      unread: {
+        [myUID]: 0,
+        [targetUID]: 0
+      },
+      lastMessage: "",
+      createdAt: serverTimestamp(),
+    });
+  }
+
+  navigate(`/dashboard/chat/${chatId}`);
+};
 
   if (loading || currentUser === undefined)
     return <div className="profile-loading">Loading...</div>;
 
-  if (!userData) return <div className="profile-loading">User not found</div>;
+  if (!userData)
+    return <div className="profile-loading">User not found</div>;
 
   const theme = userData.gender === "Female" ? "female-theme" : "male-theme";
   const isOwner = currentUser && currentUser.uid === uid;
 
   return (
     <div className={`profile-page ${theme}`}>
-
-      {/* ===== TOP PROFILE BAR ===== */}
       <div className="vp-top-bar">
-
         <div className="vp-avatar">
           {userData.photoURL ? (
-            <img src={userData.photoURL} alt="profile"/>
+            <img src={userData.photoURL} alt="profile" />
           ) : (
             <div className="avatar-letter">
               {userData.username?.charAt(0).toUpperCase()}
@@ -112,17 +156,13 @@ function ViewProfile() {
         </div>
 
         <div className="vp-actions">
-
           {!isOwner && (
             <div className="profile-action-buttons">
               <button className="follow-btn" onClick={toggleFollow}>
                 {isFollowing ? "Following" : "Follow"}
               </button>
 
-              <button
-                className="message-btn"
-                onClick={openChat}
-              >
+              <button className="message-btn" onClick={openChat}>
                 Message
               </button>
             </div>
@@ -136,9 +176,7 @@ function ViewProfile() {
               Edit Profile
             </button>
           )}
-
         </div>
-
       </div>
 
       <div className="vp-stats">
@@ -164,14 +202,15 @@ function ViewProfile() {
         <div className="glass-card skills-card">
           {userData.skills?.length ? (
             userData.skills.map((skill, i) => (
-              <span key={i} className="skill">{skill}</span>
+              <span key={i} className="skill">
+                {skill}
+              </span>
             ))
           ) : (
             <p>No skills added</p>
           )}
         </div>
       </section>
-
     </div>
   );
 }

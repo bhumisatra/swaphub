@@ -678,3 +678,86 @@
 .chat-menu-btn.secondary {
   color: #93c5fd;   /* light blue accent for second option */
 }
+.floating-swap-btn{
+position:fixed;
+right:20px;
+bottom:90px;
+width:64px;
+height:64px;
+border-radius:50%;
+border:none;
+background:#0ea5e9;
+color:white;
+font-size:28px;
+display:flex;
+align-items:center;
+justify-content:center;
+cursor:pointer;
+z-index:9999;
+box-shadow:0 8px 22px rgba(0,0,0,0.35);
+transition:all .15s ease;
+}
+
+.floating-swap-btn:hover{
+transform:scale(1.1);
+box-shadow:0 12px 28px rgba(0,0,0,0.45);
+}
+.swap-card{
+  align: center;
+  background:#0685f4;
+  border-radius:14px;
+  padding:12px 14px;
+  margin:8px 0;
+  width:75%;
+  box-shadow:0 2px 8px rgba(0,0,0,0.15);
+  font-size:14px;
+}
+
+.swap-title{
+  font-weight:600;
+  margin-bottom:6px;
+  color:#000
+}
+
+.swap-line{
+  margin:2px 0;
+  color: black;
+}
+
+.swap-status{
+  margin-top:6px;
+  font-size:12px;
+  opacity:0.7;
+}
+.swap-input{
+width:100%;
+margin-top:6px;
+padding:6px;
+border-radius:8px;
+border:none;
+outline:none;
+}
+
+.swap-actions{
+display:flex;
+gap:10px;
+margin-top:10px;
+}
+
+.accept-btn{
+background:#2ecc71;
+border:none;
+padding:6px 12px;
+border-radius:8px;
+color:white;
+cursor:pointer;
+}
+
+.reject-btn{
+background:#e74c3c;
+border:none;
+padding:6px 12px;
+border-radius:8px;
+color:white;
+cursor:pointer;
+}

@@ -372,7 +372,7 @@ Replying to: {replyTo.text}
 value={text}
 onChange={(e) => setText(e.target.value)}
 onKeyDown={handleKey}
-placeholder={`Message #${selectedGroup}`}
+placeholder={`Message @request to request`}
 />
 <button onClick={sendMessage}>Send</button>
 </div>

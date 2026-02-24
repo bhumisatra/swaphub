@@ -21,22 +21,22 @@ load();
 }, [chat, currentUser]);
 
 return (
-<div
-className={`chat-item ${activeChat?.id===chat.id?"active":""}`}
-onClick={()=>openChat(chat)}
->
-<div className="chat-name-row">
-<span>{username}</span>
+<div      
+className={`chat-item ${activeChat?.id===chat.id?"active":""}`}      
+onClick={()=>openChat(chat)}      
+>      
+<div className="chat-name-row">      
+<span>{username}</span>      
 {chat.unread?.[currentUser.uid]>0 && <span className="unread-dot"/>}
-</div>
-</div>
-);
+</div>      
+</div>      
+);      
 }
 
 function Chat() {
 
 const navigate = useNavigate();
-const { chatId: uid } = useParams();
+const { chatid: chatId } = useParams();
 const autoOpenedRef = useRef(false);
 
 /* AUTH SAFE */
@@ -64,7 +64,13 @@ const [showMenu, setShowMenu] = useState(false);
 const [editingNickname, setEditingNickname] = useState(false);
 const [nicknameInput, setNicknameInput] = useState("");
 
+/* 🔥 NEW SWAP STATE */
+const [swaps, setSwaps] = useState([]);
 const menuRef = useRef();
+const bottomRef = useRef(null);
+useEffect(() => {
+bottomRef.current?.scrollIntoView({ behavior: "instant" });
+}, [messages, swaps, activeChat]);
 
 useEffect(() => {
 const handler = (e) => {
@@ -149,6 +155,69 @@ setChatList(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
 });
 }, [authReady, currentUser]);
 
+/* 🔥 LOAD SWAPS FOR ACTIVE CHAT */
+useEffect(() => {
+  if (!activeChat) return;
+
+  const q = query(
+    collection(db, "swaps"),
+    where("chatId", "==", activeChat.id),
+    orderBy("createdAt", "asc")
+  );
+
+  const unsub = onSnapshot(q, (snap) => {
+    const data = snap.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+
+    setSwaps(data);
+  });
+
+  return () => unsub();
+}, [activeChat]);
+/* 🔥 CREATE SWAP */
+const createSwap = async () => {
+  if (!activeChat || !currentUser || !otherUserData) return;
+
+  await addDoc(collection(db, "swaps"), {
+    chatId: activeChat.id,
+
+    users: [currentUser.uid, otherUserData.uid],
+    proposer: currentUser.uid,
+    receiver: otherUserData.uid,
+
+    offerA: "",
+    offerB: "",
+
+    acceptedBy: [],
+    rejectedBy: null,
+
+    status: "editing",
+
+    createdAt: serverTimestamp()
+  });
+};
+
+useEffect(() => {
+if (!chatId || !currentUser || autoOpenedRef.current) return;
+
+let chat = chatList.find(c => c.id === chatId);
+
+if (!chat) {
+chat = chatList.find(c =>
+c.participants.includes(chatId) &&
+c.participants.includes(currentUser.uid)
+);
+}
+
+if (chat) {
+autoOpenedRef.current = true;
+openChat(chat);
+}
+
+}, [chatId, chatList, currentUser]);
+
 /* OPEN CHAT */
 const openChat = async (chat) => {
 setShowMenu(false);
@@ -196,6 +265,15 @@ if (!authReady) return <div className="chat-wrapper">Loading chat...</div>;
 if (!currentUser) return <div className="chat-wrapper">Please login again</div>;
 
 let lastDate = "";
+// 🔥 COMBINE SWAPS + MESSAGES INTO ONE TIMELINE
+const timeline = [
+  ...messages.map(m => ({ ...m, type: "message" })),
+  ...swaps.map(s => ({ ...s, type: "swap" }))
+].sort((a, b) => {
+  const t1 = a.createdAt?.seconds || 0;
+  const t2 = b.createdAt?.seconds || 0;
+  return t1 - t2;
+});
 
 return (
 
@@ -224,6 +302,7 @@ openChat={openChat}
 <button className="mobile-back" onClick={()=>setChatOpen(false)}>←</button>
 <div className="chat-user">{otherUserData?.username}</div>
 
+
 <div className="chat-menu-container" ref={menuRef}>
 <button className="menu-btn" onClick={(e)=>{e.stopPropagation();setShowMenu(!showMenu);}}>⋮</button>
 
@@ -244,27 +323,120 @@ Edit Nickname
 </button>
 </div>
 )}
-
 </div>
 </div>
 
 <div className="chat-messages">
-{messages.map((msg,i)=>{
-const dateLabel = formatDateLabel(msg.createdAt);
-const showDate = dateLabel !== lastDate;
-lastDate = dateLabel;
 
-return(
-<>
-{showDate && <div className="date-separator">{dateLabel}</div>}
-<div key={msg.id} className={msg.senderId===currentUser.uid?"message own":"message"}>
-{msg.text}
-<span className="message-time">{formatTime(msg.createdAt)}</span>
-</div>
-</>
-);
+{timeline.map((item) => {
+
+  // ===== SWAP CARD =====
+if (item.type === "swap") {
+
+  const isMeProposer = item.proposer === currentUser.uid;
+  const isMeReceiver = item.receiver === currentUser.uid;
+
+  const canEditMyOffer =
+    (isMeProposer && !item.offerA) ||
+    (isMeReceiver && !item.offerB);
+
+  const myOfferField = isMeProposer ? "offerA" : "offerB";
+
+  return (
+    <div key={item.id} className="swap-card">
+
+      <div className="swap-title">🤝 Service Swap Request</div>
+
+      <div className="swap-line">
+        <b>You offer:</b>
+
+        {canEditMyOffer ? (
+          <input
+            className="swap-input"
+            placeholder="Type your service and press Enter"
+            onKeyDown={async (e)=>{
+              if(e.key==="Enter" && e.target.value.trim()){
+                await updateDoc(doc(db,"swaps",item.id),{
+                  [myOfferField]: e.target.value,
+                });
+              }
+            }}
+          />
+        ) : (
+          <span>{isMeProposer ? item.offerA : item.offerB}</span>
+        )}
+      </div>
+
+      <div className="swap-line">
+        <b>They offer:</b>
+        <span>{isMeProposer ? item.offerB : item.offerA}</span>
+      </div>
+
+      {item.offerA && item.offerB && item.status!=="accepted" && item.status!=="rejected" && (
+        <div className="swap-actions">
+
+          <button
+            className="accept-btn"
+            onClick={async()=>{
+              if(item.acceptedBy?.includes(currentUser.uid)) return;
+
+              const newAccepted = [...(item.acceptedBy||[]), currentUser.uid];
+
+              await updateDoc(doc(db,"swaps",item.id),{
+                acceptedBy:newAccepted,
+                status:newAccepted.length===2?"accepted":"pending"
+              });
+            }}
+          >
+            Accept
+          </button>
+
+          <button
+            className="reject-btn"
+            onClick={async()=>{
+              await updateDoc(doc(db,"swaps",item.id),{
+                rejectedBy:currentUser.uid,
+                status:"rejected"
+              });
+            }}
+          >
+            Reject
+          </button>
+
+        </div>
+      )}
+
+      <div className={`swap-status ${item.status}`}>
+        {item.status==="editing" && "Write your services"}
+        {item.status==="pending" && "Waiting for other user"}
+        {item.status==="accepted" && "✅ Swap Started"}
+        {item.status==="rejected" && "❌ Swap Cancelled"}
+      </div>
+
+    </div>
+  );
+}
+
+  // ===== NORMAL MESSAGE =====
+  const dateLabel = formatDateLabel(item.createdAt);
+  const showDate = dateLabel !== lastDate;
+  lastDate = dateLabel;
+
+  return (
+    <>
+      {showDate && <div className="date-separator">{dateLabel}</div>}
+
+      <div className={item.senderId===currentUser.uid?"message own":"message"}>
+        {item.text}
+        <span className="message-time">{formatTime(item.createdAt)}</span>
+      </div>
+    </>
+  );
 })}
+
+<div ref={bottomRef}></div>
 </div>
+
 
 <div className="chat-input">
 <input value={newMessage} onChange={e=>setNewMessage(e.target.value)} onKeyDown={e=>e.key==="Enter"&&sendMessage()} placeholder="Type a message"/>
@@ -279,6 +451,12 @@ return(
 </div>
 )}
 </div>
+{/* FLOATING SWAP BUTTON */}
+{activeChat && (
+<button className="floating-swap-btn" onClick={createSwap}>
+🤝
+</button>
+)}
 </div>
 );
 }

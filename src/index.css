@@ -2,7 +2,7 @@
   --primary: #3b82f6;
   --secondary: #111827;
   --accent: #22c55e;
-  --text: #ffffff;
+  --text: #ffffff33;
   --background: #0f172a;
   --card: #1f2937;
   --border: #374151;
@@ -36,19 +36,19 @@ button {
 }
 
 button:hover {
-  background: var(--accent);
+  background: var(--acce);
 }
 
 /* INPUTS */
 input, textarea {
   background: var(--input);
-  color: var(--text);
+  color: white;
   border: 1px solid var(--border);
 }
 
 /* SIDEBAR */
 .sidebar {
-  background: var(--secondary);
+  background: black;
 }
 
 /* LINKS */
