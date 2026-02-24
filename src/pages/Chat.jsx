@@ -430,7 +430,25 @@ if (item.type === "swap") {
 
           <button
   className="accept-btn"
-  onClick={() => acceptSwap(item)}
+  onClick={async ()=>{
+
+    // already accepted → do nothing
+    if(item.acceptedBy?.includes(currentUser.uid)) return;
+
+    const newAccepted = [...(item.acceptedBy||[]), currentUser.uid];
+
+    // STEP 1: update message UI state (OLD behaviour)
+    await updateDoc(doc(db,"chats",activeChat.id,"messages",item.id),{
+      acceptedBy:newAccepted,
+      status:newAccepted.length===2?"accepted":"pending"
+    });
+
+    // STEP 2: if both accepted → create real swap (NEW behaviour)
+    if(newAccepted.length===2){
+      await acceptSwap(item);
+    }
+
+  }}
 >
   Accept
 </button>
