@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { auth, db } from "../firebase";
 import {
 collection, query, where, getDocs, addDoc, onSnapshot, orderBy,
-serverTimestamp, setDoc, doc, updateDoc, getDoc
+serverTimestamp, setDoc, doc, updateDoc, getDoc, arrayUnion
 } from "firebase/firestore";
 import { useNavigate, useParams } from "react-router-dom";
 import "../styles/chat.css";
