@@ -192,6 +192,7 @@ const createSwap = async () => {
     offerB: "",
 
     acceptedBy: [],
+    completedBy: [],
     rejectedBy: null,
 
     status: "editing",
@@ -303,6 +304,29 @@ await updateDoc(swapRef,{
 status:"pending"
 });
 }
+};
+
+const completeSwap = async (item) => {
+
+  const swapRef = doc(db, "swaps", item.id);
+
+  // already pressed
+  if(item.completedBy?.includes(currentUser.uid)) return;
+
+  // add current user
+  await updateDoc(swapRef,{
+    completedBy: arrayUnion(currentUser.uid)
+  });
+
+  // check if both completed
+  const updated = await getDoc(swapRef);
+  const data = updated.data();
+
+  if(data.completedBy?.length === 2){
+    await updateDoc(swapRef,{
+      status:"completed"
+    });
+  }
 };
 
 return (
@@ -446,8 +470,21 @@ Reject
       <div className={`swap-status ${item.status}`}>
         {item.status==="editing" && "Write your services"}
         {item.status==="pending" && "Waiting for other user"}
-        {item.status==="accepted" && "✅ Swap Started"}
-        {item.status==="rejected" && "❌ Swap Cancelled"}
+        {item.status==="accepted" && "🟢 Work in Progress"}
+{item.status==="completed" && "🎉 Swap Completed"}
+{item.status==="rejected" && "❌ Swap Cancelled"}
+        {item.status === "accepted" && (
+  <div className="swap-actions">
+
+    <button
+      className="complete-btn"
+      onClick={()=>completeSwap(item)}
+    >
+      Completed
+    </button>
+
+  </div>
+)}
       </div>
 
     </div>
