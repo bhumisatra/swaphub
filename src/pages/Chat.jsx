@@ -277,38 +277,32 @@ const timeline = [
 });
 
 
-const acceptSwap = async (msg) => {
+const acceptSwap = async (item) => {
 
-  // reference to the swap message inside chat
-  const swapRef = doc(db, "chats", activeChat.id, "messages", msg.id);
+const swapRef = doc(db, "swaps", item.id);
 
-  // step 1: add current user to accepted list
-  await updateDoc(swapRef, {
-    acceptedBy: arrayUnion(auth.currentUser.uid)
-  });
+// prevent double accept
+if(item.acceptedBy?.includes(currentUser.uid)) return;
 
-  // step 2: re-read message
-  const updatedSnap = await getDoc(swapRef);
-  const data = updatedSnap.data();
+// add current user
+await updateDoc(swapRef,{
+acceptedBy: arrayUnion(currentUser.uid)
+});
 
-  // step 3: if both users accepted
-  if (data.acceptedBy && data.acceptedBy.length === 2) {
+// read updated swap
+const updated = await getDoc(swapRef);
+const data = updated.data();
 
-    // CREATE REAL SWAP IN FIRESTORE
-    await setDoc(doc(collection(db, "swaps")), {
-      chatId: activeChat.id,
-      users: data.users,
-      offerA: data.offerA,
-      offerB: data.offerB,
-      status: "active",
-      createdAt: serverTimestamp()
-    });
-
-    // update message status
-    await updateDoc(swapRef, {
-      status: "active"
-    });
-  }
+// if both accepted → finalize
+if(data.acceptedBy?.length === 2){
+await updateDoc(swapRef,{
+status:"accepted"
+});
+}else{
+await updateDoc(swapRef,{
+status:"pending"
+});
+}
 };
 
 return (
@@ -429,42 +423,23 @@ if (item.type === "swap") {
         <div className="swap-actions">
 
           <button
-  className="accept-btn"
-  onClick={async ()=>{
-
-    // already accepted → do nothing
-    if(item.acceptedBy?.includes(currentUser.uid)) return;
-
-    const newAccepted = [...(item.acceptedBy||[]), currentUser.uid];
-
-    // STEP 1: update message UI state (OLD behaviour)
-    await updateDoc(doc(db,"chats",activeChat.id,"messages",item.id),{
-      acceptedBy:newAccepted,
-      status:newAccepted.length===2?"accepted":"pending"
-    });
-
-    // STEP 2: if both accepted → create real swap (NEW behaviour)
-    if(newAccepted.length===2){
-      await acceptSwap(item);
-    }
-
-  }}
+className="accept-btn"
+onClick={()=>acceptSwap(item)}
 >
-  Accept
+Accept
 </button>
 
           <button
-            className="reject-btn"
-            onClick={async()=>{
-              await updateDoc(doc(db,"swaps",item.id),{
-                rejectedBy:currentUser.uid,
-                status:"rejected"
-              });
-            }}
-          >
-            Reject
-          </button>
-
+className="reject-btn"
+onClick={async()=>{
+await updateDoc(doc(db,"swaps",item.id),{
+rejectedBy:currentUser.uid,
+status:"rejected"
+});
+}}
+>
+Reject
+</button>
         </div>
       )}
 
