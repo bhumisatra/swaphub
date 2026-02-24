@@ -18,6 +18,7 @@ import EditProfile from "./pages/EditProfile";
 import Community from "./pages/CommunityChat";
 import CommunityHub from "./components/CommunityHub";
 import ProtectedRoute from "./components/ProtectedRoute";
+import Swaps from "./pages/Swaps";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -84,6 +85,8 @@ function App() {
           {/* OTHER FEATURES */}
           <Route path="requests" element={<Requests />} />
           <Route path="settings" element={<Settings />} />
+
+          <Route path="swaps" element={<Swaps />} />
 
         </Route>
 

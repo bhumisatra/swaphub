@@ -276,6 +276,41 @@ const timeline = [
   return t1 - t2;
 });
 
+
+const acceptSwap = async (msg) => {
+
+  // reference to the swap message inside chat
+  const swapRef = doc(db, "chats", activeChat.id, "messages", msg.id);
+
+  // step 1: add current user to accepted list
+  await updateDoc(swapRef, {
+    acceptedBy: arrayUnion(auth.currentUser.uid)
+  });
+
+  // step 2: re-read message
+  const updatedSnap = await getDoc(swapRef);
+  const data = updatedSnap.data();
+
+  // step 3: if both users accepted
+  if (data.acceptedBy && data.acceptedBy.length === 2) {
+
+    // CREATE REAL SWAP IN FIRESTORE
+    await setDoc(doc(collection(db, "swaps")), {
+      chatId: activeChat.id,
+      users: data.users,
+      offerA: data.offerA,
+      offerB: data.offerB,
+      status: "active",
+      createdAt: serverTimestamp()
+    });
+
+    // update message status
+    await updateDoc(swapRef, {
+      status: "active"
+    });
+  }
+};
+
 return (
 
 <div className={`chat-wrapper ${chatOpen ? "chat-open" : ""}`}>
@@ -394,20 +429,11 @@ if (item.type === "swap") {
         <div className="swap-actions">
 
           <button
-            className="accept-btn"
-            onClick={async()=>{
-              if(item.acceptedBy?.includes(currentUser.uid)) return;
-
-              const newAccepted = [...(item.acceptedBy||[]), currentUser.uid];
-
-              await updateDoc(doc(db,"swaps",item.id),{
-                acceptedBy:newAccepted,
-                status:newAccepted.length===2?"accepted":"pending"
-              });
-            }}
-          >
-            Accept
-          </button>
+  className="accept-btn"
+  onClick={() => acceptSwap(item)}
+>
+  Accept
+</button>
 
           <button
             className="reject-btn"

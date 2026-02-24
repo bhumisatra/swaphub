@@ -36,7 +36,7 @@ button {
 }
 
 button:hover {
-  background: var(--acce);
+  background: pink;
 }
 
 /* INPUTS */
@@ -48,7 +48,7 @@ input, textarea {
 
 /* SIDEBAR */
 .sidebar {
-  background: black;
+  background: pink;
 }
 
 /* LINKS */

@@ -71,6 +71,10 @@ function Dashboard() {
           Settings
         </NavLink>
 
+        <NavLink to="/dashboard/swaps" className="menu-item" onClick={handleMenuClick}>
+          Swaps
+        </NavLink>
+
         <div className="menu-item logout">
           Logout
         </div>

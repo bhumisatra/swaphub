@@ -702,77 +702,135 @@ transition:all .15s ease;
 transform:scale(1.1);
 box-shadow:0 12px 28px rgba(0,0,0,0.45);
 }
+/* ================= SWAP CARD ================= */
+
 .swap-card{
-  align: center;
-  background:#0685f4;
-  border-radius:14px;
-  padding:12px 14px;
-  margin:8px 0;
-  width:75%;
-  box-shadow:0 2px 8px rgba(0,0,0,0.15);
-  font-size:14px;
+  width:100%;
+  max-width:420px;
+  background:linear-gradient(145deg,#0f0f0f,#76bdab);
+  border-radius:18px;
+  padding:16px 16px 14px 16px;
+  margin:10px 0;
+  box-shadow:0 10px 25px rgba(0,0,0,0.25);
+  color:white;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
 }
 
+/* header */
 .swap-title{
-  font-weight:600;
-  margin-bottom:6px;
-  color:#000
+  font-weight:700;
+  font-size:15px;
+  letter-spacing:.3px;
+  display:flex;
+  align-items:center;
+  gap:8px;
 }
 
+/* service rows */
 .swap-line{
-  margin:2px 0;
-  color: black;
+  background:rgba(255,255,255,0.15);
+  padding:10px 12px;
+  border-radius:12px;
+  font-size:14px;
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  backdrop-filter:blur(4px);
 }
 
-.swap-status{
-  margin-top:6px;
+/* labels */
+.swap-line b{
   font-size:12px;
-  opacity:0.7;
-}
-.swap-input{
-width:100%;
-margin-top:6px;
-padding:6px;
-border-radius:8px;
-border:none;
-outline:none;
+  opacity:.75;
+  font-weight:500;
 }
 
-.swap-actions{
-display:flex;
-gap:10px;
-margin-top:10px;
+/* status text */
+.swap-status{
+  text-align:center;
+  font-size:12px;
+  opacity:.85;
+  margin-top:2px;
 }
 
-.accept-btn{
-background:#2ecc71;
-border:none;
-padding:6px 12px;
-border-radius:8px;
-color:white;
-cursor:pointer;
-}
-
-.reject-btn{
-background:#e74c3c;
-border:none;
-padding:6px 12px;
-border-radius:8px;
-color:white;
-cursor:pointer;
-}
+/* input row */
 .swap-input-row{
   display:flex;
   gap:8px;
-  margin-top:6px;
+  margin-top:4px;
 }
 
-.swap-send{
-  background:#27ae60;
+/* input box */
+.swap-input{
+  flex:1;
+  padding:10px;
+  border-radius:10px;
   border:none;
-  padding:6px 12px;
-  border-radius:8px;
+  outline:none;
+  background:rgba(0,0,0,0.35);
   color:white;
-  font-weight:bold;
+  font-size:14px;
+}
+
+/* send button */
+.swap-send{
+  width:42px;
+  height:42px;
+  border-radius:10px;
+  border:none;
+  background:#22c55e;
+  color:white;
+  font-size:18px;
   cursor:pointer;
+  transition:.2s;
+}
+
+.swap-send:hover{
+  transform:scale(1.08);
+  background:#16a34a;
+}
+
+/* buttons */
+.swap-actions{
+  display:flex;
+  gap:10px;
+  margin-top:4px;
+}
+
+/* accept */
+.accept-btn{
+  flex:1;
+  background:#22c55e;
+  border:none;
+  padding:10px;
+  border-radius:12px;
+  color:white;
+  font-weight:600;
+  cursor:pointer;
+  transition:.18s;
+}
+
+.accept-btn:hover{
+  background:#16a34a;
+  transform:translateY(-1px);
+}
+
+/* reject */
+.reject-btn{
+  flex:1;
+  background:#ef4444;
+  border:none;
+  padding:10px;
+  border-radius:12px;
+  color:white;
+  font-weight:600;
+  cursor:pointer;
+  transition:.18s;
+}
+
+.reject-btn:hover{
+  background:#dc2626;
+  transform:translateY(-1px);
 }
