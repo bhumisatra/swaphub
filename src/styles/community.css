@@ -121,15 +121,15 @@
 
 /* MY MESSAGE */
 .message-row.me .bubble{
-  background:#3b82f6;
-  color:white;
+  background:#000000;
+  color:rgb(255, 255, 255);
   border-bottom-right-radius:5px;
 }
 
 /* OTHER MESSAGE */
 .message-row.other .bubble{
-  background:#ffffff;
-  color:#0f172a;
+  background:#000000;
+  color:#ffffff;
   border-bottom-left-radius:5px;
   border:1px solid #e5e7eb;
 }
@@ -392,7 +392,7 @@ color:white;
   position: sticky;
   top: 0;
   z-index: 50;
-  background: white;
+  background: rgb(0, 0, 0);
   padding: 18px 0 12px 0;
   border-bottom: 2px solid #e6eef7;
   display: flex;
@@ -405,7 +405,7 @@ color:white;
   margin: 0;
   font-size: 28px;
   letter-spacing: 2px;
-  color: #3a8dde;
+  color: #ffffff;
   text-align: center;
 }
 
