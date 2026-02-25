@@ -54,6 +54,7 @@
   cursor: pointer;
   font-size: 14px;
   transition: 0.3s ease;
+  font-weight: 700;
 }
 
 .upload-btn:hover {
