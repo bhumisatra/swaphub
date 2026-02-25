@@ -21,6 +21,7 @@ export default function Community() {
 const { name } = useParams();
 const navigate = useNavigate();
 
+
 const [groups, setGroups] = useState([]);
 const [selectedGroup, setSelectedGroup] = useState("general");
 const [search, setSearch] = useState("");
@@ -42,6 +43,7 @@ const [openRequests, setOpenRequests] = useState(false);
 const [onlineCount, setOnlineCount] = useState(0);
 const [lastGroup, setLastGroup] = useState(null);
 const [joinedOnce, setJoinedOnce] = useState(false);
+const [chatOpen, setChatOpen] = useState(false);
 
 
 
@@ -254,7 +256,8 @@ return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 
 // ================= UI =================
 return (
-<div className="community-wrapper">
+<div className={`community-wrapper ${chatOpen ? "chat-open" : ""}`}>
+
 
 {requests.length > 0 && (
 <div className="request-float" onClick={() => setOpenRequests(true)}>
@@ -305,7 +308,11 @@ onChange={(e) => setSearch(e.target.value)}
 <div
 key={g}
 className={`group-item ${g === selectedGroup ? "active" : ""}`}
-onClick={() => setSelectedGroup(g)}
+onClick={() => {
+  setSelectedGroup(g);
+  setChatOpen(true);
+}}
+
 >
 #{g}
 </div>
@@ -316,6 +323,7 @@ onClick={() => setSelectedGroup(g)}
 <div className="chat-panel">
 
 <div className="community-header">
+  <button className="mobile-back" onClick={() => setChatOpen(false)}>←</button>
 <div className="online-indicator">
 <span className="online-count">{onlineCount}</span>
 <span className={`online-dot ${onlineCount > 0 ? "active" : ""}`}></span>
