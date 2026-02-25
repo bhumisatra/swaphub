@@ -11,10 +11,12 @@ body {
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
 }
-.dashboard-container{
+
+.dashboard-container {
+  display: flex;
+  height: 100vh;
   width: 100%;
-  margin: 0 auto;
-  padding: 0 20px;
+  overflow: hidden;
 }
 
 /* DESKTOP ONLY CENTER */
@@ -23,6 +25,7 @@ body {
     max-width: 1200px;
   }
 }
+
 /* SIDEBAR */
 .sidebar {
   width: 240px;
