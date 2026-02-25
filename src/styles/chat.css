@@ -560,9 +560,9 @@ box-shadow:0 12px 28px rgba(0,0,0,0.45);
   color: #aaa;
 }
 /* ===== ICON BUTTONS (3 DOT + BACK ARROW) ===== */
-.chat-header button:not(.floating-swap-btn,.chat-search button),
-.chat-top button:not(.floating-swap-btn,.chat-search button),
-.chat-wrapper button:not(.floating-swap-btn,.chat-search button) {
+.chat-header button:not(.floating-swap-btn,.chat-search button,.accept-btn),
+.chat-top button:not(.floating-swap-btn,.chat-search button,.accept-btn),
+.chat-wrapper button:not(.floating-swap-btn,.chat-search button,.accept-btn,.reject-btn) {
   background: #0f0f0f !important;
   color: white !important;
   border: none;
@@ -571,7 +571,7 @@ box-shadow:0 12px 28px rgba(0,0,0,0.45);
 /* Hover */
 .chat-header button:not(.floating-swap-btn,.chat-search button):hover,
 .chat-top button:not(.floating-swap-btn):hover,
-.chat-wrapper button:not(.floating-swap-btn.chat-search button):hover {
+.chat-wrapper button:not(.floating-swap-btn.chat-search button,.reject-btn:hover,.accept-btn:hover):hover {
   background: #1c1c1c !important;
 }
 
