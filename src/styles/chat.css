@@ -33,7 +33,7 @@
 .chat-search button {
   padding: 8px 12px;
   border: none;
-  background: #3b82f6;
+  background: rgb(23, 157, 253);;
   color: white;
   border-radius: 6px;
   cursor: pointer;
@@ -47,7 +47,7 @@
 }
 
 .chat-item:hover {
-  background: #3b82f6;
+  background: rgb(23, 157, 253);;
 }
 
 .chat-item.active {
@@ -833,4 +833,32 @@ box-shadow:0 12px 28px rgba(0,0,0,0.45);
 .reject-btn:hover{
   background:#dc2626;
   transform:translateY(-1px);
+}
+/* FILE MESSAGES */
+
+.chat-image{
+  max-width:220px;
+  border-radius:12px;
+  margin-top:6px;
+}
+
+.chat-video{
+  max-width:240px;
+  border-radius:12px;
+  margin-top:6px;
+}
+
+.chat-file{
+  display:inline-block;
+  background:#1f2937;
+  color:white;
+  padding:8px 12px;
+  border-radius:10px;
+  margin-top:6px;
+  text-decoration:none;
+  font-size:14px;
+}
+
+.chat-file:hover{
+  background:#374151;
 }

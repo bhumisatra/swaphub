@@ -8,7 +8,10 @@ import {
   setDoc,
   deleteDoc,
   getDoc,
+  getDocs,
   serverTimestamp,
+  query,
+where,
 } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import "../styles/viewProfile.css";
@@ -24,6 +27,7 @@ function ViewProfile() {
   const [followers, setFollowers] = useState(0);
   const [following, setFollowing] = useState(0);
   const [isFollowing, setIsFollowing] = useState(false);
+  const [completedSwaps, setCompletedSwaps] = useState(0);
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (user) => {
@@ -62,6 +66,25 @@ function ViewProfile() {
       unsub2();
     };
   }, [uid]);
+  useEffect(() => {
+  if (!uid) return;
+
+  const fetchCompleted = async () => {
+
+    // swaps where user is part of AND completed
+    const q = query(
+      collection(db, "swaps"),
+      where("users", "array-contains", uid),
+      where("status", "==", "completed")
+    );
+
+    const snap = await getDocs(q);
+    setCompletedSwaps(snap.size);
+  };
+
+  fetchCompleted();
+
+}, [uid]);
 
   useEffect(() => {
     if (!currentUser) return;
@@ -179,16 +202,22 @@ const openChat = async () => {
         </div>
       </div>
 
-      <div className="vp-stats">
-        <div>
-          <strong>{followers}</strong>
-          <span>Followers</span>
-        </div>
-        <div>
-          <strong>{following}</strong>
-          <span>Following</span>
-        </div>
-      </div>
+     <div className="vp-stats">
+  <div>
+    <strong>{followers}</strong>
+    <span>Followers</span>
+  </div>
+
+  <div>
+    <strong>{following}</strong>
+    <span>Following</span>
+  </div>
+
+  <div>
+    <strong>{completedSwaps}</strong>
+    <span>Completed Swaps</span>
+  </div>
+</div>
 
       <section className="profile-section">
         <h2>About Me</h2>
@@ -211,6 +240,49 @@ const openChat = async () => {
           )}
         </div>
       </section>
+      <section className="profile-section">
+  <h2>Personal Info</h2>
+
+  <div className="glass-card info-card">
+
+    {userData.dob && (
+      <div className="info-row">
+        <span className="info-label">Date of Birth</span>
+        <span className="info-value">{userData.dob}</span>
+      </div>
+    )}
+
+    {userData.gender && (
+      <div className="info-row">
+        <span className="info-label">Gender</span>
+        <span className="info-value">{userData.gender}</span>
+      </div>
+    )}
+
+    {userData.qualification && (
+      <div className="info-row">
+        <span className="info-label">Qualification</span>
+        <span className="info-value">{userData.qualification}</span>
+      </div>
+    )}
+
+    {userData.location && (
+      <div className="info-row">
+        <span className="info-label">Location</span>
+        <span className="info-value">📍 {userData.location}</span>
+      </div>
+    )}
+
+    {/* Show email ONLY to owner */}
+    {isOwner && (
+      <div className="info-row">
+        <span className="info-label">Email</span>
+        <span className="info-value">{currentUser.email}</span>
+      </div>
+    )}
+
+  </div>
+</section>
     </div>
   );
 }

@@ -113,18 +113,22 @@
 }
 
 /* SKILLS BOX BIG */
-.skills-card {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 14px;
-  min-height: 140px;
+.skills-card{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
 }
 
-.skill {
-  padding: 9px 16px;
-  border-radius: 20px;
-  background: rgba(208,189,244,0.6);
-  font-size: 14px;
+.skill{
+  background: rgba(255,255,255,0.08);
+  border:1px solid rgba(255,255,255,0.15);
+  padding:8px 14px;
+  border-radius:20px;
+  font-size:14px;
+  white-space:nowrap;
+  width:auto;
+  height:auto;
+  display:inline-block;
 }
 
 /* =====================================================
@@ -210,4 +214,51 @@
 
 .message-btn:hover{
   transform:scale(1.05);
+}
+/* PERSONAL INFO CARD */
+.info-card{
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+
+.info-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:10px 0;
+  border-bottom:1px solid rgba(255,255,255,0.08);
+}
+
+.info-row:last-child{
+  border-bottom:none;
+}
+
+.info-label{
+  opacity:0.7;
+  font-size:14px;
+}
+
+.info-value{
+  font-weight:500;
+  font-size:15px;
+}
+.vp-stats{
+  display:flex;
+  gap:40px;
+  margin:20px 0;
+}
+
+.vp-stats div{
+  text-align:center;
+}
+
+.vp-stats strong{
+  font-size:22px;
+  display:block;
+}
+
+.vp-stats span{
+  font-size:13px;
+  opacity:0.7;
 }

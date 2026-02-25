@@ -6,6 +6,8 @@ serverTimestamp, setDoc, doc, updateDoc, getDoc, arrayUnion
 } from "firebase/firestore";
 import { useNavigate, useParams } from "react-router-dom";
 import "../styles/chat.css";
+import { uploadToCloudinary } from "../utils/uploadToCloudinary";
+
 
 /* USERNAME FIX COMPONENT */
 function ChatItem({ chat, currentUser, activeChat, openChat }) {
@@ -64,6 +66,8 @@ const [showMenu, setShowMenu] = useState(false);
 
 const [editingNickname, setEditingNickname] = useState(false);
 const [nicknameInput, setNicknameInput] = useState("");
+
+
 
 /* 🔥 NEW SWAP STATE */
 const [swaps, setSwaps] = useState([]);
@@ -510,16 +514,40 @@ Reject
   const showDate = dateLabel !== lastDate;
   lastDate = dateLabel;
 
-  return (
-    <>
-      {showDate && <div className="date-separator">{dateLabel}</div>}
+ // ===== NORMAL MESSAGE =====
+return (
+  <>
+    {showDate && <div className="date-separator">{dateLabel}</div>}
 
-      <div className={item.senderId===currentUser.uid?"message own":"message"}>
-        {item.text}
-        <span className="message-time">{formatTime(item.createdAt)}</span>
-      </div>
-    </>
-  );
+    <div className={item.senderId===currentUser.uid?"message own":"message"}>
+
+      {/* TEXT MESSAGE */}
+      {item.text && <div className="msg-text">{item.text}</div>}
+
+      {/* IMAGE */}
+      {item.fileUrl && item.fileType?.startsWith("image") && (
+        <img src={item.fileUrl} className="chat-image" />
+      )}
+
+      {/* VIDEO */}
+      {item.fileUrl && item.fileType?.startsWith("video") && (
+        <video controls className="chat-video">
+          <source src={item.fileUrl} type={item.fileType} />
+        </video>
+      )}
+
+      {/* DOCUMENT */}
+      {item.fileUrl && !item.fileType?.startsWith("image") && !item.fileType?.startsWith("video") && (
+        <a href={item.fileUrl} target="_blank" className="chat-file">
+          📄 {item.fileName || "Open file"}
+        </a>
+      )}
+
+      <span className="message-time">{formatTime(item.createdAt)}</span>
+
+    </div>
+  </>
+);
 })}
 
 <div ref={bottomRef}></div>
@@ -527,10 +555,44 @@ Reject
 
 
 <div className="chat-input">
-<input value={newMessage} onChange={e=>setNewMessage(e.target.value)} onKeyDown={e=>e.key==="Enter"&&sendMessage()} placeholder="Type a message"/>
-<button onClick={sendMessage}>Send</button>
+
+  {/* ATTACH BUTTON */}
+  <label className="attach-btn">
+    📎
+    <input
+      type="file"
+      hidden
+      onChange={async (e) => {
+        const file = e.target.files[0];
+        if (!file || !activeChat) return;
+
+        const url = await uploadToCloudinary(file);
+
+        await addDoc(collection(db,"chats",activeChat.id,"messages"),{
+          fileUrl: url,
+          fileName: file.name,
+          fileType: file.type,
+          senderId: currentUser.uid,
+          createdAt: serverTimestamp()
+        });
+      }}
+    />
+  </label>
+
+  {/* TEXT INPUT */}
+  <input
+    value={newMessage}
+    onChange={e=>setNewMessage(e.target.value)}
+    onKeyDown={e=>e.key==="Enter"&&sendMessage()}
+    placeholder="Type a message"
+  />
+
+  {/* SEND */}
+  <button onClick={sendMessage}>Send</button>
+
 </div>
 </>
+
 ):(
 <div className="chat-placeholder">
 <img src="/no-chat.jpg" alt="start chat" className="nochat-img"/>

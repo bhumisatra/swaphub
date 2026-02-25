@@ -153,3 +153,18 @@
     padding: 13px;
   }
 }
+.edit-card select{
+  width:100%;
+  border-radius:12px;
+  border:none;
+  padding:14px;
+  font-size:15px;
+  outline:none;
+  background: rgba(255,255,255,0.12);
+  color:white;
+}
+
+.edit-card select:focus{
+  background: rgba(255,255,255,0.18);
+  box-shadow:0 0 0 2px #4da6ff;
+}

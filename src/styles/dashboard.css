@@ -19,12 +19,6 @@ body {
   overflow: hidden;
 }
 
-/* DESKTOP ONLY CENTER */
-@media (min-width: 900px){
-  .dashboard-container{
-    max-width: 1200px;
-  }
-}
 
 /* SIDEBAR */
 .sidebar {

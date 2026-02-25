@@ -15,7 +15,11 @@ function EditProfile() {
 
   const [about, setAbout] = useState("");
   const [skills, setSkills] = useState("");
-
+const [dob, setDob] = useState("");
+const [gender, setGender] = useState("");
+const [qualification, setQualification] = useState("");
+const [location, setLocation] = useState("");
+const [email, setEmail] = useState("");
   // 🔥 WAIT FOR AUTH PROPERLY
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (currentUser) => {
@@ -26,11 +30,22 @@ function EditProfile() {
       const snap = await getDoc(doc(db, "users", currentUser.uid));
 
       if (snap.exists()) {
-        const userData = snap.data();
-        setData(userData);
-        setAbout(userData.about || "");
-        setSkills((userData.skills || []).join(", "));
-      }
+  const userData = snap.data();
+
+  setData(userData);
+
+  setAbout(userData.about || "");
+  setSkills((userData.skills || []).join(", "));
+
+  // NEW FIELDS LOAD
+  setDob(userData.dob || "");
+  setGender(userData.gender || "");
+  setQualification(userData.qualification || "");
+  setLocation(userData.location || "");
+
+  // always from auth
+  setEmail(currentUser.email || "");
+}
     });
 
     return () => unsub();
@@ -43,9 +58,15 @@ function EditProfile() {
     setSaving(true);
 
     await updateDoc(doc(db, "users", user.uid), {
-      about: about,
-      skills: skills.split(",").map(s => s.trim()).filter(Boolean)
-    });
+  about: about,
+  skills: skills.split(",").map(s => s.trim()).filter(Boolean),
+
+  dob: dob,
+  gender: gender,
+  qualification: qualification,
+  location: location,
+  email: user.email
+});
 
     setSaving(false);
 
@@ -76,6 +97,40 @@ function EditProfile() {
           onChange={(e) => setSkills(e.target.value)}
           placeholder="React, UI Design, Video Editing"
         />
+
+        <label>Date of Birth</label>
+<input
+  type="date"
+  value={dob}
+  onChange={(e) => setDob(e.target.value)}
+/>
+
+<label>Gender</label>
+<select value={gender} onChange={(e)=>setGender(e.target.value)}>
+  <option value="">Select gender</option>
+  <option value="Male">Male</option>
+  <option value="Female">Female</option>
+  <option value="Other">Other</option>
+</select>
+
+<label>Email</label>
+<input type="text" value={email} disabled />
+
+<label>Qualification</label>
+<input
+  type="text"
+  value={qualification}
+  onChange={(e)=>setQualification(e.target.value)}
+  placeholder="BSc Computer Science / 12th / Self taught"
+/>
+
+<label>Location (Area)</label>
+<input
+  type="text"
+  value={location}
+  onChange={(e)=>setLocation(e.target.value)}
+  placeholder="📍 Marine Lines / Panjim / Andheri"
+/>
 
         <button onClick={handleSave}>
           {saving ? "Saving..." : "Save Changes"}
