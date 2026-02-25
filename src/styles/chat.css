@@ -105,7 +105,7 @@
   background: none;
   border: none;
   font-size: 22px;
-  color: white;
+  color: #3b82f6;
   cursor: pointer;
 }
 
@@ -427,7 +427,7 @@
   background: none;
   border: none;
   font-size: 22px;
-  color: white;
+  color: #3b82f6;
   cursor: pointer;
 }
 
@@ -662,7 +662,7 @@
 .chat-menu-btn {
   background: transparent;   /* no grey background */
   border: none;
-  color: #fff;               /* white text */
+  color: #3b82f6;               /* white text */
   font-size: 12px;           /* smaller font */
   padding: 8px 14px;
   text-align: left;
@@ -676,7 +676,7 @@
 }
 
 .chat-menu-btn.secondary {
-  color: #93c5fd;   /* light blue accent for second option */
+  color: #3b82f6;   /* light blue accent for second option */
 }
 .floating-swap-btn{
 position:fixed;
@@ -707,7 +707,7 @@ box-shadow:0 12px 28px rgba(0,0,0,0.45);
 .swap-card{
   width:100%;
   max-width:420px;
-  background:linear-gradient(145deg,#0f0f0f,#76bdab);
+  background:linear-gradient(145deg,#7c878f,#000000);
   border-radius:18px;
   padding:16px 16px 14px 16px;
   margin:10px 0;
