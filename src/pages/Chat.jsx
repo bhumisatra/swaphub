@@ -536,12 +536,15 @@ return (
         </video>
       )}
 
-      {/* DOCUMENT */}
-      {item.fileUrl && !item.fileType?.startsWith("image") && !item.fileType?.startsWith("video") && (
-        <a href={item.fileUrl} target="_blank" className="chat-file">
-          📄 {item.fileName || "Open file"}
-        </a>
-      )}
+  {/* DOCUMENT */}
+{item.fileUrl && !item.fileType?.startsWith("image") && !item.fileType?.startsWith("video") && (
+  <a
+    href={item.fileUrl.replace("/upload/", "/upload/fl_attachment/")}
+    className="chat-file"
+  >
+    ⬇ Download {item.fileName || "file"}
+  </a>
+)}
 
       <span className="message-time">{formatTime(item.createdAt)}</span>
 

@@ -850,15 +850,15 @@ box-shadow:0 12px 28px rgba(0,0,0,0.45);
 
 .chat-file{
   display:inline-block;
-  background:#1f2937;
+  padding:8px 14px;
+  background:#1f8fff;
   color:white;
-  padding:8px 12px;
-  border-radius:10px;
-  margin-top:6px;
+  border-radius:8px;
   text-decoration:none;
   font-size:14px;
+  margin-top:4px;
 }
 
 .chat-file:hover{
-  background:#374151;
+  background:#0c6ee6;
 }
