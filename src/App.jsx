@@ -21,6 +21,18 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Swaps from "./pages/Swaps";
 
 function App() {
+  useEffect(() => {
+  const setAppHeight = () => {
+    document.documentElement.style.setProperty(
+      "--app-width",
+      `${window.innerWidth}px`
+    );
+  };
+
+  setAppHeight();
+  window.addEventListener("resize", setAppHeight);
+  return () => window.removeEventListener("resize", setAppHeight);
+}, []);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -97,5 +109,6 @@ function App() {
     </Router>
   );
 }
+
 
 export default App;
