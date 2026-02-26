@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import { NavLink, Outlet } from "react-router-dom";
 import "../styles/dashboard.css";
+import { signOut } from "firebase/auth";
+import { auth } from "../firebase";
 
 function Dashboard() {
   const [open, setOpen] = useState(window.innerWidth > 768);
@@ -75,9 +77,17 @@ function Dashboard() {
           Swaps
         </NavLink>
 
-        <div className="menu-item logout">
-          Logout
-        </div>
+        
+          <NavLink
+  className="logout"
+  onClick={async () => {
+    await signOut(auth);
+    handleMenuClick();
+    window.location.href = "/login";
+  }}
+>
+  Logout
+</NavLink>
       </div>
 
       {/* Main Area */}

@@ -80,8 +80,18 @@ body {
 }
 
 .logout {
+   padding: 12px;
+  margin-bottom: 10px;
+  border-radius: 14px;
+  text-decoration: none;
+  color: #ffffff;   /* white text */
+  transition: all 0.3s ease;
+  cursor: pointer;
+
+  background: rgba(255, 255, 255, 0.05);
+  
+  font-weight: 500;
   margin-top: auto;
-  color: #ffffff;
 }
 
 /* MAIN CONTENT */

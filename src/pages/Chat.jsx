@@ -66,6 +66,7 @@ const [showMenu, setShowMenu] = useState(false);
 
 const [editingNickname, setEditingNickname] = useState(false);
 const [nicknameInput, setNicknameInput] = useState("");
+const [chatWallpaper, setChatWallpaper] = useState(null);
 
 
 
@@ -236,7 +237,12 @@ if(snap.exists()) setOtherUserData({uid:otherUid,...snap.data()});
 await updateDoc(doc(db,"chats",chat.id),{
 [`unread.${currentUser.uid}`]:0
 });
-
+// load wallpaper
+if(chat.wallpapers?.[currentUser.uid]){
+  setChatWallpaper(chat.wallpapers[currentUser.uid]);
+}else{
+  setChatWallpaper(null);
+}
 setActiveChat(chat);
 setChatOpen(true);
 };
@@ -332,7 +338,35 @@ const completeSwap = async (item) => {
     });
   }
 };
+const saveNickname = async () => {
 
+  if(!nicknameInput.trim() || !activeChat) {
+    setEditingNickname(false);
+    return;
+  }
+
+  const chatRef = doc(db,"chats",activeChat.id);
+
+  await updateDoc(chatRef,{
+    [`nicknames.${currentUser.uid}`]: nicknameInput.trim()
+  });
+
+  setEditingNickname(false);
+  setNicknameInput("");
+};
+const changeWallpaper = async (file) => {
+  if(!file || !activeChat) return;
+
+  const url = await uploadToCloudinary(file);
+
+  const chatRef = doc(db,"chats",activeChat.id);
+
+  await updateDoc(chatRef,{
+    [`wallpapers.${currentUser.uid}`]: url
+  });
+
+  setChatWallpaper(url);
+};
 return (
 
 <div className={`chat-wrapper ${chatOpen ? "chat-open" : ""}`}>
@@ -358,7 +392,25 @@ openChat={openChat}
 <>
 <div className="chat-header">
 <button className="mobile-back" onClick={()=>setChatOpen(false)}>←</button>
-<div className="chat-user">{otherUserData?.username}</div>
+<div className="chat-user">
+
+{!editingNickname ? (
+  <span>
+    {activeChat?.nicknames?.[currentUser.uid] || otherUserData?.username}
+  </span>
+) : (
+  <div className="nickname-edit">
+    <input
+      value={nicknameInput}
+      onChange={(e)=>setNicknameInput(e.target.value)}
+      placeholder="Enter nickname"
+      autoFocus
+    />
+    <button onClick={saveNickname}>✔</button>
+  </div>
+)}
+
+</div>
 
 
 <div className="chat-menu-container" ref={menuRef}>
@@ -375,16 +427,36 @@ View Profile
 
 <button
 className="chat-menu-btn secondary"
-onClick={()=>setEditingNickname(true)}
+onClick={()=>{
+  setNicknameInput(activeChat?.nicknames?.[currentUser.uid] || otherUserData?.username);
+  setEditingNickname(true);
+}}
 >
 Edit Nickname
 </button>
+<label className="chat-menu-btn secondary">
+Change Wallpaper
+<input
+  type="file"
+  hidden
+  accept="image/*"
+  onChange={(e)=>changeWallpaper(e.target.files[0])}
+/>
+</label>
 </div>
 )}
 </div>
 </div>
 
-<div className="chat-messages">
+<div
+  className="chat-messages"
+  style={{
+    backgroundImage: chatWallpaper ? `url(${chatWallpaper})` : "none",
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    backgroundRepeat: "no-repeat"
+  }}
+>
 
 {timeline.map((item) => {
 
@@ -531,7 +603,7 @@ return (
 
       {/* VIDEO */}
       {item.fileUrl && item.fileType?.startsWith("video") && (
-        <video controls className="chat-video">
+        <video controls className="chat-video">7
           <source src={item.fileUrl} type={item.fileType} />
         </video>
       )}

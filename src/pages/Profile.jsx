@@ -160,16 +160,7 @@ function Profile() {
           </div>
         )}
 
-        <div className="profile-stats">
-          <div>
-            <h3>0</h3>
-            <span>Requests</span>
-          </div>
-          <div>
-            <h3>0</h3>
-            <span>Chats</span>
-          </div>
-        </div>
+        
 
         {/* 🔥 EDIT PROFILE BUTTON — NOW ALWAYS WORKS */}
         <button
