@@ -1,4 +1,10 @@
 
+html, body {
+  width: 100%;
+  overflow-x: hidden;
+  background: black;
+}
+
 /* ================= WRAPPER ================= */
 .chat-wrapper {
   display: flex;
@@ -208,11 +214,7 @@
 /* ================= MOBILE WHATSAPP MODE ================= */
 @media (max-width: 768px) {
 
-  html, body {
-  width: 100%;
-  overflow-x: hidden;
-  background: black;
-}
+  
 
   .chat-wrapper{
   position: relative;
