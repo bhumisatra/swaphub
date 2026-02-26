@@ -1,6 +1,18 @@
-html, body, #root{
-  margin:0;
-  padding:0;
-  overflow-x:hidden;
-  background:#000;
+/* ===== MOBILE FIX: remove side scroll ===== */
+@media (max-width: 768px) {
+
+  html, body {
+    overflow-x: hidden;
+    overscroll-behavior-x: none; /* stop rubber band */
+  }
+
+  .chat-wrapper {
+    overflow-x: hidden;
+    width: 100vw;
+  }
+
+}
+/* Prevent 1px viewport expansion bug */
+* {
+  max-width: 100%;
 }
