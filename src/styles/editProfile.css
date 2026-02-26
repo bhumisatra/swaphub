@@ -6,7 +6,7 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background: linear-gradient(135deg, #000000, #0a1f44);
+  background: black;
   color: white;
 }
 
@@ -22,7 +22,7 @@
 /* CARD */
 .edit-card {
   width: 100%;
-  max-width: 520px;
+  max-width: 800px;
   padding: 28px;
   border-radius: 20px;
 
@@ -30,7 +30,7 @@
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
 
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border: 5px solid rgba(246, 240, 240, 0.865);
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
 
   display: flex;
@@ -42,7 +42,7 @@
 .edit-card label {
   font-size: 14px;
   opacity: 0.9;
-  margin-bottom: 3px;
+  margin-bottom: 7px;
 }
 
 /* TEXTAREA */
@@ -167,4 +167,7 @@
 .edit-card select:focus{
   background: rgba(255,255,255,0.18);
   box-shadow:0 0 0 2px #4da6ff;
+}
+.gencolor {
+  background: #000000;
 }

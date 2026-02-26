@@ -1,18 +1,6 @@
-/* ===== MOBILE FIX: remove side scroll ===== */
-@media (max-width: 768px) {
-
-  html, body {
-    overflow-x: hidden;
-    overscroll-behavior-x: none; /* stop rubber band */
-  }
-
-  .chat-wrapper {
-    overflow-x: hidden;
-    width: 100vw;
-  }
-
-}
-/* Prevent 1px viewport expansion bug */
-* {
-  max-width: 100%;
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: #000;   /* fallback background */
 }

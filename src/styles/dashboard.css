@@ -33,7 +33,7 @@ body {
   backdrop-filter: blur(30px);
   -webkit-backdrop-filter: blur(30px);
 
-  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  border-right: 1px solid white;
 
   box-shadow:
     0 8px 32px rgba(0, 0, 0, 0.8),
@@ -129,4 +129,6 @@ body {
   padding: 20px;
   background: #000000;  /* force black */
   color: #ffffff;
+  border-top: 1px solid #ffffff;
+  scrollbar-color: black;
 }

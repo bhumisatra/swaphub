@@ -1,9 +1,5 @@
 
-html, body {
-  width: 100%;
-  overflow-x: hidden;
-  background: black;
-}
+
 
 /* ================= WRAPPER ================= */
 .chat-wrapper {
@@ -362,8 +358,14 @@ html, body {
 }
 
 .chat-menu-btn.secondary {
-  color: #3b82f6;   /* light blue accent for second option */
+  color: #ffffff;   /* light blue accent for second option */
+  font-size: 18px;
+  background: #0d0d0d;
 }
+.chat-menu-btn.secondary:hover {
+background: rgba(255,255,255,0.1);  /* subtle hover */
+}
+
 .floating-swap-btn{
 position:fixed;
 right:20px;
@@ -601,3 +603,4 @@ box-shadow:0 12px 28px rgba(0,0,0,0.45);
   white-space: nowrap;    /* prevents breaking */
   align-self: flex-end;
 }
+

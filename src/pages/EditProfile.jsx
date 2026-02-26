@@ -20,6 +20,7 @@ const [gender, setGender] = useState("");
 const [qualification, setQualification] = useState("");
 const [location, setLocation] = useState("");
 const [email, setEmail] = useState("");
+const [available, setAvailability] = useState("");
   // 🔥 WAIT FOR AUTH PROPERLY
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (currentUser) => {
@@ -42,6 +43,7 @@ const [email, setEmail] = useState("");
   setGender(userData.gender || "");
   setQualification(userData.qualification || "");
   setLocation(userData.location || "");
+  setAvailability(userData.available || "");
 
   // always from auth
   setEmail(currentUser.email || "");
@@ -65,7 +67,8 @@ const [email, setEmail] = useState("");
   gender: gender,
   qualification: qualification,
   location: location,
-  email: user.email
+  email: email,
+  available: available,
 });
 
     setSaving(false);
@@ -107,14 +110,19 @@ const [email, setEmail] = useState("");
 
 <label>Gender</label>
 <select value={gender} onChange={(e)=>setGender(e.target.value)}>
-  <option value="">Select gender</option>
-  <option value="Male">Male</option>
-  <option value="Female">Female</option>
-  <option value="Other">Other</option>
+  <option value="" className="gencolor">Select gender</option>
+  <option value="Male" className="gencolor">Male</option>
+  <option value="Female" className="gencolor">Female</option>
+  <option value="Other" className="gencolor">Other</option>
 </select>
 
 <label>Email</label>
-<input type="text" value={email} disabled />
+<input
+  type="text"
+  value={email}
+  onChange={(e)=>setEmail(e.target.value)}
+  placeholder="abc@hotmail.com"
+/>
 
 <label>Qualification</label>
 <input
@@ -130,6 +138,13 @@ const [email, setEmail] = useState("");
   value={location}
   onChange={(e)=>setLocation(e.target.value)}
   placeholder="📍 Marine Lines / Panjim / Andheri"
+/>
+<label>Availability</label>
+<input
+  type="text"
+  value={available}
+  onChange={(e)=>setAvailability(e.target.value)}
+  placeholder="after 4p.m"
 />
 
         <button onClick={handleSave}>

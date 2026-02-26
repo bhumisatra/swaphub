@@ -66,7 +66,7 @@ function Dashboard() {
         </NavLink>
 
         <NavLink to="/dashboard/requests" className="menu-item" onClick={handleMenuClick}>
-          Requests
+          Community
         </NavLink>
 
         <NavLink to="/dashboard/settings" className="menu-item" onClick={handleMenuClick}>

@@ -6,14 +6,15 @@ export default function Requests() {
   const navigate = useNavigate();
 
   const categories = [
-    "Language",
-    "Coding",
-    "Art",
-    "Tech",
-    "Instruments",
-    "Fitness",
-    "Freelancing",
-    "Dailly  Skills"
+ "Academic-Projects",
+ "Design",
+ "Repairs",
+" Photography",
+ "Tutoring",
+ "Fitness",
+ "Editing",
+ "Local Help",
+ "Others"
   ];
 
   const openCommunity = (cat) => {

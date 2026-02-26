@@ -272,6 +272,12 @@ const openChat = async () => {
         <span className="info-value">📍 {userData.location}</span>
       </div>
     )}
+    {userData.available && (
+      <div className="info-row">
+        <span className="info-label">Availability</span>
+        <span className="info-value"> {userData.available}</span>
+      </div>
+    )}
 
     {/* Show email ONLY to owner */}
     {isOwner && (
