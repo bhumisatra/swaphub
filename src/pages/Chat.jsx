@@ -353,14 +353,25 @@ const markDelivered = async (item) => {
     ? item.schedule?.deadlineA
     : item.schedule?.deadlineB;
 
-  let isLate = false;
+ let isLate = false;
 
-  if(myDeadline){
-    const deadlineDate = new Date(myDeadline);
-    if(now > deadlineDate){
-      isLate = true;
-    }
+if(myDeadline){
+
+  let deadlineDate;
+
+  // Firestore Timestamp
+  if(myDeadline?.toDate){
+    deadlineDate = myDeadline.toDate();
   }
+  // already JS date
+  else{
+    deadlineDate = new Date(myDeadline);
+  }
+
+  if(now.getTime() > deadlineDate.getTime()){
+    isLate = true;
+  }
+}
 
   // update delivery info
   await updateDoc(ref,{
