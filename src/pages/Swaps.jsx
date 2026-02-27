@@ -26,6 +26,17 @@ return () => unsub();
 
 }, []);
 
+const formatDate = (date) => {
+  if (!date) return "Not set";
+
+  const d = new Date(date);
+  return d.toLocaleDateString(undefined, {
+    day: "numeric",
+    month: "short",
+    year: "numeric"
+  });
+};
+
 return (
 <div className="swaps-wrapper">
 
@@ -33,34 +44,56 @@ return (
 
 {swaps.length === 0 && <p className="no-swaps">No swaps yet</p>}
 
-{swaps.map(swap => (
+{swaps.map(swap => {
 
-  <div key={swap.id} className="swap-card">
+  const isMeProposer = swap.proposer === auth.currentUser.uid;
 
-    <div className="swap-users">
-      <span>Status</span>
-      <span className={`swap-status status-${swap.status}`}>
-        {swap.status}
-      </span>
-    </div>
+  const myDeadline = isMeProposer
+    ? swap.schedule?.deadlineA
+    : swap.schedule?.deadlineB;
 
-    <div className="swap-services">
+  const theirDeadline = isMeProposer
+    ? swap.schedule?.deadlineB
+    : swap.schedule?.deadlineA;
 
-      <div className="service-box">
-        <div className="service-title">You Offer</div>
-        {swap.offerA || "—"}
+  return (
+    <div key={swap.id} className="swap-card">
+
+      <div className="swap-users">
+        <span>Status</span>
+        <span className={`swap-status status-${swap.status}`}>
+          {swap.status}
+        </span>
       </div>
+       
 
-      <div className="service-box">
-        <div className="service-title">They Offer</div>
-        {swap.offerB || "—"}
+      <div className="swap-services">
+
+        <div className="service-box">
+          <div className="service-title">You Offer</div>
+          {swap.offerA || "—"}
+        </div>
+
+        <div className="service-box">
+          <div className="service-title">They Offer</div>
+          {swap.offerB || "—"}
+        </div>
+
       </div>
+      <div className="swap-deadlines">
+          <div className="deadline-box">
+            <span className="deadline-label">Your Deadline</span>
+            <span className="deadline-date">{formatDate(myDeadline)}</span>
+          </div>
 
+          <div className="deadline-box">
+            <span className="deadline-label">Their Deadline</span>
+            <span className="deadline-date">{formatDate(theirDeadline)}</span>
+          </div>
+        </div>
     </div>
-
-  </div>
-
-))}
+  );
+})}
 
 </div>
 );
