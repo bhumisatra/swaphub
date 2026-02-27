@@ -173,10 +173,25 @@ const openChat = async () => {
           )}
         </div>
 
-        <div className="vp-user-main">
-          <h1>{userData.username}</h1>
-          <p>{userData.bio || "Welcome to my profile ✨"}</p>
-        </div>
+       <div className="vp-user-main">
+  <h1>{userData.username}</h1>
+  <p>{userData.bio || "Welcome to my profile ✨"}</p>
+
+  {/* ⭐ RELIABILITY */}
+  {userData?.totalSwaps > 0 && (
+    <div className="reputation-box">
+
+      <div className="rep-score">
+        ⭐ {userData?.reliability || 100}%
+      </div>
+
+      <div className="rep-meta">
+        {userData?.totalSwaps} swaps completed • {userData?.lateSwaps || 0} late
+      </div>
+
+    </div>
+  )}
+</div>
 
         <div className="vp-actions">
           {!isOwner && (

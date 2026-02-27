@@ -262,3 +262,23 @@
   font-size:13px;
   opacity:0.7;
 }
+.reputation-box{
+  margin-top:16px;
+  background:#0e0e0e;
+  border:1px solid #2b2b2b;
+  padding:14px;
+  border-radius:12px;
+  text-align:center;
+}
+
+.rep-score{
+  font-size:22px;
+  font-weight:700;
+  color:#22c55e;
+}
+
+.rep-meta{
+  font-size:12px;
+  color:#9ca3af;
+  margin-top:6px;
+}

@@ -46,6 +46,22 @@ const [joinedOnce, setJoinedOnce] = useState(false);
 const [chatOpen, setChatOpen] = useState(false);
 
 
+const getSortedGroups = () => {
+  if (!search.trim()) return groups;
+
+  const s = search.toLowerCase();
+
+  return [...groups].sort((a, b) => {
+    const score = (g) => {
+      if (g === s) return 0;            // exact match
+      if (g.startsWith(s)) return 1;    // starts with
+      if (g.includes(s)) return 2;      // contains
+      return 3;                         // no match
+    };
+
+    return score(a) - score(b);
+  });
+};
 
 // ================= ONLINE COUNT LISTENER =================
 useEffect(() => {
@@ -304,7 +320,7 @@ onChange={(e) => setSearch(e.target.value)}
 </div>
 
 <div className="group-list">
-{groups.map(g => (
+{getSortedGroups().map(g => (
 <div
 key={g}
 className={`group-item ${g === selectedGroup ? "active" : ""}`}

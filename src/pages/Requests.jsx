@@ -14,6 +14,7 @@ export default function Requests() {
  "Fitness",
  "Editing",
  "Local Help",
+ "Notes",
  "Others"
   ];
 

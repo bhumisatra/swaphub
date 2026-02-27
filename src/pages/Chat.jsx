@@ -192,7 +192,8 @@ const createSwap = async () => {
     users: [currentUser.uid, otherUserData.uid],
     proposer: currentUser.uid,
     receiver: otherUserData.uid,
-
+pairKey: [currentUser.uid, otherUserData.uid].sort().join("_"),
+lastReliabilityCredit: null,
     offerA: "",
     offerB: "",
 
@@ -335,27 +336,118 @@ status:"pending"
 }
 };
 
-const completeSwap = async (item) => {
+const markDelivered = async (item) => {
 
-  const swapRef = doc(db, "swaps", item.id);
+  const ref = doc(db,"swaps",item.id);
+  const isMeProposer = item.proposer === currentUser.uid;
 
-  // already pressed
-  if(item.completedBy?.includes(currentUser.uid)) return;
+  // stop double click
+  if(isMeProposer && item.deliveredA) return;
+  if(!isMeProposer && item.deliveredB) return;
 
-  // add current user
-  await updateDoc(swapRef,{
-    completedBy: arrayUnion(currentUser.uid)
+  // current time
+  const now = new Date();
+
+  // deadline of this user
+  const myDeadline = isMeProposer
+    ? item.schedule?.deadlineA
+    : item.schedule?.deadlineB;
+
+  let isLate = false;
+
+  if(myDeadline){
+    const deadlineDate = new Date(myDeadline);
+    if(now > deadlineDate){
+      isLate = true;
+    }
+  }
+
+  // update delivery info
+  await updateDoc(ref,{
+    [isMeProposer ? "deliveredA" : "deliveredB"]: true,
+    [isMeProposer ? "deliveredAtA" : "deliveredAtB"]: now,
+    [isMeProposer ? "lateA" : "lateB"]: isLate
   });
 
-  // check if both completed
-  const updated = await getDoc(swapRef);
-  const data = updated.data();
+  // reload swap
+  const snap = await getDoc(ref);
+  const data = snap.data();
 
-  if(data.completedBy?.length === 2){
-    await updateDoc(swapRef,{
-      status:"completed"
+  // both delivered → complete swap
+ if(data.deliveredA && data.deliveredB){
+
+  await updateDoc(ref,{
+    status:"completed",
+    completedAt: serverTimestamp()
+  });
+// ===== RELIABILITY SYSTEM =====
+
+const users = data.users;
+// ===== ANTI FARM CHECK =====
+const nowTime = Date.now();
+const lastCredit = data.lastReliabilityCredit?.toMillis?.() || 0;
+
+const ONE_DAY = 24 * 60 * 60 * 1000;
+
+if(nowTime - lastCredit < ONE_DAY){
+  return; // do not count reliability again
+}
+
+// allow credit → store timestamp
+await updateDoc(ref,{
+  lastReliabilityCredit: serverTimestamp()
+});
+
+for(const uid of users){
+
+  const userRef = doc(db,"users",uid);
+  const userSnap = await getDoc(userRef);
+  const userData = userSnap.data() || {};
+
+  let total = (userData.totalSwaps || 0) + 1;
+  let late = userData.lateSwaps || 0;
+
+  // check whose deadline
+  const wasLate =
+    uid === data.proposer
+      ? data.lateA
+      : data.lateB;
+
+  if(wasLate) late += 1;
+
+  const reliability = Math.round(((total - late) / total) * 100);
+
+  await updateDoc(userRef,{
+    totalSwaps: total,
+    lateSwaps: late,
+    reliability: reliability
+  });
+}
+  // ===== RELIABILITY UPDATE =====
+  const updateUserReliability = async (uid, wasLate) => {
+    const userRef = doc(db,"users",uid);
+    const userSnap = await getDoc(userRef);
+
+    if(!userSnap.exists()) return;
+
+    const u = userSnap.data();
+
+    const total = (u.totalSwaps || 0) + 1;
+    const late = (u.lateSwaps || 0) + (wasLate ? 1 : 0);
+    const ontime = total - late;
+    const reliability = Math.round((ontime / total) * 100);
+
+    await updateDoc(userRef,{
+      totalSwaps: total,
+      lateSwaps: late,
+      reliability: reliability
     });
-  }
+  };
+
+  // update BOTH users
+  await updateUserReliability(data.proposer, data.lateA);
+  await updateUserReliability(data.receiver, data.lateB);
+}
 };
 const saveNickname = async () => {
 
@@ -401,7 +493,12 @@ const checkScheduleLock = async (swapId) => {
     await updateDoc(ref,{
       "schedule.locked": true,
       status: "working",
-      startedAt: serverTimestamp()
+      startedAt: serverTimestamp(),
+       deliveredA: false,
+      deliveredB: false,
+      completedAt: null
+
+
     });
   }
 };
@@ -648,9 +745,9 @@ Reject
   <div className="swap-actions">
     <button
       className="complete-btn"
-      onClick={()=>completeSwap(item)}
+      onClick={()=>markDelivered(item)}
     >
-      Mark Completed
+      I Delivered
     </button>
   </div>
 )}
