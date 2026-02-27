@@ -202,7 +202,14 @@ const createSwap = async () => {
 
     status: "editing",
 
-    createdAt: serverTimestamp()
+    createdAt: serverTimestamp(),
+    schedule: {
+    deadlineA: null,        // proposer deadline
+    deadlineB: null,        // receiver deadline
+    acceptedA: false,
+    acceptedB: false,
+    locked: false           // becomes true when both agree
+  }
   });
 };
 
@@ -560,19 +567,54 @@ Reject
       <div className={`swap-status ${item.status}`}>
         {item.status==="editing" && "Write your services"}
         {item.status==="pending" && "Waiting for other user"}
-        {item.status==="accepted" && "🟢 Work in Progress"}
-{item.status==="completed" && "🎉 Swap Completed"}
-{item.status==="rejected" && "❌ Swap Cancelled"}
-        {item.status === "accepted" && (
-  <div className="swap-actions">
+        {/* ===== AFTER BOTH ACCEPT SERVICES → PICK DEADLINE ===== */}
+{item.status === "accepted" && !item.schedule?.locked && (
+  <div className="deadline-box">
 
+    <div className="deadline-title">📅 Set your delivery date</div>
+
+    <input
+      type="date"
+      className="deadline-input"
+      onChange={async (e)=>{
+        const value = e.target.value;
+        const ref = doc(db,"swaps",item.id);
+
+        if(item.proposer === currentUser.uid){
+          await updateDoc(ref,{ "schedule.deadlineA": value });
+        }else{
+          await updateDoc(ref,{ "schedule.deadlineB": value });
+        }
+      }}
+    />
+
+    <button
+      className="accept-btn"
+      onClick={async()=>{
+        const ref = doc(db,"swaps",item.id);
+
+        if(item.proposer === currentUser.uid){
+          await updateDoc(ref,{ "schedule.acceptedA": true });
+        }else{
+          await updateDoc(ref,{ "schedule.acceptedB": true });
+        }
+      }}
+    >
+      Confirm Date
+    </button>
+
+  </div>
+)}
+
+{/* BOTH CONFIRMED → WORK MODE */}
+{item.schedule?.locked && (
+  <div className="swap-actions">
     <button
       className="complete-btn"
       onClick={()=>completeSwap(item)}
     >
       Completed
     </button>
-
   </div>
 )}
       </div>

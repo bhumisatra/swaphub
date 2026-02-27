@@ -1,14 +1,16 @@
 import "../styles/home.css";
+import { useNavigate } from "react-router-dom";
 
 export default function Home() {
+  const navigate = useNavigate();
   return (
     <div className="home">
 
       {/* HERO */}
       <section className="hero">
-        <h1>Swap Skills. Not Money.</h1>
+        <h1>Swap Services. Not Money.</h1>
         <p>Help someone → Get help back</p>
-        <button className="cta">Start Swapping</button>
+        <button onClick={() => navigate("/dashboard/requests")} className="cta">Start Swapping</button>
       </section>
 
 

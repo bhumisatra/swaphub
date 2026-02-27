@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { collection, query, where, onSnapshot } from "firebase/firestore";
+import { collection, query, where, onSnapshot, orderBy } from "firebase/firestore";
 import { db, auth } from "../firebase";
 import "../styles/swaps.css";
 
@@ -11,7 +11,8 @@ useEffect(() => {
 
 const q = query(
   collection(db, "swaps"),
-  where("users", "array-contains", auth.currentUser.uid)
+  where("users", "array-contains", auth.currentUser.uid),
+  orderBy("createdAt", "desc")   // newest first
 );
 
 const unsub = onSnapshot(q, (snap) => {
