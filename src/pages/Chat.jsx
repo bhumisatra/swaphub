@@ -293,7 +293,19 @@ const timeline = [
   const t2 = b.createdAt?.seconds || 0;
   return t1 - t2;
 });
+const setDeadline = async (item, date) => {
 
+  if(!date) return;
+
+  const swapRef = doc(db, "swaps", item.id);
+
+  const isMeProposer = item.proposer === currentUser.uid;
+
+  await updateDoc(swapRef,{
+    [`schedule.${isMeProposer ? "deadlineA" : "deadlineB"}`]: date
+  });
+
+};
 
 const acceptSwap = async (item) => {
 
@@ -373,6 +385,25 @@ const changeWallpaper = async (file) => {
   });
 
   setChatWallpaper(url);
+};
+const checkScheduleLock = async (swapId) => {
+
+  const ref = doc(db,"swaps",swapId);
+  const snap = await getDoc(ref);
+  const data = snap.data();
+
+  if(
+    data.schedule?.deadlineA &&
+    data.schedule?.deadlineB &&
+    data.schedule?.acceptedA &&
+    data.schedule?.acceptedB
+  ){
+    await updateDoc(ref,{
+      "schedule.locked": true,
+      status: "working",
+      startedAt: serverTimestamp()
+    });
+  }
 };
 return (
 
@@ -598,6 +629,7 @@ Reject
         }else{
           await updateDoc(ref,{ "schedule.acceptedB": true });
         }
+        await checkScheduleLock(item.id);
       }}
     >
       Confirm Date
