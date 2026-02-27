@@ -605,18 +605,22 @@ Reject
     <div className="deadline-title">📅 Set your delivery date</div>
 
     <input
-      type="date"
+      type="datetime-local"
       className="deadline-input"
-      onChange={async (e)=>{
-        const value = e.target.value;
-        const ref = doc(db,"swaps",item.id);
+     onChange={async (e)=>{
+  const value = e.target.value;
+  if(!value) return;
 
-        if(item.proposer === currentUser.uid){
-          await updateDoc(ref,{ "schedule.deadlineA": value });
-        }else{
-          await updateDoc(ref,{ "schedule.deadlineB": value });
-        }
-      }}
+  const ref = doc(db,"swaps",item.id);
+
+  const dateObj = new Date(value);
+
+  if(item.proposer === currentUser.uid){
+    await updateDoc(ref,{ "schedule.deadlineA": dateObj });
+  }else{
+    await updateDoc(ref,{ "schedule.deadlineB": dateObj });
+  }
+}}
     />
 
     <button
@@ -639,14 +643,22 @@ Reject
 )}
 
 {/* BOTH CONFIRMED → WORK MODE */}
-{item.schedule?.locked && (
+{/* ===== WORKING PHASE ===== */}
+{item.status === "working" && (
   <div className="swap-actions">
     <button
       className="complete-btn"
       onClick={()=>completeSwap(item)}
     >
-      Completed
+      Mark Completed
     </button>
+  </div>
+)}
+
+{/* ===== FINAL PHASE ===== */}
+{item.status === "completed" && (
+  <div className="swap-finished">
+    ✔ Swap Completed
   </div>
 )}
       </div>

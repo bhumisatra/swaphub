@@ -26,14 +26,20 @@ return () => unsub();
 
 }, []);
 
+
 const formatDate = (date) => {
   if (!date) return "Not set";
 
-  const d = new Date(date);
-  return d.toLocaleDateString(undefined, {
+  const d = date.seconds
+    ? new Date(date.seconds * 1000)
+    : new Date(date);
+
+  return d.toLocaleString(undefined, {
     day: "numeric",
     month: "short",
-    year: "numeric"
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit"
   });
 };
 
