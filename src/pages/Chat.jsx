@@ -434,30 +434,7 @@ for(const uid of users){
     reliability: reliability
   });
 }
-  // ===== RELIABILITY UPDATE =====
-  const updateUserReliability = async (uid, wasLate) => {
-    const userRef = doc(db,"users",uid);
-    const userSnap = await getDoc(userRef);
-
-    if(!userSnap.exists()) return;
-
-    const u = userSnap.data();
-
-    const total = (u.totalSwaps || 0) + 1;
-    const late = (u.lateSwaps || 0) + (wasLate ? 1 : 0);
-    const ontime = total - late;
-    const reliability = Math.round((ontime / total) * 100);
-
-    await updateDoc(userRef,{
-      totalSwaps: total,
-      lateSwaps: late,
-      reliability: reliability
-    });
-  };
-
-  // update BOTH users
-  await updateUserReliability(data.proposer, data.lateA);
-  await updateUserReliability(data.receiver, data.lateB);
+  
 }
 };
 const saveNickname = async () => {
