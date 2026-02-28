@@ -15,6 +15,8 @@ export default function Requests() {
  "Editing",
  "Local Help",
  "Notes",
+ "Nature",
+ "Events",
  "Others"
   ];
 

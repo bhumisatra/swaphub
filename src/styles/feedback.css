@@ -1,0 +1,75 @@
+.feedback-page {
+  max-width: 600px;
+  margin: auto;
+  padding: 30px;
+  color: white;
+}
+
+.feedback-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.rating-section label {
+  margin-bottom: 8px;
+  display: block;
+}
+
+.stars {
+  font-size: 28px;
+  cursor: pointer;
+}
+
+.star {
+  color: gray;
+  transition: 0.2s;
+}
+
+.star.active {
+  color: gold;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+select,
+textarea {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid white;
+  background: black;
+  color: white;
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.submit-btn {
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  background: white;
+  color: black;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.submit-btn:hover {
+  background: #dddddd;
+}
+
+.success-msg {
+  margin-bottom: 15px;
+  padding: 10px;
+  background: rgba(0, 255, 0, 0.2);
+  border: 1px solid lime;
+  border-radius: 8px;
+}

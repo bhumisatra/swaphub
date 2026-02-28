@@ -19,6 +19,7 @@ import Community from "./pages/CommunityChat";
 import CommunityHub from "./components/CommunityHub";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Swaps from "./pages/Swaps";
+import Feedback from "./pages/Feedback";
 
 function App() {
   useEffect(() => {
@@ -99,6 +100,7 @@ function App() {
           <Route path="settings" element={<Settings />} />
 
           <Route path="swaps" element={<Swaps />} />
+          <Route path="feedback" element={<Feedback />} />
 
         </Route>
 

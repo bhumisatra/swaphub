@@ -76,9 +76,12 @@ function Dashboard() {
         <NavLink to="/dashboard/swaps" className="menu-item" onClick={handleMenuClick}>
           Swaps
         </NavLink>
+<div className="bottom-menu">
+         <NavLink to="/dashboard/feedback" className="feedback" onClick={handleMenuClick}>
+          Feedback
+        </NavLink>
 
-        
-          <NavLink
+<NavLink
   className="logout"
   onClick={async () => {
     await signOut(auth);
@@ -88,6 +91,8 @@ function Dashboard() {
 >
   Logout
 </NavLink>
+</div>
+         
       </div>
 
       {/* Main Area */}
